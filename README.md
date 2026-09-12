@@ -33,11 +33,12 @@ npm run dev
 
 ## 구현 메모 (SPEC 대비 실제 선택)
 
-- **RAG 로컬 구현**: SPEC 1장은 로컬 RAG를 "FAISS + 한국어 sentence-transformers"로 지정하지만,
-  이 저장소의 `backend/app/providers/rag/faiss_provider.py`는 무거운 임베딩 모델 다운로드 없이
-  바로 동작하도록 문자 bigram TF-IDF + 코사인 유사도로 같은 인터페이스를 구현했다. 사례가 10건뿐이라
-  이 방식으로도 데모 목적은 충분하며, `RagProvider` 인터페이스만 맞추면 실제 임베딩 구현으로
-  교체 가능하다.
+- **RAG 로컬 구현**: SPEC 1장이 지정한 그대로 `jhgan/ko-sroberta-multitask`(한국어 SBERT) +
+  FAISS `IndexFlatIP`로 구현했다(`backend/app/providers/rag/faiss_provider.py`). 모델은 최초
+  실행 시 HuggingFace Hub에서 1회 내려받아 로컬 캐시(`~/.cache/huggingface`)에 저장되고, 이후로는
+  완전히 오프라인으로 동작한다 — AWS VDI로 옮겨가도 Python 환경만 있으면 별도 AWS 서비스 없이
+  동일하게 동작한다. AWS의 관리형 RAG(Bedrock KB + Titan)를 쓰고 싶을 때는 `RAG_BACKEND=bedrock_kb`로
+  전환하면 된다(`bedrock_kb_provider.py`, AWS 쪽 Knowledge Base 사전 구성 필요).
 - **1단계 계좌 신호 중 4개(fund_source/limit_change/device/velocity)**는 SPEC 3-1엔 `customer_id`만
   받는 툴로 정의돼 있지만, 실제로는 "이 이체 시도 시점"의 이벤트 스냅샷이라 `TransferRequest.context_overrides`로
   받는다 — 같은 고객(C001)이 여러 데모 케이스에서 재사용되며 서로 다른 이벤트 상태를 요구하기 때문.
