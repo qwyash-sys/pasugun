@@ -1,0 +1,47 @@
+[
+  {
+    "payee_account": "010-6660-98261",
+    "payee_bank": "미래에셋증권",
+    "payee_name": "남용환",
+    "is_fraud_reported": true,
+    "fraud_report_count": 3,
+    "account_age_days": 5,
+    "note": "케이스1(검찰사칭). SPEC 7-3 리포트 예시와 동일한 계좌."
+  },
+  {
+    "payee_account": "110-452-118834",
+    "payee_bank": "신한은행",
+    "payee_name": "정대환",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 5,
+    "note": "케이스2(대환대출) 신규계좌."
+  },
+  {
+    "payee_account": "301-8827-4410",
+    "payee_bank": "카카오뱅크",
+    "payee_name": "황민석",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 6,
+    "note": "케이스3(메신저피싱) 신규계좌."
+  },
+  {
+    "payee_account": "552-102-993841",
+    "payee_bank": "국민은행",
+    "payee_name": "서준혁",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 4,
+    "note": "케이스4(중고거래) 신규계좌. 정상 거래."
+  },
+  {
+    "payee_account": "088-19-284755",
+    "payee_bank": "우리은행",
+    "payee_name": "(주)한빛공인중개법인 에스크로",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 3,
+    "note": "케이스5(부동산 잔금) 신규계좌. 정상 거래(에스크로)."
+  }
+]
