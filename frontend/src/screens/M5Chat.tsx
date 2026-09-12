@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import TopBar from "../components/TopBar";
+import AppBar, { AiTag } from "../components/AppBar";
 import { fileToBase64 } from "../utils/file";
 
 interface Props {
@@ -32,8 +32,8 @@ export default function M5Chat({ hint, onSubmit, loading }: Props) {
 
   return (
     <>
-      <TopBar />
-      <h1 className="title">AI 대화창</h1>
+      <AppBar title="AI 안전확인" />
+      <AiTag />
       <div className="chat-bubble">
         현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. {hint || "상황 설명이나 자료 뭐든 올려주시면 확인해드릴게요."}
       </div>

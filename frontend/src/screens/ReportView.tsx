@@ -1,4 +1,4 @@
-import TopBar from "../components/TopBar";
+import AppBar from "../components/AppBar";
 import type { ReportPayload } from "../types";
 
 interface Props {
@@ -19,7 +19,7 @@ function Row({ label, value }: { label: string; value: string }) {
 export default function ReportView({ report, onBack, onRestart }: Props) {
   return (
     <>
-      <TopBar />
+      <AppBar title="영업점 연계 리포트" onBack={onBack} />
       <h1 className="title">멈칫 사기의심 거래 리포트</h1>
       <p className="subtitle">#{report.report_id}</p>
 

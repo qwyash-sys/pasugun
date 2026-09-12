@@ -1,4 +1,4 @@
-import TopBar from "../components/TopBar";
+import AppBar from "../components/AppBar";
 import type { FinalRisk } from "../types";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 export default function M7Complete({ final, payeeName, amount, onRestart }: Props) {
   return (
     <>
-      <TopBar />
+      <AppBar title="이체완료" />
       <div className="spacer" />
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>

@@ -1,4 +1,4 @@
-import TopBar from "../components/TopBar";
+import AppBar, { AiTag } from "../components/AppBar";
 import type { FinalRisk } from "../types";
 
 interface Props {
@@ -22,7 +22,8 @@ export default function M6Result({ final, agentReply, payeeName, amount, onProce
 
   return (
     <>
-      <TopBar />
+      <AppBar title="이체결과" />
+      {final.final !== "안전" && <AiTag />}
       <span className={`verdict-badge ${v.badgeClass}`}>
         {v.emoji} {final.final}
       </span>

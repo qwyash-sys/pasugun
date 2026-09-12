@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import TopBar from "../components/TopBar";
+import AppBar from "../components/AppBar";
+import BankBadge from "../components/BankBadge";
 import type { BackendClient } from "../api/client";
 import type { DemoCase } from "../demoData/cases";
 import type { QuoteResponse } from "../types";
@@ -9,10 +10,11 @@ interface Props {
   customerId: string;
   amount: number;
   client: BackendClient;
+  onBack: () => void;
   onNext: (quote: QuoteResponse, sessionId: string) => void;
 }
 
-export default function M2Payee({ demoCase, customerId, amount, client, onNext }: Props) {
+export default function M2Payee({ demoCase, customerId, amount, client, onBack, onNext }: Props) {
   const [bank, setBank] = useState(demoCase?.input.payeeBank ?? "");
   const [account, setAccount] = useState(demoCase?.input.payeeAccount ?? "");
   const [quote, setQuote] = useState<QuoteResponse | null>(null);
@@ -45,8 +47,7 @@ export default function M2Payee({ demoCase, customerId, amount, client, onNext }
 
   return (
     <>
-      <TopBar />
-      <h1 className="title">수취 계좌 선택</h1>
+      <AppBar title="수취계좌" onBack={onBack} />
       <p className="subtitle">{amount.toLocaleString()}원을 보낼 계좌를 알려주세요.</p>
 
       <div className="field-label">은행</div>
@@ -64,9 +65,13 @@ export default function M2Payee({ demoCase, customerId, amount, client, onNext }
         <div className="card">
           {loading && <span>예금주 조회 중...</span>}
           {!loading && quote && (
-            <span>
-              예금주 <strong>{quote.payee_name}</strong> ({quote.payee_bank || bank})
-            </span>
+            <div className="recipient-row">
+              <BankBadge bank={quote.payee_bank || bank} />
+              <div>
+                <div className="name">{quote.payee_name}</div>
+                <div className="sub">{quote.payee_bank || bank} · 예금주 확인됨</div>
+              </div>
+            </div>
           )}
         </div>
       )}

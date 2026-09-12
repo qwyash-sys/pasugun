@@ -114,12 +114,14 @@ export default function App() {
           customerId={customerId}
           amount={amount}
           client={client}
+          onBack={() => setScreen("m1")}
           onNext={handleM2Next}
         />
       )}
 
       {screen === "m3a" && quote && !busy && (
         <M3Confirm
+          payeeBank={quote.payee_bank}
           payeeName={quote.payee_name}
           amount={amount}
           onConfirm={handleConfirmOnly}
@@ -133,7 +135,13 @@ export default function App() {
       )}
 
       {screen === "m4" && quote && !busy && (
-        <M4Question questions={quote.questions} onDone={handleAnswersDone} />
+        <M4Question
+          payeeBank={quote.payee_bank}
+          payeeName={quote.payee_name}
+          amount={amount}
+          questions={quote.questions}
+          onDone={handleAnswersDone}
+        />
       )}
       {screen === "m4" && busy && (
         <div className="loading-wrap">

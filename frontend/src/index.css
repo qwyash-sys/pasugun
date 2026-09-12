@@ -1,19 +1,20 @@
 :root {
   color-scheme: light;
-  --nh-green: #2e9a4a;
-  --nh-green-dark: #217238;
-  --nh-green-soft: #e8f6ec;
-  --bg: #f4f5f7;
+  --nh-green: #00a651;
+  --nh-green-dark: #00873f;
+  --nh-green-soft: #e5f6ec;
+  --bg: #f4f5f6;
   --card: #ffffff;
-  --text: #1c1f22;
-  --text-muted: #6b7280;
-  --border: #e5e7eb;
-  --danger: #e0433a;
-  --danger-soft: #fdecea;
+  --text: #17191c;
+  --text-muted: #767b83;
+  --border: #e9eaec;
+  --danger: #e64545;
+  --danger-soft: #fdecec;
   --warn: #d99a1f;
   --warn-soft: #fdf3e0;
   --safe: var(--nh-green);
   --safe-soft: var(--nh-green-soft);
+  --link: #3a6df0;
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
 }
 
@@ -28,17 +29,20 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px 12px;
 }
 
+/* 고정 높이(=min이 아니라 height)여야 바텀시트가 항상 이 프레임 안에서만 뜬다.
+   뷰포트가 작아도 창 밖으로 잘리지 않도록 vh로 상한을 둔다. */
 .phone {
+  position: relative;
   width: 390px;
   max-width: 100%;
-  min-height: 780px;
+  height: min(780px, calc(100vh - 48px));
   background: var(--card);
   border-radius: 32px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
@@ -61,18 +65,67 @@ body {
   overflow-y: auto;
 }
 
-.topbar {
+/* 실제 올원뱅크 상단바: 뒤로가기 + 가운데 제목 + 우측 아이콘(홈/메뉴) */
+.appbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  color: var(--nh-green-dark);
-  margin-bottom: 18px;
+  height: 44px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
-.topbar .logo-dot {
-  width: 10px;
-  height: 10px;
+.appbar .appbar-back {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.appbar .appbar-title {
+  flex: 1;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.appbar .appbar-icons {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 32px;
+  justify-content: flex-end;
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--nh-green-dark);
+  background: var(--nh-green-soft);
+  padding: 4px 9px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.ai-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--nh-green);
 }
@@ -388,4 +441,170 @@ textarea {
 
 .report-row .value {
   text-align: right;
+}
+
+/* ---- 바텀시트 모달 (실제 올원뱅크 "한 번 더 확인해 주세요" 패턴) ---- */
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 22, 24, 0.55);
+  display: flex;
+  align-items: flex-end;
+  z-index: 5;
+  animation: fade-in 0.15s ease-out;
+}
+
+.sheet {
+  width: 100%;
+  background: white;
+  border-radius: 22px 22px 0 0;
+  padding: 28px 20px 22px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
+  animation: sheet-up 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+  max-height: 88%;
+  overflow-y: auto;
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  margin: 0 auto 18px;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet-behind {
+  filter: brightness(0.97);
+  pointer-events: none;
+}
+
+/* ---- 은행 컬러 배지 (수취인 아바타) ---- */
+.bank-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.recipient-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.recipient-row .name {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.recipient-row .sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.recipient-link {
+  color: var(--link);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- 필(pill) 버튼: 빠른금액 / 예-아니오 ---- */
+.pill-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pill:hover {
+  border-color: var(--nh-green);
+}
+
+.yesno-row {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 20px;
+}
+
+.yesno-row button {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.yesno-row button:hover {
+  border-color: var(--nh-green);
+}
+
+.account-selector-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.account-selector-row .balance {
+  font-weight: 700;
+}
+
+.amount-prompt {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 17px;
+  margin: 30px 0 20px;
+}
+
+.amount-prompt strong {
+  display: block;
+  font-size: 32px;
+  color: var(--text);
+  font-weight: 800;
+  margin-top: 6px;
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import TopBar from "../components/TopBar";
+import AppBar from "../components/AppBar";
 import { CUSTOMER_OPTIONS } from "../demoData/customers";
 import type { DemoCase } from "../demoData/cases";
 
@@ -9,17 +9,26 @@ interface Props {
   onNext: (data: { customerId: string; amount: number }) => void;
 }
 
+const QUICK_ADDS = [10_000, 50_000, 100_000, 1_000_000];
+
 export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
   const [customerId, setCustomerId] = useState(CUSTOMER_OPTIONS[0].customer_id);
-  const [amount, setAmount] = useState(demoCase ? demoCase.input.amount : 0);
+  const [amount, setAmount] = useState(0);
 
   if (isDemo && demoCase) {
     return (
       <>
-        <TopBar />
-        <h1 className="title">송금액 입력</h1>
-        <p className="subtitle">출금계좌 351-****-{demoCase.input.customerName === "박지훈" ? "0004" : "0001"} (본인)</p>
-        <div className="amount-display">{demoCase.input.amount.toLocaleString()}원</div>
+        <AppBar title="이체" />
+        <div className="account-selector-row">
+          <span>출금계좌(본인)</span>
+          <span className="balance">
+            NH농협은행 351-****-{demoCase.input.customerName === "박지훈" ? "0004" : "0001"}
+          </span>
+        </div>
+        <div className="amount-prompt">
+          얼마를 보낼까요?
+          <strong>{demoCase.input.amount.toLocaleString()}원</strong>
+        </div>
         <div className="spacer" />
         <button className="btn btn-primary" onClick={() => onNext({ customerId: "demo", amount: demoCase.input.amount })}>
           다음
@@ -30,10 +39,8 @@ export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
 
   return (
     <>
-      <TopBar />
-      <h1 className="title">송금액 입력</h1>
-      <p className="subtitle">테스트할 고객과 금액을 입력하세요.</p>
-      <div className="field-label">출금계좌 (본인)</div>
+      <AppBar title="이체" />
+      <div className="field-label">출금계좌(본인)</div>
       <select value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
         {CUSTOMER_OPTIONS.map((c) => (
           <option key={c.customer_id} value={c.customer_id}>
@@ -41,13 +48,30 @@ export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
           </option>
         ))}
       </select>
-      <div className="field-label">송금액</div>
+
+      <div className="amount-prompt">
+        얼마를 보낼까요?
+        <strong>{amount ? amount.toLocaleString() : 0}원</strong>
+      </div>
+
+      <div className="pill-row">
+        {QUICK_ADDS.map((v) => (
+          <button key={v} className="pill" onClick={() => setAmount((a) => a + v)}>
+            +{v >= 10000 ? `${v / 10000}만` : v}
+          </button>
+        ))}
+        <button className="pill" onClick={() => setAmount(0)}>
+          초기화
+        </button>
+      </div>
+
       <input
         type="number"
         value={amount || ""}
-        placeholder="0"
+        placeholder="직접 입력"
         onChange={(e) => setAmount(Number(e.target.value))}
       />
+
       <div className="spacer" />
       <button
         className="btn btn-primary"
