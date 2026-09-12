@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend-demo",
+      "runtimeExecutable": "C:\\Users\\nam\\Desktop\\파수꾼프로젝트\\.claude\\run-frontend.cmd",
+      "runtimeArgs": [],
+      "port": 5173
+    }
+  ]
+}

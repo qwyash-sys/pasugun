@@ -1,0 +1,382 @@
+// SPEC.md 5장 "시연 시나리오 5케이스 (검산 완료)" 를 그대로 내장한다.
+// demo 모드는 백엔드를 전혀 호출하지 않고 이 고정값을 재생한다(SPEC 1장 실행모드 원칙).
+import type {
+  AccountAssessment,
+  FinalRisk,
+  Question,
+  ReportPayload,
+} from "../types";
+
+export interface DemoCase {
+  id: string;
+  emoji: string;
+  title: string;
+  subtitle: string;
+  input: {
+    customerName: string;
+    payeeBank: string;
+    payeeName: string;
+    payeeAccount: string;
+    amount: number;
+  };
+  account: AccountAssessment;
+  questions: Question[];
+  /** M5 화면에서 보여줄 안내(실제 입력 내용과 무관하게 이 시나리오 그대로 재생) */
+  chatHint: string;
+  agentReply: string | null;
+  final: FinalRisk;
+  report: ReportPayload | null;
+}
+
+const empathyChoices = (extra?: { label: string; weight: number }[]) => [
+  { choice_id: "normal_known", label: "직접 아는 지인·가족에게 보내요", weight: 0, hard_override: false },
+  { choice_id: "normal_trade", label: "물건 구매/판매 대금이에요", weight: 0, hard_override: false },
+  { choice_id: "normal_settlement", label: "임대료·잔금 등 정산 목적이에요", weight: 0, hard_override: false },
+  { choice_id: "risky_offer", label: "최근 대출·투자 안내를 받고 보내요", weight: 25, hard_override: false },
+  { choice_id: "risky_text_only", label: "아는 사람이라는데 문자로만 연락돼요", weight: 25, hard_override: false },
+  ...(extra ?? []).map((c, i) => ({ choice_id: `extra_${i}`, ...c, hard_override: false })),
+];
+
+const safetyQuestion = (): Question => ({
+  question_id: "safety",
+  prompt: "혹시 검찰·금감원이라며 '안전계좌'로 옮기라거나, 앱 설치를 안내받으셨나요?",
+  choices: [
+    { choice_id: "safety_no", label: "아니요", weight: 0, hard_override: false },
+    { choice_id: "safety_yes", label: "비슷한 안내를 받았어요", weight: 50, hard_override: true },
+  ],
+});
+
+function empathyQuestion(customerName: string): Question {
+  return {
+    question_id: "empathy",
+    prompt: `${customerName}님, 이번 송금은 어떤 이유로 보내시는 걸까요?`,
+    choices: empathyChoices(),
+  };
+}
+
+export const DEMO_CASES: DemoCase[] = [
+  {
+    id: "case1",
+    emoji: "🔴",
+    title: "검찰사칭",
+    subtitle: "적금 해지 후 2,000만원 · 신고이력 계좌",
+    input: {
+      customerName: "남용환",
+      payeeBank: "미래에셋증권",
+      payeeName: "남용환",
+      payeeAccount: "010-6660-98261",
+      amount: 20_000_000,
+    },
+    account: {
+      signals: [
+        { signal: "payee_fraud", hit: true, score: 40, detail: "사기신고 3건" },
+        { signal: "amount_anomaly", hit: true, score: 25, detail: "평소 대비 66.7배" },
+        { signal: "fund_source", hit: true, score: 25, detail: "적금 해지 후 24시간 이내 자금이동" },
+        { signal: "payee_freshness", hit: false, score: 0, detail: "-" },
+        { signal: "limit_change", hit: false, score: 0, detail: "-" },
+        { signal: "velocity", hit: false, score: 0, detail: "-" },
+        { signal: "device", hit: false, score: 0, detail: "-" },
+        { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+      ],
+      total_score: 90,
+      level: "고",
+    },
+    questions: [empathyQuestion("남용환"), safetyQuestion()],
+    chatHint: "상황 설명이나 안내문자 캡처를 올려주세요.",
+    agentReply:
+      "말씀해주신 내용과 캡처를 확인해보니 검찰·금감원을 사칭해 '안전계좌'로 유도하는 사례와 매우 유사해요. 지금 이체를 잠시 멈추고 가까운 영업점에서 확인해보시는 게 좋겠어요.",
+    final: {
+      account_level: "고",
+      context_level: "고",
+      final: "위험",
+      hard_override: true,
+      reasons: [
+        "사기신고 3건(+40)",
+        "평소 대비 66.7배(+25)",
+        "적금 해지 후 24시간 이내 자금이동(+25)",
+        "기관 안내(안전계좌) 응답(+50)",
+        "대화 입력·첨부(+10)",
+        "RAG 매칭: 기관사칭(유사도 0.87, 경찰청 월간피싱 zero S02)",
+        "하드오버라이드: 결정적 위험신호 직접 확인",
+      ],
+      action: "영업점유도(이체 보류 + 지연이체·가족알림 안내) + 요약 리포트 자동 생성",
+    },
+    report: {
+      report_id: "RPT-20260811-001",
+      generated_at: "2026-08-11T01:15:00+09:00",
+      customer_name: "남용환",
+      customer_phone_masked: "010-****-****",
+      customer_account_masked: "351-****-0001",
+      payee_bank: "미래에셋증권",
+      payee_account: "010-6660-98261",
+      payee_name: "남용환",
+      amount: 20_000_000,
+      attempted_at: "2026-08-11T01:10:00+09:00",
+      final: {
+        account_level: "고",
+        context_level: "고",
+        final: "위험",
+        hard_override: true,
+        reasons: [],
+        action: "영업점유도(이체 보류 + 지연이체·가족알림 안내) + 요약 리포트 자동 생성",
+      },
+      account_reasons: ["위험계좌 정보(+40)", "평소 대비 고액(+25)", "자금이동 적금해지(+25)"],
+      conversation_summary: "\"검찰이 안전계좌로 옮기라 했다\"고 응답, 안내문자 캡처 1건 업로드",
+      attachments_present: true,
+      rag: {
+        signal: "scenario",
+        hit: true,
+        matched_type: "기관사칭",
+        matched_id: "S02",
+        similarity: 0.87,
+        score: 50,
+        risk_signals: ["안전계좌", "자산보호"],
+        source: "경찰청 월간피싱 zero S02",
+      },
+      recommendation: "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+    },
+  },
+  {
+    id: "case2",
+    emoji: "🔴",
+    title: "대환대출",
+    subtitle: "한도 상향 직후 500만원 · 신규계좌",
+    input: {
+      customerName: "김도윤",
+      payeeBank: "신한은행",
+      payeeName: "정대환",
+      payeeAccount: "110-452-118834",
+      amount: 5_000_000,
+    },
+    account: {
+      signals: [
+        { signal: "payee_fraud", hit: false, score: 0, detail: "-" },
+        { signal: "amount_anomaly", hit: true, score: 25, detail: "평소 대비 25.0배" },
+        { signal: "fund_source", hit: false, score: 0, detail: "-" },
+        { signal: "payee_freshness", hit: true, score: 20, detail: "개설 5일" },
+        { signal: "limit_change", hit: true, score: 20, detail: "24시간 내 이체한도 상향" },
+        { signal: "velocity", hit: false, score: 0, detail: "-" },
+        { signal: "device", hit: false, score: 0, detail: "-" },
+        { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+      ],
+      total_score: 65,
+      level: "고",
+    },
+    questions: [empathyQuestion("김도윤"), safetyQuestion()],
+    chatHint: "대출 상담 문자나 통화 내용을 올려주세요.",
+    agentReply:
+      "저금리 대환대출을 이유로 먼저 돈을 보내달라는 절차는 정상적인 은행 대출 절차와 달라요. 지금 이체를 멈추고 은행 공식 채널로 다시 확인해보시는 게 안전해요.",
+    final: {
+      account_level: "고",
+      context_level: "고",
+      final: "위험",
+      hard_override: false,
+      reasons: [
+        "평소 대비 25.0배(+25)",
+        "개설 5일(+20)",
+        "24시간 내 이체한도 상향(+20)",
+        "대출·투자 안내 응답(+25)",
+        "대화 입력(+10)",
+        "RAG 매칭: 대출사기(유사도 0.82, NH 제작 S04)",
+      ],
+      action: "영업점유도(이체 보류 + 지연이체·가족알림 안내) + 요약 리포트 자동 생성",
+    },
+    report: {
+      report_id: "RPT-20260812-002",
+      generated_at: "2026-08-12T10:05:00+09:00",
+      customer_name: "김도윤",
+      customer_phone_masked: "010-****-0002",
+      customer_account_masked: "351-****-0002",
+      payee_bank: "신한은행",
+      payee_account: "110-452-118834",
+      payee_name: "정대환",
+      amount: 5_000_000,
+      attempted_at: "2026-08-12T10:00:00+09:00",
+      final: {
+        account_level: "고",
+        context_level: "고",
+        final: "위험",
+        hard_override: false,
+        reasons: [],
+        action: "영업점유도(이체 보류 + 지연이체·가족알림 안내) + 요약 리포트 자동 생성",
+      },
+      account_reasons: ["평소 대비 고액(+25)", "신규계좌(+20)", "이체한도 상향(+20)"],
+      conversation_summary: "\"저금리 대환대출 안내를 받고 먼저 상환금을 보내려 한다\"고 응답, 문자 캡처 업로드",
+      attachments_present: true,
+      rag: {
+        signal: "scenario",
+        hit: true,
+        matched_type: "대출사기",
+        matched_id: "S04",
+        similarity: 0.82,
+        score: 50,
+        risk_signals: ["선입금요구", "한도상향유도"],
+        source: "NH 제작 S04",
+      },
+      recommendation: "대면 본인확인 및 대출 상담 경위 재확인, 필요시 지급정지·112 안내",
+    },
+  },
+  {
+    id: "case3",
+    emoji: "🔴",
+    title: "메신저피싱",
+    subtitle: "카톡 받고 100만원 · 신규계좌 (계좌점수 낮아도 맥락으로 포착)",
+    input: {
+      customerName: "남용환",
+      payeeBank: "카카오뱅크",
+      payeeName: "황민석",
+      payeeAccount: "301-8827-4410",
+      amount: 1_000_000,
+    },
+    account: {
+      signals: [
+        { signal: "payee_fraud", hit: false, score: 0, detail: "-" },
+        { signal: "amount_anomaly", hit: true, score: 8, detail: "평소 대비 3.3배" },
+        { signal: "fund_source", hit: false, score: 0, detail: "-" },
+        { signal: "payee_freshness", hit: true, score: 20, detail: "개설 6일" },
+        { signal: "limit_change", hit: false, score: 0, detail: "-" },
+        { signal: "velocity", hit: false, score: 0, detail: "-" },
+        { signal: "device", hit: false, score: 0, detail: "-" },
+        { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+      ],
+      total_score: 28,
+      level: "저",
+    },
+    questions: [empathyQuestion("남용환")],
+    chatHint: "대화 캡처나 상황을 적어주세요.",
+    agentReply:
+      "직접 통화는 안 되고 문자로만 연락된다는 점이 걸려요. 실제로 아시는 분이 맞는지 전화나 영상통화로 한 번 더 확인해보시는 게 좋겠어요.",
+    final: {
+      account_level: "저",
+      context_level: "고",
+      final: "위험",
+      hard_override: false,
+      reasons: [
+        "평소 대비 3.3배(+8)",
+        "개설 6일(+20)",
+        "아는 사람이라는데 문자로만 연락됨(+30)",
+        "대화 입력(+10)",
+        "RAG 매칭: 메신저피싱(유사도 0.60, 경찰청 월간피싱 zero S05)",
+      ],
+      action: "영업점유도(이체 보류 + 지연이체·가족알림 안내) + 요약 리포트 자동 생성",
+    },
+    report: {
+      report_id: "RPT-20260813-003",
+      generated_at: "2026-08-13T20:20:00+09:00",
+      customer_name: "남용환",
+      customer_phone_masked: "010-****-0001",
+      customer_account_masked: "351-****-0001",
+      payee_bank: "카카오뱅크",
+      payee_account: "301-8827-4410",
+      payee_name: "황민석",
+      amount: 1_000_000,
+      attempted_at: "2026-08-13T20:15:00+09:00",
+      final: {
+        account_level: "저",
+        context_level: "고",
+        final: "위험",
+        hard_override: false,
+        reasons: [],
+        action: "영업점유도(이체 보류 + 지연이체·가족알림 안내) + 요약 리포트 자동 생성",
+      },
+      account_reasons: ["평소 대비 이상거래(+8)", "신규계좌(+20)"],
+      conversation_summary: "\"아는 사람인데 문자로만 연락된다\"고 응답, 대화 캡처 업로드",
+      attachments_present: true,
+      rag: {
+        signal: "scenario",
+        hit: true,
+        matched_type: "메신저피싱",
+        matched_id: "S05",
+        similarity: 0.6,
+        score: 30,
+        risk_signals: ["통화회피", "문자로만연락"],
+        source: "경찰청 월간피싱 zero S05",
+      },
+      recommendation: "통화상대 재확인(영상통화 권유), 필요시 지급정지·112 안내",
+    },
+  },
+  {
+    id: "case4",
+    emoji: "🟢",
+    title: "중고거래",
+    subtitle: "15만원 · 신규계좌 (정상, 3초 통과)",
+    input: {
+      customerName: "남용환",
+      payeeBank: "국민은행",
+      payeeName: "서준혁",
+      payeeAccount: "552-102-993841",
+      amount: 150_000,
+    },
+    account: {
+      signals: [
+        { signal: "payee_fraud", hit: false, score: 0, detail: "-" },
+        { signal: "amount_anomaly", hit: false, score: 0, detail: "평소 대비 0.5배" },
+        { signal: "fund_source", hit: false, score: 0, detail: "-" },
+        { signal: "payee_freshness", hit: true, score: 20, detail: "개설 4일" },
+        { signal: "limit_change", hit: false, score: 0, detail: "-" },
+        { signal: "velocity", hit: false, score: 0, detail: "-" },
+        { signal: "device", hit: false, score: 0, detail: "-" },
+        { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+      ],
+      total_score: 20,
+      level: "저",
+    },
+    questions: [],
+    chatHint: "",
+    agentReply: null,
+    final: {
+      account_level: "저",
+      context_level: "저",
+      final: "안전",
+      hard_override: false,
+      reasons: ["개설 4일(+20)"],
+      action: "확인 1탭으로 송금 진행",
+    },
+    report: null,
+  },
+  {
+    id: "case5",
+    emoji: "🟢",
+    title: "부동산 잔금",
+    subtitle: "5,000만원 · 신규계좌 (금액 커도 정상 사유면 안 막음)",
+    input: {
+      customerName: "박지훈",
+      payeeBank: "우리은행",
+      payeeName: "(주)한빛공인중개법인 에스크로",
+      payeeAccount: "088-19-284755",
+      amount: 50_000_000,
+    },
+    account: {
+      signals: [
+        { signal: "payee_fraud", hit: false, score: 0, detail: "-" },
+        { signal: "amount_anomaly", hit: true, score: 25, detail: "평소 대비 16.7배" },
+        { signal: "fund_source", hit: false, score: 0, detail: "-" },
+        { signal: "payee_freshness", hit: true, score: 20, detail: "개설 3일" },
+        { signal: "limit_change", hit: false, score: 0, detail: "-" },
+        { signal: "velocity", hit: false, score: 0, detail: "-" },
+        { signal: "device", hit: false, score: 0, detail: "-" },
+        { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+      ],
+      total_score: 45,
+      level: "중",
+    },
+    questions: [empathyQuestion("박지훈")],
+    chatHint: "",
+    agentReply: null,
+    final: {
+      account_level: "중",
+      context_level: "저",
+      final: "안전",
+      hard_override: false,
+      reasons: ["평소 대비 16.7배(+25)", "개설 3일(+20)"],
+      action: "확인 1탭으로 송금 진행",
+    },
+    report: null,
+  },
+];
+
+export function findDemoCase(id: string): DemoCase {
+  const found = DEMO_CASES.find((c) => c.id === id);
+  if (!found) throw new Error(`unknown demo case: ${id}`);
+  return found;
+}
