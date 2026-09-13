@@ -11,6 +11,12 @@ interface Props {
 
 const QUICK_ADDS = [10_000, 50_000, 100_000, 1_000_000];
 
+function maskAccount(account: string): string {
+  const parts = account.split("-");
+  if (parts.length < 2) return account;
+  return [parts[0], ...parts.slice(1, -1).map((p) => "*".repeat(p.length)), parts.at(-1)].join("-");
+}
+
 export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
   const [customerId, setCustomerId] = useState(CUSTOMER_OPTIONS[0].customer_id);
   const [amount, setAmount] = useState(0);
@@ -21,9 +27,7 @@ export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
         <AppBar title="이체" />
         <div className="account-selector-row">
           <span>출금계좌(본인)</span>
-          <span className="balance">
-            NH농협은행 351-****-{demoCase.input.customerName === "박지훈" ? "0004" : "0001"}
-          </span>
+          <span className="balance">NH농협은행 {maskAccount(demoCase.input.customerAccount)}</span>
         </div>
         <div className="amount-prompt">
           얼마를 보낼까요?

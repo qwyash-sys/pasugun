@@ -103,7 +103,7 @@ export default function App() {
   }
 
   return (
-    <PhoneFrame>
+    <PhoneFrame screenKey={screen}>
       {screen === "case-picker" && <CasePicker onSelect={selectDemoCase} />}
 
       {screen === "m1" && <M1Amount isDemo={isDemo} demoCase={demoCase} onNext={handleM1Next} />}

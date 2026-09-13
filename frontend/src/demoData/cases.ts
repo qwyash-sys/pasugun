@@ -14,6 +14,7 @@ export interface DemoCase {
   subtitle: string;
   input: {
     customerName: string;
+    customerAccount: string;
     payeeBank: string;
     payeeName: string;
     payeeAccount: string;
@@ -62,6 +63,7 @@ export const DEMO_CASES: DemoCase[] = [
     subtitle: "적금 해지 후 2,000만원 · 신고이력 계좌",
     input: {
       customerName: "남용환",
+      customerAccount: "351-0000-0001",
       payeeBank: "미래에셋증권",
       payeeName: "남용환",
       payeeAccount: "010-6660-98261",
@@ -143,6 +145,7 @@ export const DEMO_CASES: DemoCase[] = [
     subtitle: "한도 상향 직후 500만원 · 신규계좌",
     input: {
       customerName: "김도윤",
+      customerAccount: "351-0000-0002",
       payeeBank: "신한은행",
       payeeName: "정대환",
       payeeAccount: "110-452-118834",
@@ -223,6 +226,7 @@ export const DEMO_CASES: DemoCase[] = [
     subtitle: "카톡 받고 100만원 · 신규계좌 (계좌점수 낮아도 맥락으로 포착)",
     input: {
       customerName: "남용환",
+      customerAccount: "351-0000-0001",
       payeeBank: "카카오뱅크",
       payeeName: "황민석",
       payeeAccount: "301-8827-4410",
@@ -302,6 +306,7 @@ export const DEMO_CASES: DemoCase[] = [
     subtitle: "15만원 · 신규계좌 (정상, 3초 통과)",
     input: {
       customerName: "남용환",
+      customerAccount: "351-0000-0001",
       payeeBank: "국민은행",
       payeeName: "서준혁",
       payeeAccount: "552-102-993841",
@@ -341,6 +346,7 @@ export const DEMO_CASES: DemoCase[] = [
     subtitle: "5,000만원 · 신규계좌 (금액 커도 정상 사유면 안 막음)",
     input: {
       customerName: "박지훈",
+      customerAccount: "351-0000-0004",
       payeeBank: "우리은행",
       payeeName: "(주)한빛공인중개법인 에스크로",
       payeeAccount: "088-19-284755",
