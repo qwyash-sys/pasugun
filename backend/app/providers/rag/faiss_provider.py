@@ -17,7 +17,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from app.data_store import scenarios
-from app.models import RagMatch
+from app.models import RagCandidate, RagMatch
 from app.scoring import rag_score
 
 _MODEL_NAME = "jhgan/ko-sroberta-multitask"
@@ -47,10 +47,18 @@ class FaissLocalRagProvider:
     def scenario_rag(self, text: str) -> RagMatch:
         docs, index = _index()
         query_vec = _model().encode([text], normalize_embeddings=True, convert_to_numpy=True)
-        similarities, indices = index.search(np.asarray(query_vec, dtype="float32"), k=1)
+        # k=전체 문서 수: "왜 다른 9건이 아니라 이 사례가 뽑혔는지" 비교표를 만들려면
+        # 1등만이 아니라 전체 순위가 필요하다 — 코퍼스가 10건뿐이라 비용도 무시할 만하다.
+        similarities, indices = index.search(np.asarray(query_vec, dtype="float32"), k=len(docs))
 
-        best_sim = float(similarities[0][0])
-        best_doc = docs[int(indices[0][0])]
+        ranked = sorted(zip(indices[0].tolist(), similarities[0].tolist()), key=lambda p: -p[1])
+        candidates = [
+            RagCandidate(scenario_id=docs[i]["id"], matched_type=docs[i]["유형"], similarity=round(sim, 3))
+            for i, sim in ranked
+        ]
+
+        best_idx, best_sim = ranked[0]
+        best_doc = docs[best_idx]
 
         score = rag_score(best_sim)
         if score == 0:
@@ -62,6 +70,7 @@ class FaissLocalRagProvider:
                 score=0,
                 risk_signals=[],
                 source=best_doc["출처"],
+                candidates=candidates,
             )
 
         return RagMatch(
@@ -72,4 +81,5 @@ class FaissLocalRagProvider:
             score=score,
             risk_signals=best_doc["위험신호"],
             source=f"{best_doc['출처']} {best_doc['id']}",
+            candidates=candidates,
         )

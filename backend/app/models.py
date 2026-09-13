@@ -39,6 +39,15 @@ class AccountAssessment(BaseModel):
     level: RiskLevel
 
 
+class RagCandidate(BaseModel):
+    """scenario_rag가 비교한 사례집 후보 1건 — 왜 다른 사례가 아니라 이 사례가
+    뽑혔는지 보여주기 위해, 1등만이 아니라 전체 순위를 남긴다."""
+
+    scenario_id: str
+    matched_type: str
+    similarity: float
+
+
 class RagMatch(BaseModel):
     signal: str = "scenario"
     hit: bool
@@ -48,6 +57,7 @@ class RagMatch(BaseModel):
     score: int
     risk_signals: list[str] = []
     source: str | None = None
+    candidates: list[RagCandidate] = []
 
 
 class ContextAnswer(BaseModel):

@@ -817,3 +817,78 @@ textarea {
   background: white;
   box-shadow: 0 0 0 1px var(--text);
 }
+
+/* ---- RAG 후보 비교(사례집 10건 전체 순위) ---- */
+.rag-candidates {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px 10px 4px;
+  margin: 2px 0 10px;
+}
+
+.rag-candidates-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.rag-candidate-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 92px 1fr 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.rag-candidate-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rag-candidate-row.winner .rag-candidate-label {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.rag-candidate-track {
+  position: relative;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: visible;
+}
+
+.rag-candidate-fill {
+  height: 100%;
+  background: #b9c0c7;
+  border-radius: 999px;
+}
+
+.rag-candidate-fill.winner {
+  background: var(--danger);
+}
+
+.rag-threshold-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.rag-candidate-value {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--text-muted);
+}
+
+.rag-candidate-row.winner .rag-candidate-value {
+  color: var(--danger);
+}

@@ -7,7 +7,7 @@ retrieve API를 호출한다. AWS 자격증명·KB ID가 없는 로컬 개발에
 """
 
 from app.config import Settings
-from app.models import RagMatch
+from app.models import RagCandidate, RagMatch
 from app.scoring import rag_score
 
 
@@ -22,11 +22,21 @@ class BedrockKbRagProvider:
         response = client.retrieve(
             knowledgeBaseId=self._settings.bedrock_kb_id,
             retrievalQuery={"text": text},
-            retrievalConfiguration={"vectorSearchConfiguration": {"numberOfResults": 1}},
+            # 10건 전체를 받아와야 "왜 이 사례가 뽑혔는지" 후보 비교표를 만들 수 있다.
+            retrievalConfiguration={"vectorSearchConfiguration": {"numberOfResults": 10}},
         )
         results = response.get("retrievalResults", [])
         if not results:
             return RagMatch(hit=False, similarity=0.0, score=0, risk_signals=[])
+
+        candidates = [
+            RagCandidate(
+                scenario_id=r.get("metadata", {}).get("id", "?"),
+                matched_type=r.get("metadata", {}).get("유형", "?"),
+                similarity=round(float(r.get("score", 0.0)), 3),
+            )
+            for r in results
+        ]
 
         top = results[0]
         similarity = float(top.get("score", 0.0))
@@ -41,4 +51,5 @@ class BedrockKbRagProvider:
             score=score,
             risk_signals=metadata.get("위험신호", []),
             source=metadata.get("출처"),
+            candidates=candidates,
         )

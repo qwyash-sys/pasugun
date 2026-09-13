@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { CONTEXT_ITEM_MAX, SIGNAL_META, SIGNAL_ORDER } from "./signalMeta";
-import type { AccountAssessment, ContextAssessment, Question, RiskLevel } from "../types";
+import type { AccountAssessment, ContextAssessment, Question, RagCandidate, RiskLevel } from "../types";
 
 interface Props {
   account: AccountAssessment;
@@ -37,6 +37,51 @@ function BarRow({
       </div>
       <span className={`bar-row-score ${hit ? "hit" : ""}`}>+{score}</span>
       {open && <div className="bar-row-tooltip">{tooltip}</div>}
+    </div>
+  );
+}
+
+function RagCandidateChart({ candidates, matchedId }: { candidates: RagCandidate[]; matchedId: string | null }) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  if (candidates.length === 0) return null;
+  const sorted = [...candidates].sort((a, b) => b.similarity - a.similarity);
+
+  return (
+    <div className="rag-candidates">
+      <div className="rag-candidates-header">RAG 후보 비교 · 사례집 {sorted.length}건 중 코사인 유사도 순위</div>
+      {sorted.map((c) => {
+        const isWinner = c.scenario_id === matchedId;
+        return (
+          <div
+            key={c.scenario_id}
+            className={`rag-candidate-row ${isWinner ? "winner" : ""}`}
+            onMouseEnter={() => setOpenId(c.scenario_id)}
+            onMouseLeave={() => setOpenId(null)}
+            onClick={() => setOpenId((o) => (o === c.scenario_id ? null : c.scenario_id))}
+          >
+            <span className="rag-candidate-label">
+              {isWinner ? "✅ " : ""}
+              {c.scenario_id} · {c.matched_type}
+            </span>
+            <div className="rag-candidate-track">
+              <div className="rag-threshold-mark" style={{ left: "60%" }} />
+              <div className="rag-threshold-mark" style={{ left: "80%" }} />
+              <div
+                className={`rag-candidate-fill ${isWinner ? "winner" : ""}`}
+                style={{ width: `${Math.max(1, c.similarity * 100)}%` }}
+              />
+            </div>
+            <span className="rag-candidate-value">{c.similarity.toFixed(2)}</span>
+            {openId === c.scenario_id && (
+              <div className="bar-row-tooltip">
+                {isWinner
+                  ? "이 사례가 가장 유사해서 선택됨(임계값: 0.60=中, 0.80=高)"
+                  : "임계값(0.60/0.80)에 못 미치거나 1등이 아니라 선택되지 않음"}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -132,17 +177,20 @@ export default function RiskBreakdown({ account, context, questions }: Props) {
         )}
 
         {context?.rag && (
-          <BarRow
-            label={`RAG 매칭: ${context.rag.hit ? context.rag.matched_type : "매칭없음"}`}
-            score={context.rag.score}
-            max={50}
-            hit={context.rag.hit}
-            tooltip={
-              context.rag.hit
-                ? `유사도 ${context.rag.similarity.toFixed(2)} · ${context.rag.source} · 위험신호: ${context.rag.risk_signals.join(", ")}`
-                : `유사도 ${context.rag.similarity.toFixed(2)} (임계값 0.60 미만이라 매칭 처리 안 됨)`
-            }
-          />
+          <>
+            <BarRow
+              label={`RAG 매칭: ${context.rag.hit ? context.rag.matched_type : "매칭없음"}`}
+              score={context.rag.score}
+              max={50}
+              hit={context.rag.hit}
+              tooltip={
+                context.rag.hit
+                  ? `유사도 ${context.rag.similarity.toFixed(2)} · ${context.rag.source} · 위험신호: ${context.rag.risk_signals.join(", ")}`
+                  : `유사도 ${context.rag.similarity.toFixed(2)} (임계값 0.60 미만이라 매칭 처리 안 됨)`
+              }
+            />
+            <RagCandidateChart candidates={context.rag.candidates} matchedId={context.rag.matched_id} />
+          </>
         )}
       </div>
 

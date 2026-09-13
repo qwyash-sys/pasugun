@@ -40,6 +40,12 @@ export interface QuoteResponse {
   questions: Question[];
 }
 
+export interface RagCandidate {
+  scenario_id: string;
+  matched_type: string;
+  similarity: number;
+}
+
 export interface RagMatch {
   signal: string;
   hit: boolean;
@@ -49,6 +55,7 @@ export interface RagMatch {
   score: number;
   risk_signals: string[];
   source: string | null;
+  candidates: RagCandidate[];
 }
 
 export interface FinalRisk {
