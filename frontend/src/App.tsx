@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import PhoneFrame from "./components/PhoneFrame";
+import LoadingOrError from "./components/LoadingOrError";
 import { RESPONSE_SOURCE } from "./config";
 import { createBackendClient, type BackendClient } from "./api/client";
 import { findDemoCase, type DemoCase } from "./demoData/cases";
@@ -28,6 +29,8 @@ export default function App() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [result, setResult] = useState<FinalizeResponse | null>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState<(() => void) | null>(null);
 
   const demoCase: DemoCase | undefined = useMemo(
     () => (demoCaseId ? findDemoCase(demoCaseId) : undefined),
@@ -42,7 +45,25 @@ export default function App() {
     setQuote(null);
     setSessionId(null);
     setResult(null);
+    setError(null);
+    setRetry(null);
     setScreen(isDemo ? "case-picker" : "m1");
+  }
+
+  /** API 호출 1건을 감싸서 busy/error 상태를 일관되게 관리한다.
+   * 실패해도 화면은 그대로 두고, "다시 시도" 버튼이 같은 동작을 재실행할 수 있게 기억해둔다. */
+  async function runGuarded(action: () => Promise<void>) {
+    setBusy(true);
+    setError(null);
+    try {
+      await action();
+      setRetry(null);
+    } catch {
+      setError("요청 중 문제가 발생했어요. 네트워크 상태를 확인하고 다시 시도해주세요.");
+      setRetry(() => () => runGuarded(action));
+    } finally {
+      setBusy(false);
+    }
   }
 
   function selectDemoCase(caseId: string) {
@@ -63,33 +84,26 @@ export default function App() {
     setScreen(q.intervention === "confirm_only" ? "m3a" : "m4");
   }
 
-  async function handleConfirmOnly() {
+  function handleConfirmOnly() {
     if (!client || !sessionId) return;
-    setBusy(true);
-    try {
+    runGuarded(async () => {
       const res = await client.finalize(sessionId, { skipped: true });
       setResult(res);
       setScreen("m6");
-    } finally {
-      setBusy(false);
-    }
+    });
   }
 
-  async function handleAnswersDone(answers: AnswerSubmission[]) {
+  function handleAnswersDone(answers: AnswerSubmission[]) {
     if (!client || !sessionId) return;
-    setBusy(true);
-    try {
+    runGuarded(async () => {
       await client.submitAnswers(sessionId, answers);
       setScreen("m5");
-    } finally {
-      setBusy(false);
-    }
+    });
   }
 
-  async function handleChatSubmit(payload: { text: string; attachmentBase64: string | null; skipped: boolean }) {
+  function handleChatSubmit(payload: { text: string; attachmentBase64: string | null; skipped: boolean }) {
     if (!client || !sessionId) return;
-    setBusy(true);
-    try {
+    runGuarded(async () => {
       const res = await client.finalize(sessionId, {
         text: payload.text,
         attachment_base64: payload.attachmentBase64,
@@ -97,9 +111,7 @@ export default function App() {
       });
       setResult(res);
       setScreen("m6");
-    } finally {
-      setBusy(false);
-    }
+    });
   }
 
   return (
@@ -119,7 +131,7 @@ export default function App() {
         />
       )}
 
-      {screen === "m3a" && quote && !busy && (
+      {screen === "m3a" && quote && !busy && !error && (
         <M3Confirm
           payeeBank={quote.payee_bank}
           payeeName={quote.payee_name}
@@ -128,13 +140,11 @@ export default function App() {
           onCancel={resetFlow}
         />
       )}
-      {screen === "m3a" && busy && (
-        <div className="loading-wrap">
-          <div className="spinner" />
-        </div>
+      {screen === "m3a" && (busy || error) && (
+        <LoadingOrError busy={busy} error={error} onRetry={retry} onCancel={resetFlow} />
       )}
 
-      {screen === "m4" && quote && !busy && (
+      {screen === "m4" && quote && !busy && !error && (
         <M4Question
           payeeBank={quote.payee_bank}
           payeeName={quote.payee_name}
@@ -143,13 +153,13 @@ export default function App() {
           onDone={handleAnswersDone}
         />
       )}
-      {screen === "m4" && busy && (
-        <div className="loading-wrap">
-          <div className="spinner" />
-        </div>
+      {screen === "m4" && (busy || error) && (
+        <LoadingOrError busy={busy} error={error} onRetry={retry} onCancel={resetFlow} />
       )}
 
-      {screen === "m5" && <M5Chat hint={demoCase?.chatHint ?? ""} onSubmit={handleChatSubmit} loading={busy} />}
+      {screen === "m5" && (
+        <M5Chat hint={demoCase?.chatHint ?? ""} onSubmit={handleChatSubmit} loading={busy} error={error} />
+      )}
 
       {screen === "m6" && result && quote && (
         <M6Result

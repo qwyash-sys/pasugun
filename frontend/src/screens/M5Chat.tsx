@@ -6,9 +6,10 @@ interface Props {
   hint: string;
   onSubmit: (payload: { text: string; attachmentBase64: string | null; skipped: boolean }) => void;
   loading: boolean;
+  error: string | null;
 }
 
-export default function M5Chat({ hint, onSubmit, loading }: Props) {
+export default function M5Chat({ hint, onSubmit, loading, error }: Props) {
   const [text, setText] = useState("");
   const [attachedName, setAttachedName] = useState<string | null>(null);
   const [attachmentBase64, setAttachmentBase64] = useState<string | null>(null);
@@ -50,6 +51,8 @@ export default function M5Chat({ hint, onSubmit, loading }: Props) {
         </button>
         <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFile} />
       </div>
+
+      {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
 
       <div className="spacer" />
       <div className="btn-row">

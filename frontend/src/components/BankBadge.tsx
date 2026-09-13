@@ -6,6 +6,9 @@ const BANK_STYLE: Record<string, { bg: string; color: string; label: string }> =
   우리은행: { bg: "#0067AC", color: "#fff", label: "우" },
   미래에셋증권: { bg: "#F58220", color: "#fff", label: "미" },
   NH농협은행: { bg: "#00A651", color: "#fff", label: "NH" },
+  하나은행: { bg: "#008485", color: "#fff", label: "하" },
+  케이뱅크: { bg: "#FF3B30", color: "#fff", label: "K" },
+  IBK기업은행: { bg: "#00529C", color: "#fff", label: "IBK" },
 };
 
 const FALLBACK = { bg: "#9AA1A9", color: "#fff" };
@@ -17,7 +20,7 @@ export default function BankBadge({ bank }: { bank: string }) {
   const color = style?.color ?? FALLBACK.color;
 
   return (
-    <div className="bank-badge" style={{ background: bg, color }}>
+    <div className="bank-badge" style={{ background: bg, color, fontSize: label.length > 2 ? 10 : 14 }}>
       {label}
     </div>
   );
