@@ -151,6 +151,7 @@ export default function App() {
           amount={amount}
           questions={quote.questions}
           onDone={handleAnswersDone}
+          scriptedAnswers={demoCase?.scriptedAnswers}
         />
       )}
       {screen === "m4" && (busy || error) && (
@@ -158,7 +159,13 @@ export default function App() {
       )}
 
       {screen === "m5" && (
-        <M5Chat hint={demoCase?.chatHint ?? ""} onSubmit={handleChatSubmit} loading={busy} error={error} />
+        <M5Chat
+          hint={demoCase?.chatHint ?? ""}
+          onSubmit={handleChatSubmit}
+          loading={busy}
+          error={error}
+          scriptedChat={demoCase?.scriptedChat}
+        />
       )}
 
       {screen === "m6" && result && quote && (

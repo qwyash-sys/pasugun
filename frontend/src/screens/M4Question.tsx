@@ -10,14 +10,18 @@ interface Props {
   amount: number;
   questions: Question[];
   onDone: (answers: AnswerSubmission[]) => void;
+  /** demo 모드에서만: 이 케이스의 각본이 실제로 상정하는 question_id -> choice_id.
+   * local/remote 모드에서는 undefined — 실제 선택이 실제로 점수에 반영되므로 힌트가 없다. */
+  scriptedAnswers?: Record<string, string>;
 }
 
-export default function M4Question({ payeeBank, payeeName, amount, questions, onDone }: Props) {
+export default function M4Question({ payeeBank, payeeName, amount, questions, onDone, scriptedAnswers }: Props) {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerSubmission[]>([]);
 
   const question = questions[index];
   const isBinary = question.choices.length === 2;
+  const recommendedChoiceId = scriptedAnswers?.[question.question_id];
 
   function choose(choiceId: string) {
     const next = [...answers, { question_id: question.question_id, choice_id: choiceId }];
@@ -54,10 +58,18 @@ export default function M4Question({ payeeBank, payeeName, amount, questions, on
           {question.prompt}
         </h1>
 
+        {recommendedChoiceId && (
+          <p className="script-hint">💡 이 시나리오는 아래 강조된 선택지를 눌러주세요</p>
+        )}
+
         {isBinary ? (
           <div className="yesno-row">
             {question.choices.map((choice) => (
-              <button key={choice.choice_id} onClick={() => choose(choice.choice_id)}>
+              <button
+                key={choice.choice_id}
+                className={choice.choice_id === recommendedChoiceId ? "scripted" : ""}
+                onClick={() => choose(choice.choice_id)}
+              >
                 {choice.label}
               </button>
             ))}
@@ -65,7 +77,11 @@ export default function M4Question({ payeeBank, payeeName, amount, questions, on
         ) : (
           <div className="choice-list">
             {question.choices.map((choice) => (
-              <button key={choice.choice_id} className="choice-btn" onClick={() => choose(choice.choice_id)}>
+              <button
+                key={choice.choice_id}
+                className={`choice-btn ${choice.choice_id === recommendedChoiceId ? "scripted" : ""}`}
+                onClick={() => choose(choice.choice_id)}
+              >
                 {choice.label}
               </button>
             ))}

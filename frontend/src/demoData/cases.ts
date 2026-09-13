@@ -27,6 +27,12 @@ export interface DemoCase {
   agentReply: string | null;
   final: FinalRisk;
   report: ReportPayload | null;
+  /** demo 모드에서 결과와 무관하게 아무 버튼이나 눌러도 다음 화면으로 넘어가긴 하지만,
+   * 이 케이스의 "각본"과 실제로 맞아떨어지는 선택지가 뭔지 화면에 하이라이트해주기 위한 값.
+   * question_id -> 그 시나리오가 실제로 상정한 choice_id. */
+  scriptedAnswers: Record<string, string>;
+  /** M5에서 이 시나리오가 상정하는 입력(텍스트 그대로 또는 건너뛰기). */
+  scriptedChat: { text: string | null; skip: boolean };
 }
 
 const empathyChoices = (extra?: { label: string; weight: number }[]) => [
@@ -85,6 +91,8 @@ export const DEMO_CASES: DemoCase[] = [
     },
     questions: [empathyQuestion("남용환"), safetyQuestion()],
     chatHint: "상황 설명이나 안내문자 캡처를 올려주세요.",
+    scriptedAnswers: { empathy: "normal_known", safety: "safety_yes" },
+    scriptedChat: { text: "검찰이라며 안전계좌로 옮기라고 안내받았어요", skip: false },
     agentReply:
       "말씀해주신 내용과 캡처를 확인해보니 검찰·금감원을 사칭해 '안전계좌'로 유도하는 사례와 매우 유사해요. 지금 이체를 잠시 멈추고 가까운 영업점에서 확인해보시는 게 좋겠어요.",
     final: {
@@ -167,6 +175,8 @@ export const DEMO_CASES: DemoCase[] = [
     },
     questions: [empathyQuestion("김도윤"), safetyQuestion()],
     chatHint: "대출 상담 문자나 통화 내용을 올려주세요.",
+    scriptedAnswers: { empathy: "risky_offer", safety: "safety_no" },
+    scriptedChat: { text: "저금리 대환대출 안내를 받고 먼저 상환금을 보내려 합니다", skip: false },
     agentReply:
       "저금리 대환대출을 이유로 먼저 돈을 보내달라는 절차는 정상적인 은행 대출 절차와 달라요. 지금 이체를 멈추고 은행 공식 채널로 다시 확인해보시는 게 안전해요.",
     final: {
@@ -248,6 +258,8 @@ export const DEMO_CASES: DemoCase[] = [
     },
     questions: [empathyQuestion("남용환")],
     chatHint: "대화 캡처나 상황을 적어주세요.",
+    scriptedAnswers: { empathy: "risky_text_only" },
+    scriptedChat: { text: "아는 사람인데 전화는 안 받고 문자로만 연락돼요", skip: false },
     agentReply:
       "직접 통화는 안 되고 문자로만 연락된다는 점이 걸려요. 실제로 아시는 분이 맞는지 전화나 영상통화로 한 번 더 확인해보시는 게 좋겠어요.",
     final: {
@@ -328,6 +340,8 @@ export const DEMO_CASES: DemoCase[] = [
     },
     questions: [],
     chatHint: "",
+    scriptedAnswers: {},
+    scriptedChat: { text: null, skip: true },
     agentReply: null,
     final: {
       account_level: "저",
@@ -368,6 +382,8 @@ export const DEMO_CASES: DemoCase[] = [
     },
     questions: [empathyQuestion("박지훈")],
     chatHint: "",
+    scriptedAnswers: { empathy: "normal_settlement" },
+    scriptedChat: { text: null, skip: true },
     agentReply: null,
     final: {
       account_level: "중",
