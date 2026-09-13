@@ -1,6 +1,7 @@
 """M4(질문 카드)~M6(최종 판정) 대응."""
 
 import base64
+import logging
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -16,6 +17,8 @@ from app.questions import SAFETY_QUESTION, empathy_question
 from app.reports import build_report
 from app.scoring import build_context_assessment
 from app.session_store import get_session
+
+logger = logging.getLogger("meomchit")
 
 router = APIRouter(prefix="/api/transfer", tags=["chat"])
 
@@ -81,13 +84,21 @@ def finalize(session_id: str, payload: FinalizeRequest):
 
     if not payload.skipped:
         if payload.attachment_base64:
-            image_bytes = base64.b64decode(payload.attachment_base64)
-            ocr_result = get_ocr().ocr_extract(image_bytes)
-            combined_text = (combined_text + "\n" + ocr_result["text"]).strip()
+            try:
+                image_bytes = base64.b64decode(payload.attachment_base64)
+                ocr_result = get_ocr().ocr_extract(image_bytes)
+                combined_text = (combined_text + "\n" + ocr_result["text"]).strip()
+            except Exception as e:
+                logger.exception("OCR failed")
+                raise HTTPException(status_code=502, detail="첨부 이미지 처리 중 문제가 발생했어요.") from e
 
         if combined_text:
             used_input_or_attachment = True
-            result = agent.analyze(session.customer_name, combined_text)
+            try:
+                result = agent.analyze(session.customer_name, combined_text)
+            except Exception as e:
+                logger.exception("Agent analyze failed")
+                raise HTTPException(status_code=502, detail="AI 확인 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.") from e
             agent_reply = result.reply
             rag = result.rag
 
@@ -101,17 +112,21 @@ def finalize(session_id: str, payload: FinalizeRequest):
     if final.final == "위험":
         customer = get_customer(session.customer_id)
         payee = get_payee(session.payee_account)
-        report = build_report(
-            agent=agent,
-            customer=customer,
-            customer_phone=customer["phone"],
-            payee=payee,
-            amount=session.amount,
-            attempted_at=session.current_time,
-            final=final,
-            conversation=combined_text,
-            attachments_present=attachments_present,
-            rag=rag,
-        )
+        try:
+            report = build_report(
+                agent=agent,
+                customer=customer,
+                customer_phone=customer["phone"],
+                payee=payee,
+                amount=session.amount,
+                attempted_at=session.current_time,
+                final=final,
+                conversation=combined_text,
+                attachments_present=attachments_present,
+                rag=rag,
+            )
+        except Exception as e:
+            logger.exception("Report generation failed")
+            raise HTTPException(status_code=502, detail="리포트 생성 중 문제가 발생했어요.") from e
 
     return {"final": final, "agent_reply": agent_reply, "report": report}
