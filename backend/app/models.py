@@ -92,4 +92,6 @@ class ReportPayload(BaseModel):
     attachments_present: bool
     rag: RagMatch | None
     recommendation: str
+    account: AccountAssessment
+    context: ContextAssessment | None = None
     extra: dict[str, Any] = {}

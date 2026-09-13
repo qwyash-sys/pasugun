@@ -2,6 +2,7 @@
 // demo 모드는 백엔드를 전혀 호출하지 않고 이 고정값을 재생한다(SPEC 1장 실행모드 원칙).
 import type {
   AccountAssessment,
+  ContextAssessment,
   FinalRisk,
   Question,
   ReportPayload,
@@ -21,6 +22,9 @@ export interface DemoCase {
     amount: number;
   };
   account: AccountAssessment;
+  /** 위험도 분석 그래프(RiskBreakdown)용 2단계 상세 데이터. 질문 자체가 없는
+   * 케이스(예: 확인 1탭 경로)는 null. */
+  context: ContextAssessment | null;
   questions: Question[];
   /** M5 화면에서 보여줄 안내(실제 입력 내용과 무관하게 이 시나리오 그대로 재생) */
   chatHint: string;
@@ -89,6 +93,26 @@ export const DEMO_CASES: DemoCase[] = [
       total_score: 90,
       level: "고",
     },
+    context: {
+      answers: [
+        { question_id: "empathy", choice_id: "normal_known", choice_weight: 0, hard_override: false },
+        { question_id: "safety", choice_id: "safety_yes", choice_weight: 50, hard_override: true },
+      ],
+      used_input_or_attachment: true,
+      rag: {
+        signal: "scenario",
+        hit: true,
+        matched_type: "기관사칭",
+        matched_id: "S02",
+        similarity: 0.87,
+        score: 50,
+        risk_signals: ["안전계좌", "자산보호"],
+        source: "경찰청 월간피싱 zero S02",
+      },
+      total_score: 110,
+      level: "고",
+      hard_override: true,
+    },
     questions: [empathyQuestion("남용환"), safetyQuestion()],
     chatHint: "상황 설명이나 안내문자 캡처를 올려주세요.",
     scriptedAnswers: { empathy: "normal_known", safety: "safety_yes" },
@@ -144,6 +168,40 @@ export const DEMO_CASES: DemoCase[] = [
         source: "경찰청 월간피싱 zero S02",
       },
       recommendation: "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+      account: {
+        signals: [
+          { signal: "payee_fraud", hit: true, score: 40, detail: "사기신고 3건" },
+          { signal: "amount_anomaly", hit: true, score: 25, detail: "평소 대비 66.7배" },
+          { signal: "fund_source", hit: true, score: 25, detail: "적금 해지 후 24시간 이내 자금이동" },
+          { signal: "payee_freshness", hit: false, score: 0, detail: "-" },
+          { signal: "limit_change", hit: false, score: 0, detail: "-" },
+          { signal: "velocity", hit: false, score: 0, detail: "-" },
+          { signal: "device", hit: false, score: 0, detail: "-" },
+          { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+        ],
+        total_score: 90,
+        level: "고",
+      },
+      context: {
+        answers: [
+          { question_id: "empathy", choice_id: "normal_known", choice_weight: 0, hard_override: false },
+          { question_id: "safety", choice_id: "safety_yes", choice_weight: 50, hard_override: true },
+        ],
+        used_input_or_attachment: true,
+        rag: {
+          signal: "scenario",
+          hit: true,
+          matched_type: "기관사칭",
+          matched_id: "S02",
+          similarity: 0.87,
+          score: 50,
+          risk_signals: ["안전계좌", "자산보호"],
+          source: "경찰청 월간피싱 zero S02",
+        },
+        total_score: 110,
+        level: "고",
+        hard_override: true,
+      },
     },
   },
   {
@@ -172,6 +230,26 @@ export const DEMO_CASES: DemoCase[] = [
       ],
       total_score: 65,
       level: "고",
+    },
+    context: {
+      answers: [
+        { question_id: "empathy", choice_id: "risky_offer", choice_weight: 25, hard_override: false },
+        { question_id: "safety", choice_id: "safety_no", choice_weight: 0, hard_override: false },
+      ],
+      used_input_or_attachment: true,
+      rag: {
+        signal: "scenario",
+        hit: true,
+        matched_type: "대출사기",
+        matched_id: "S04",
+        similarity: 0.82,
+        score: 50,
+        risk_signals: ["선입금요구", "한도상향유도"],
+        source: "NH 제작 S04",
+      },
+      total_score: 85,
+      level: "고",
+      hard_override: false,
     },
     questions: [empathyQuestion("김도윤"), safetyQuestion()],
     chatHint: "대출 상담 문자나 통화 내용을 올려주세요.",
@@ -227,6 +305,40 @@ export const DEMO_CASES: DemoCase[] = [
         source: "NH 제작 S04",
       },
       recommendation: "대면 본인확인 및 대출 상담 경위 재확인, 필요시 지급정지·112 안내",
+      account: {
+        signals: [
+          { signal: "payee_fraud", hit: false, score: 0, detail: "-" },
+          { signal: "amount_anomaly", hit: true, score: 25, detail: "평소 대비 25.0배" },
+          { signal: "fund_source", hit: false, score: 0, detail: "-" },
+          { signal: "payee_freshness", hit: true, score: 20, detail: "개설 5일" },
+          { signal: "limit_change", hit: true, score: 20, detail: "24시간 내 이체한도 상향" },
+          { signal: "velocity", hit: false, score: 0, detail: "-" },
+          { signal: "device", hit: false, score: 0, detail: "-" },
+          { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+        ],
+        total_score: 65,
+        level: "고",
+      },
+      context: {
+        answers: [
+          { question_id: "empathy", choice_id: "risky_offer", choice_weight: 25, hard_override: false },
+          { question_id: "safety", choice_id: "safety_no", choice_weight: 0, hard_override: false },
+        ],
+        used_input_or_attachment: true,
+        rag: {
+          signal: "scenario",
+          hit: true,
+          matched_type: "대출사기",
+          matched_id: "S04",
+          similarity: 0.82,
+          score: 50,
+          risk_signals: ["선입금요구", "한도상향유도"],
+          source: "NH 제작 S04",
+        },
+        total_score: 85,
+        level: "고",
+        hard_override: false,
+      },
     },
   },
   {
@@ -255,6 +367,23 @@ export const DEMO_CASES: DemoCase[] = [
       ],
       total_score: 28,
       level: "저",
+    },
+    context: {
+      answers: [{ question_id: "empathy", choice_id: "risky_text_only", choice_weight: 30, hard_override: false }],
+      used_input_or_attachment: true,
+      rag: {
+        signal: "scenario",
+        hit: true,
+        matched_type: "메신저피싱",
+        matched_id: "S05",
+        similarity: 0.6,
+        score: 30,
+        risk_signals: ["통화회피", "문자로만연락"],
+        source: "경찰청 월간피싱 zero S05",
+      },
+      total_score: 70,
+      level: "고",
+      hard_override: false,
     },
     questions: [empathyQuestion("남용환")],
     chatHint: "대화 캡처나 상황을 적어주세요.",
@@ -309,6 +438,37 @@ export const DEMO_CASES: DemoCase[] = [
         source: "경찰청 월간피싱 zero S05",
       },
       recommendation: "통화상대 재확인(영상통화 권유), 필요시 지급정지·112 안내",
+      account: {
+        signals: [
+          { signal: "payee_fraud", hit: false, score: 0, detail: "-" },
+          { signal: "amount_anomaly", hit: true, score: 8, detail: "평소 대비 3.3배" },
+          { signal: "fund_source", hit: false, score: 0, detail: "-" },
+          { signal: "payee_freshness", hit: true, score: 20, detail: "개설 6일" },
+          { signal: "limit_change", hit: false, score: 0, detail: "-" },
+          { signal: "velocity", hit: false, score: 0, detail: "-" },
+          { signal: "device", hit: false, score: 0, detail: "-" },
+          { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+        ],
+        total_score: 28,
+        level: "저",
+      },
+      context: {
+        answers: [{ question_id: "empathy", choice_id: "risky_text_only", choice_weight: 30, hard_override: false }],
+        used_input_or_attachment: true,
+        rag: {
+          signal: "scenario",
+          hit: true,
+          matched_type: "메신저피싱",
+          matched_id: "S05",
+          similarity: 0.6,
+          score: 30,
+          risk_signals: ["통화회피", "문자로만연락"],
+          source: "경찰청 월간피싱 zero S05",
+        },
+        total_score: 70,
+        level: "고",
+        hard_override: false,
+      },
     },
   },
   {
@@ -338,6 +498,7 @@ export const DEMO_CASES: DemoCase[] = [
       total_score: 20,
       level: "저",
     },
+    context: null,
     questions: [],
     chatHint: "",
     scriptedAnswers: {},
@@ -379,6 +540,14 @@ export const DEMO_CASES: DemoCase[] = [
       ],
       total_score: 45,
       level: "중",
+    },
+    context: {
+      answers: [{ question_id: "empathy", choice_id: "normal_settlement", choice_weight: 0, hard_override: false }],
+      used_input_or_attachment: false,
+      rag: null,
+      total_score: 0,
+      level: "저",
+      hard_override: false,
     },
     questions: [empathyQuestion("박지훈")],
     chatHint: "",

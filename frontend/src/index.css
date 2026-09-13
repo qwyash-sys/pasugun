@@ -679,3 +679,141 @@ textarea {
   padding: 1px 7px;
   border-radius: 999px;
 }
+
+/* ---- 위험도 분석 그래프 (1·2·3단계, local/remote·demo 공통) ---- */
+.risk-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.risk-stage {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 14px 6px;
+}
+
+.risk-stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.risk-stage-total {
+  font-weight: 700;
+  color: var(--nh-green-dark);
+  font-size: 12.5px;
+}
+
+.bar-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 108px 1fr 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.bar-row-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-row-track {
+  height: 8px;
+  background: var(--bg);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-row-fill {
+  height: 100%;
+  background: var(--border);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.bar-row-fill.hit {
+  background: var(--danger);
+}
+
+.bar-row-score {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--text-muted);
+}
+
+.bar-row-score.hit {
+  color: var(--danger);
+}
+
+.bar-row-tooltip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 2px;
+  background: #23262b;
+  color: white;
+  font-size: 11.5px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border-radius: 8px;
+  z-index: 10;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.bar-row-empty {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  padding: 6px 0 10px;
+}
+
+.verdict-matrix {
+  display: grid;
+  grid-template-columns: 64px repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 11px;
+}
+
+.verdict-matrix-corner {
+  background: transparent;
+}
+
+.verdict-matrix-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 4px 2px;
+  text-align: center;
+}
+
+.verdict-matrix-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 15px;
+  border: 1.5px solid transparent;
+}
+
+.verdict-matrix-cell.active {
+  border-color: var(--text);
+  background: white;
+  box-shadow: 0 0 0 1px var(--text);
+}

@@ -60,6 +60,22 @@ export interface FinalRisk {
   action: string;
 }
 
+export interface ContextAnswerOut {
+  question_id: string;
+  choice_id: string;
+  choice_weight: number;
+  hard_override: boolean;
+}
+
+export interface ContextAssessment {
+  answers: ContextAnswerOut[];
+  used_input_or_attachment: boolean;
+  rag: RagMatch | null;
+  total_score: number;
+  level: RiskLevel;
+  hard_override: boolean;
+}
+
 export interface ReportPayload {
   report_id: string;
   generated_at: string;
@@ -77,12 +93,16 @@ export interface ReportPayload {
   attachments_present: boolean;
   rag: RagMatch | null;
   recommendation: string;
+  account: AccountAssessment;
+  context: ContextAssessment | null;
 }
 
 export interface FinalizeResponse {
   final: FinalRisk;
   agent_reply: string | null;
   report: ReportPayload | null;
+  account: AccountAssessment;
+  context: ContextAssessment | null;
 }
 
 export interface AnswerSubmission {

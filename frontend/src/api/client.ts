@@ -79,7 +79,7 @@ class DemoBackendClient implements BackendClient {
 
   async finalize(): Promise<FinalizeResponse> {
     const c = findDemoCase(this.caseId);
-    return { final: c.final, agent_reply: c.agentReply, report: c.report };
+    return { final: c.final, agent_reply: c.agentReply, report: c.report, account: c.account, context: c.context };
   }
 }
 

@@ -1,8 +1,10 @@
 import AppBar from "../components/AppBar";
-import type { ReportPayload } from "../types";
+import RiskBreakdown from "../components/RiskBreakdown";
+import type { Question, ReportPayload } from "../types";
 
 interface Props {
   report: ReportPayload;
+  questions: Question[];
   onBack: () => void;
   onRestart: () => void;
 }
@@ -16,7 +18,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function ReportView({ report, onBack, onRestart }: Props) {
+export default function ReportView({ report, questions, onBack, onRestart }: Props) {
   return (
     <>
       <AppBar title="영업점 연계 리포트" onBack={onBack} />
@@ -34,18 +36,16 @@ export default function ReportView({ report, onBack, onRestart }: Props) {
           label="최종 위험 판정"
           value={`${report.final.final} (계좌 ${report.final.account_level} / 맥락 ${report.final.context_level})`}
         />
-        <Row label="계좌 신호 근거" value={report.account_reasons.join(", ")} />
         <Row label="대화 진단 요약" value={report.conversation_summary} />
         <Row label="첨부자료" value={report.attachments_present ? "있음" : "없음"} />
-        {report.rag && report.rag.hit && (
-          <Row
-            label="RAG 매칭 결과"
-            value={`${report.rag.matched_type} 유형, 유사도 ${report.rag.similarity.toFixed(2)}, 위험신호: ${report.rag.risk_signals.join("·")} (${report.rag.source})`}
-          />
-        )}
         <Row label="권고 조치" value={report.recommendation} />
         <Row label="생성 일시" value={report.generated_at} />
       </div>
+
+      <p className="field-label" style={{ marginTop: 16 }}>
+        위험 판정 상세 근거
+      </p>
+      <RiskBreakdown account={report.account} context={report.context} questions={questions} />
 
       <div className="spacer" />
       <div className="btn-row">

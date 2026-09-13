@@ -171,6 +171,9 @@ export default function App() {
       {screen === "m6" && result && quote && (
         <M6Result
           final={result.final}
+          account={result.account}
+          context={result.context}
+          questions={quote.questions}
           agentReply={result.agent_reply}
           payeeName={quote.payee_name}
           amount={amount}
@@ -184,8 +187,13 @@ export default function App() {
         <M7Complete final={result.final} payeeName={quote.payee_name} amount={amount} onRestart={resetFlow} />
       )}
 
-      {screen === "report" && result?.report && (
-        <ReportView report={result.report} onBack={() => setScreen("m6")} onRestart={resetFlow} />
+      {screen === "report" && result?.report && quote && (
+        <ReportView
+          report={result.report}
+          questions={quote.questions}
+          onBack={() => setScreen("m6")}
+          onRestart={resetFlow}
+        />
       )}
     </PhoneFrame>
   );

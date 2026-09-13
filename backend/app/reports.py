@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from itertools import count
 
 from app.agent import MeomchitAgent
-from app.models import FinalRisk, RagMatch, ReportPayload
+from app.models import AccountAssessment, ContextAssessment, FinalRisk, RagMatch, ReportPayload
 
 _report_seq = count(1)
 
@@ -46,6 +46,8 @@ def build_report(
     conversation: str,
     attachments_present: bool,
     rag: RagMatch | None,
+    account: AccountAssessment,
+    context: ContextAssessment | None,
 ) -> ReportPayload:
     conversation_summary = (
         agent.summarize_for_report(conversation, rag)
@@ -70,4 +72,6 @@ def build_report(
         attachments_present=attachments_present,
         rag=rag,
         recommendation=_RECOMMENDATIONS.get(final.final, "특이사항 없음, 정상 처리"),
+        account=account,
+        context=context,
     )

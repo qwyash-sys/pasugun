@@ -1,8 +1,12 @@
 import AppBar, { AiTag } from "../components/AppBar";
-import type { FinalRisk } from "../types";
+import RiskBreakdown from "../components/RiskBreakdown";
+import type { AccountAssessment, ContextAssessment, FinalRisk, Question } from "../types";
 
 interface Props {
   final: FinalRisk;
+  account: AccountAssessment;
+  context: ContextAssessment | null;
+  questions: Question[];
   agentReply: string | null;
   payeeName: string;
   amount: number;
@@ -17,7 +21,18 @@ const VARIANT = {
   위험: { badgeClass: "verdict-danger", emoji: "🔴", title: "보이스피싱이 의심돼요" },
 } as const;
 
-export default function M6Result({ final, agentReply, payeeName, amount, onProceed, onCancel, onViewReport }: Props) {
+export default function M6Result({
+  final,
+  account,
+  context,
+  questions,
+  agentReply,
+  payeeName,
+  amount,
+  onProceed,
+  onCancel,
+  onViewReport,
+}: Props) {
   const v = VARIANT[final.final];
 
   return (
@@ -34,15 +49,7 @@ export default function M6Result({ final, agentReply, payeeName, amount, onProce
 
       {agentReply && <div className="chat-bubble">{agentReply}</div>}
 
-      <div className="card">
-        <div className="field-label">판단 근거</div>
-        <ul className="reason-list">
-          {final.reasons.length === 0 && <li>특이 신호 없음</li>}
-          {final.reasons.map((r, i) => (
-            <li key={i}>{r}</li>
-          ))}
-        </ul>
-      </div>
+      <RiskBreakdown account={account} context={context} questions={questions} />
 
       <div className="spacer" />
 

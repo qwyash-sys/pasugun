@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from app.aggregator import calculate_final_risk
 from app.agent import MeomchitAgent
 from app.data_store import get_customer, get_payee
-from app.models import ContextAnswer
+from app.models import AccountAssessment, ContextAnswer
 from app.providers.llm.factory import get_llm
 from app.providers.ocr.factory import get_ocr
 from app.providers.rag.factory import get_rag
@@ -108,6 +108,10 @@ def finalize(session_id: str, payload: FinalizeRequest):
 
     final = calculate_final_risk(session.account_score, session.account_level, session.account_signals, context)
 
+    account = AccountAssessment(
+        signals=session.account_signals, total_score=session.account_score, level=session.account_level
+    )
+
     report = None
     if final.final == "위험":
         customer = get_customer(session.customer_id)
@@ -124,9 +128,11 @@ def finalize(session_id: str, payload: FinalizeRequest):
                 conversation=combined_text,
                 attachments_present=attachments_present,
                 rag=rag,
+                account=account,
+                context=context,
             )
         except Exception as e:
             logger.exception("Report generation failed")
             raise HTTPException(status_code=502, detail="리포트 생성 중 문제가 발생했어요.") from e
 
-    return {"final": final, "agent_reply": agent_reply, "report": report}
+    return {"final": final, "agent_reply": agent_reply, "report": report, "account": account, "context": context}
