@@ -22,7 +22,7 @@ export default function ReportView({ report, questions, onBack, onRestart }: Pro
   return (
     <>
       <AppBar title="영업점 연계 리포트" onBack={onBack} />
-      <h1 className="title">멈칫 사기의심 거래 리포트</h1>
+      <h1 className="title">파수꾼 사기의심 거래 리포트</h1>
       <p className="subtitle">#{report.report_id}</p>
 
       <div className="report-sheet">

@@ -1,4 +1,4 @@
-# 멈칫(Meomchit)
+# 파수꾼(Pasugun)
 
 SPEC.md 기준 프로토타입. `backend/`(FastAPI) + `frontend/`(React/Vite) 두 서비스로 구성.
 

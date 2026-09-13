@@ -99,7 +99,7 @@ export default function RiskBreakdown({ account, context, questions }: Props) {
           <span>2단계 · 맥락 분석</span>
           <span className="risk-stage-total">
             {context ? `${context.total_score}점 · ${context.level}` : "미실행(질문 없음)"}
-            {context?.hard_override ? " · 하드오버라이드" : ""}
+            {context?.hard_override ? " · 결정적 피싱징후" : ""}
           </span>
         </div>
 

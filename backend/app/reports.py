@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timezone
 from itertools import count
 
-from app.agent import MeomchitAgent
+from app.agent import PasugunAgent
 from app.models import AccountAssessment, ContextAssessment, FinalRisk, RagMatch, ReportPayload
 
 _report_seq = count(1)
@@ -36,7 +36,7 @@ def next_report_id(now: datetime | None = None) -> str:
 
 def build_report(
     *,
-    agent: MeomchitAgent,
+    agent: PasugunAgent,
     customer: dict,
     customer_phone: str,
     payee: dict,
@@ -67,7 +67,7 @@ def build_report(
         amount=amount,
         attempted_at=attempted_at,
         final=final,
-        account_reasons=[r for r in final.reasons if not r.startswith("RAG") and "하드오버라이드" not in r],
+        account_reasons=[r for r in final.reasons if not r.startswith("RAG") and "결정적 피싱징후" not in r],
         conversation_summary=conversation_summary,
         attachments_present=attachments_present,
         rag=rag,

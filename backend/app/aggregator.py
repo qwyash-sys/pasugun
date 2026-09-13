@@ -11,7 +11,9 @@ _MATRIX: dict[tuple[RiskLevel, RiskLevel], str] = {
 _ACTIONS = {
     "안전": "확인 1탭으로 송금 진행",
     "주의": "공식번호로 직접 확인 안내 후 진행 여부 재확인",
-    "위험": "영업점유도(이체 보류 + 지연이체·가족알림 안내) + 요약 리포트 자동 생성",
+    # 송금 자체를 강제로 막지는 않는다 — 완전 차단은 민원 소지가 있어, 강한 경고와
+    # 지연이체 안내 후 최종 진행 여부는 고객이 선택한다(SPEC 6-1 M6 위험 분기).
+    "위험": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
 }
 
 
@@ -33,7 +35,7 @@ def calculate_final_risk(
                 f"RAG 매칭: {context.rag.matched_type}(유사도 {context.rag.similarity:.2f}, {context.rag.source})"
             )
         if hard_override:
-            reasons.append("하드오버라이드: 결정적 위험신호 직접 확인")
+            reasons.append("결정적 피싱징후 감지: 위험신호 직접 확인")
 
     return FinalRisk(
         account_level=account_lv,

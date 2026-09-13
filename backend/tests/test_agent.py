@@ -1,8 +1,8 @@
-"""LLM 없이 MeomchitAgent의 tool-use 오케스트레이션 메커니즘만 검증한다.
+"""LLM 없이 PasugunAgent의 tool-use 오케스트레이션 메커니즘만 검증한다.
 가짜 LLM 프로바이더가 Anthropic 응답 형태(content blocks/stop_reason)를 그대로
 흉내내, 에이전트가 tool_use -> tool_result -> 최종 text 루프를 올바르게 도는지 확인."""
 
-from app.agent import MeomchitAgent
+from app.agent import PasugunAgent
 from app.models import RagMatch
 from app.providers.rag.faiss_provider import FaissLocalRagProvider
 
@@ -51,7 +51,7 @@ def test_agent_calls_scenario_rag_tool_and_returns_final_reply():
     )
     rag = FakeRagProvider(rag_match)
 
-    agent = MeomchitAgent(llm, rag)
+    agent = PasugunAgent(llm, rag)
     result = agent.analyze("남용환", "검찰이 안전계좌로 옮기라고 했다")
 
     assert rag.called_with == "검찰이 안전계좌로 옮기라고 했다"
@@ -68,7 +68,7 @@ def test_agent_returns_direct_text_without_tool_use():
         def chat(self, system, messages, tools=None):
             return {"content": [{"type": "text", "text": "네, 알겠습니다."}], "stop_reason": "end_turn"}
 
-    agent = MeomchitAgent(DirectTextLlm(), FaissLocalRagProvider())
+    agent = PasugunAgent(DirectTextLlm(), FaissLocalRagProvider())
     result = agent.analyze("김도윤", "그냥 확인차 여쭤봤어요")
 
     assert result.reply == "네, 알겠습니다."

@@ -3,7 +3,7 @@ import { DEMO_CASES } from "../demoData/cases";
 export default function CasePicker({ onSelect }: { onSelect: (caseId: string) => void }) {
   return (
     <>
-      <div className="ai-tag">멈칫 데모</div>
+      <div className="ai-tag">파수꾼 데모</div>
       <h1 className="title">시연 케이스 선택</h1>
       <p className="subtitle">SPEC 5장 검산 완료 케이스 5종을 그대로 재생합니다.</p>
       <div className="case-picker-list">

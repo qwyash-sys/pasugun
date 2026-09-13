@@ -13,5 +13,5 @@ export const SIGNAL_META: Record<string, { label: string; max: number }> = {
 export const SIGNAL_ORDER = Object.keys(SIGNAL_META);
 
 // 2단계 맥락 항목은 신호 종류가 케이스마다 달라(선택지 종류가 여러 개) 만점을 하나로
-// 고정한다 — 하드오버라이드/RAG 고위험이 50점으로 가장 크므로 그걸 기준으로 삼는다.
+// 고정한다 — 결정적 피싱징후/RAG 고위험이 50점으로 가장 크므로 그걸 기준으로 삼는다.
 export const CONTEXT_ITEM_MAX = 50;

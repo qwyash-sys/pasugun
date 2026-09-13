@@ -3,7 +3,8 @@
 
 from app.models import ContextAnswer, ContextAssessment, RagMatch, RiskLevel, SignalResult
 
-# 하드오버라이드 위험신호: 이 중 하나라도 RAG 매칭에서 직접 hit 하면 즉시 맥락 高
+# 결정적 피싱징후: 이 중 하나라도 RAG 매칭에서 직접 hit 하면 즉시 맥락 高
+# (내부 필드명 hard_override는 그대로 유지 — API 계약이라 바꾸지 않는다)
 HARD_OVERRIDE_RISK_SIGNALS = {"안전계좌", "원격제어앱", "화면유지요구"}
 
 

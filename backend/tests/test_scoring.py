@@ -37,7 +37,7 @@ def test_case1_prosecutor_impersonation_red():
     assert total >= 90
     assert intervention_intensity(total) == "empathy_question+safety_question"
 
-    # 안전질문에서 "비슷한 안내 받음"(+50, 하드오버라이드)을 선택한 상황을 재현
+    # 안전질문에서 "비슷한 안내 받음"(+50, 결정적 피싱징후)을 선택한 상황을 재현
     safety_hit = ContextAnswer(question_id="safety", choice_id="safety_yes", choice_weight=50, hard_override=True)
     rag_match = rag.scenario_rag("검찰청 수사관이라며 안전계좌로 이체하라고 안내받았다")
     context = build_context_assessment([safety_hit], used_input_or_attachment=True, rag=rag_match)

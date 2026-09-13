@@ -10,7 +10,7 @@ from app.models import RagMatch
 from app.providers.llm.base import LlmProvider
 from app.providers.rag.base import RagProvider
 
-SYSTEM_PROMPT = """당신은 비대면 송금 과정에서 고객을 돕는 '멈칫'의 AI 상담원입니다.
+SYSTEM_PROMPT = """당신은 비대면 송금 과정에서 고객을 돕는 '파수꾼'의 AI 상담원입니다.
 고객 이름은 {name}님입니다.
 
 원칙:
@@ -56,7 +56,7 @@ class AgentResult:
         self.rag = rag
 
 
-class MeomchitAgent:
+class PasugunAgent:
     def __init__(self, llm: LlmProvider, rag: RagProvider):
         self._llm = llm
         self._rag = rag

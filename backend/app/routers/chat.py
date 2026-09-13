@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.aggregator import calculate_final_risk
-from app.agent import MeomchitAgent
+from app.agent import PasugunAgent
 from app.data_store import get_customer, get_payee
 from app.models import AccountAssessment, ContextAnswer
 from app.providers.llm.factory import get_llm
@@ -18,7 +18,7 @@ from app.reports import build_report
 from app.scoring import build_context_assessment
 from app.session_store import get_session
 
-logger = logging.getLogger("meomchit")
+logger = logging.getLogger("pasugun")
 
 router = APIRouter(prefix="/api/transfer", tags=["chat"])
 
@@ -74,7 +74,7 @@ def finalize(session_id: str, payload: FinalizeRequest):
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
-    agent = MeomchitAgent(get_llm(), get_rag())
+    agent = PasugunAgent(get_llm(), get_rag())
 
     combined_text = payload.text.strip()
     attachments_present = bool(payload.attachment_base64)

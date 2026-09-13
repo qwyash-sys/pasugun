@@ -7,9 +7,9 @@ from fastapi.responses import JSONResponse
 from app.config import get_settings
 from app.routers import chat, transfer
 
-logger = logging.getLogger("meomchit")
+logger = logging.getLogger("pasugun")
 
-app = FastAPI(title="멈칫(Meomchit) API")
+app = FastAPI(title="파수꾼(Pasugun) API")
 
 settings = get_settings()
 app.add_middleware(
