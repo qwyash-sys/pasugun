@@ -168,7 +168,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
 
     const attachment = attachmentBase64;
     const attachmentLabel = attachedName;
-    setMessages((prev) => [...prev, { role: "user", text: text || `(첨부: ${attachmentLabel})` }]);
+    setMessages((prev) => [...prev, { role: "user", text, attachment: attachmentLabel ?? undefined }]);
     setInput("");
     setAttachedName(null);
     setAttachmentBase64(null);
@@ -202,8 +202,9 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
 
       <div className="chat-thread">
         {messages.map((m, i) => (
-          <div key={i} className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>
-            {m.text}
+          <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
+            {m.attachment && <div className="chat-attach-chip">📷 {m.attachment}</div>}
+            {m.text && <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>}
           </div>
         ))}
         {sending && (
@@ -233,7 +234,9 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+                // 한글 등 조합형 입력 중 조합을 확정하는 Enter까지 전송으로 처리하면
+                // 마지막 글자가 끊긴 채로 보내진다 — 조합 중(isComposing)에는 무시한다.
+                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                   e.preventDefault();
                   handleSend();
                 }
