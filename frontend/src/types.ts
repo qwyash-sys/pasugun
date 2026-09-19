@@ -130,8 +130,13 @@ export interface TransferQuoteRequest {
   }>;
 }
 
-export interface FinalizeRequest {
+export interface ChatTurnRequest {
   text?: string;
   attachment_base64?: string | null;
-  skipped?: boolean;
+}
+
+export interface ChatTurnResponse {
+  reply: string;
+  turn: number;
+  max_turns: number;
 }

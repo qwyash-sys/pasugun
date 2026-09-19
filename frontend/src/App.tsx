@@ -87,7 +87,7 @@ export default function App() {
   function handleConfirmOnly() {
     if (!client || !sessionId) return;
     runGuarded(async () => {
-      const res = await client.finalize(sessionId, { skipped: true });
+      const res = await client.finalize(sessionId);
       setResult(res);
       setScreen("m6");
     });
@@ -101,14 +101,33 @@ export default function App() {
     });
   }
 
-  function handleChatSubmit(payload: { text: string; attachmentBase64: string | null; skipped: boolean }) {
+  /** demo 모드 전용: 대본대로 고정된 결과이므로 실제 입력 내용은 반영되지 않는다. */
+  function handleDemoChatSubmit() {
     if (!client || !sessionId) return;
     runGuarded(async () => {
-      const res = await client.finalize(sessionId, {
-        text: payload.text,
-        attachment_base64: payload.attachmentBase64,
-        skipped: payload.skipped,
-      });
+      const res = await client.finalize(sessionId);
+      setResult(res);
+      setScreen("m6");
+    });
+  }
+
+  /** local/remote 모드 전용: 채팅 한 턴을 보내고 AI 응답을 받아온다(finalize와 무관 —
+   * 화면 전환 없이 대화만 이어간다). */
+  async function handleChatTurn(payload: { text: string; attachmentBase64: string | null }) {
+    if (!client || !sessionId) throw new Error("세션이 없어요");
+    const res = await client.chatTurn(sessionId, {
+      text: payload.text,
+      attachment_base64: payload.attachmentBase64,
+    });
+    return { reply: res.reply, turn: res.turn, maxTurns: res.max_turns };
+  }
+
+  /** local/remote 모드 전용: 대화를 건너뛰었든(0턴) 몇 턴 나눴든, 세션에 쌓인 내용을
+   * 그대로 확정해 결과 화면으로 넘어간다. */
+  function handleChatFinish() {
+    if (!client || !sessionId) return;
+    runGuarded(async () => {
+      const res = await client.finalize(sessionId);
       setResult(res);
       setScreen("m6");
     });
@@ -160,11 +179,15 @@ export default function App() {
 
       {screen === "m5" && (
         <M5Chat
-          hint={demoCase?.chatHint ?? ""}
-          onSubmit={handleChatSubmit}
+          customerName={quote?.customer_name ?? ""}
+          isDemo={isDemo}
           loading={busy}
           error={error}
+          hint={demoCase?.chatHint ?? ""}
           scriptedChat={demoCase?.scriptedChat}
+          onDemoSubmit={handleDemoChatSubmit}
+          onSendTurn={handleChatTurn}
+          onFinish={handleChatFinish}
         />
       )}
 

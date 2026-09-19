@@ -73,3 +73,33 @@ def test_agent_returns_direct_text_without_tool_use():
 
     assert result.reply == "네, 알겠습니다."
     assert result.rag is None
+
+
+def test_agent_chat_turn_carries_history_across_turns():
+    """M5 멀티턴 대화: 이전 턴에서 반환한 messages를 다음 턴 history로 넘기면
+    LLM에 대화 전체가 누적돼 전달돼야 한다(맥락 유지)."""
+
+    class RecordingLlm:
+        def __init__(self):
+            self.calls: list[list[dict]] = []
+
+        def chat(self, system, messages, tools=None):
+            self.calls.append(messages)
+            return {"content": [{"type": "text", "text": f"reply {len(self.calls)}"}], "stop_reason": "end_turn"}
+
+    llm = RecordingLlm()
+    agent = PasugunAgent(llm, FaissLocalRagProvider())
+
+    reply1, history1, rag1 = agent.chat_turn("남용환", [], "첫 메시지")
+    assert reply1 == "reply 1"
+    assert rag1 is None
+
+    reply2, history2, rag2 = agent.chat_turn("남용환", history1, "두번째 메시지")
+    assert reply2 == "reply 2"
+
+    second_call_messages = llm.calls[1]
+    assert [m["content"] for m in second_call_messages if isinstance(m["content"], str)] == [
+        "첫 메시지",
+        "두번째 메시지",
+    ]
+    assert len(history2) == 4  # user1, assistant1, user2, assistant2

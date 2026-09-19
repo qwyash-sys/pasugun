@@ -2,7 +2,8 @@ import { API_BASE_URL, RESPONSE_SOURCE } from "../config";
 import { findDemoCase } from "../demoData/cases";
 import type {
   AnswerSubmission,
-  FinalizeRequest,
+  ChatTurnRequest,
+  ChatTurnResponse,
   FinalizeResponse,
   QuoteResponse,
   TransferQuoteRequest,
@@ -11,7 +12,8 @@ import type {
 export interface BackendClient {
   quote(req: TransferQuoteRequest): Promise<QuoteResponse>;
   submitAnswers(sessionId: string, answers: AnswerSubmission[]): Promise<void>;
-  finalize(sessionId: string, req: FinalizeRequest): Promise<FinalizeResponse>;
+  chatTurn(sessionId: string, req: ChatTurnRequest): Promise<ChatTurnResponse>;
+  finalize(sessionId: string): Promise<FinalizeResponse>;
 }
 
 class HttpBackendClient implements BackendClient {
@@ -34,12 +36,18 @@ class HttpBackendClient implements BackendClient {
     if (!res.ok) throw new Error(`answers 실패: ${res.status}`);
   }
 
-  async finalize(sessionId: string, req: FinalizeRequest): Promise<FinalizeResponse> {
-    const res = await fetch(`${API_BASE_URL}/api/transfer/${sessionId}/finalize`, {
+  async chatTurn(sessionId: string, req: ChatTurnRequest): Promise<ChatTurnResponse> {
+    const res = await fetch(`${API_BASE_URL}/api/transfer/${sessionId}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req),
     });
+    if (!res.ok) throw new Error(`chat 실패: ${res.status}`);
+    return res.json();
+  }
+
+  async finalize(sessionId: string): Promise<FinalizeResponse> {
+    const res = await fetch(`${API_BASE_URL}/api/transfer/${sessionId}/finalize`, { method: "POST" });
     if (!res.ok) throw new Error(`finalize 실패: ${res.status}`);
     return res.json();
   }
@@ -75,6 +83,11 @@ class DemoBackendClient implements BackendClient {
 
   async submitAnswers(): Promise<void> {
     // 데모는 선택 내용과 무관하게 대본대로 진행한다.
+  }
+
+  async chatTurn(): Promise<ChatTurnResponse> {
+    // 데모 모드는 M5Chat이 항상 단일 제출 UI(DemoChat)를 쓰므로 호출되지 않는다.
+    throw new Error("데모 모드에서는 멀티턴 대화를 사용하지 않습니다");
   }
 
   async finalize(): Promise<FinalizeResponse> {

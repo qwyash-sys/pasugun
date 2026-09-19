@@ -61,9 +61,12 @@ class PasugunAgent:
         self._llm = llm
         self._rag = rag
 
-    def analyze(self, customer_name: str, user_text: str) -> AgentResult:
-        system = SYSTEM_PROMPT.format(name=customer_name)
-        messages: list[dict[str, Any]] = [{"role": "user", "content": user_text}]
+    def _run_turn(
+        self, system: str, messages: list[dict[str, Any]]
+    ) -> tuple[str, list[dict[str, Any]], RagMatch | None]:
+        """messages 끝에 이미 이번 턴의 user 메시지가 붙어있다고 가정하고, tool_use ->
+        tool_result -> 최종 text 루프를 돈다. 갱신된 messages(대화 이력)를 함께 돌려줘
+        다음 턴에 그대로 이어붙일 수 있게 한다."""
         rag_match: RagMatch | None = None
 
         for _ in range(3):  # scenario_rag 1회면 충분하지만, 방어적으로 상한을 둔다
@@ -71,9 +74,10 @@ class PasugunAgent:
 
             if response["stop_reason"] != "tool_use":
                 final_text = "".join(b["text"] for b in response["content"] if b["type"] == "text")
-                return AgentResult(reply=final_text, rag=rag_match)
+                messages = [*messages, {"role": "assistant", "content": response["content"]}]
+                return final_text, messages, rag_match
 
-            messages.append({"role": "assistant", "content": response["content"]})
+            messages = [*messages, {"role": "assistant", "content": response["content"]}]
             tool_results = []
             for block in response["content"]:
                 if block["type"] != "tool_use":
@@ -87,9 +91,23 @@ class PasugunAgent:
                             "content": rag_match.model_dump_json(),
                         }
                     )
-            messages.append({"role": "user", "content": tool_results})
+            messages = [*messages, {"role": "user", "content": tool_results}]
 
-        return AgentResult(reply="확인 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.", rag=rag_match)
+        return "확인 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.", messages, rag_match
+
+    def analyze(self, customer_name: str, user_text: str) -> AgentResult:
+        system = SYSTEM_PROMPT.format(name=customer_name)
+        reply, _messages, rag_match = self._run_turn(system, [{"role": "user", "content": user_text}])
+        return AgentResult(reply=reply, rag=rag_match)
+
+    def chat_turn(
+        self, customer_name: str, history: list[dict[str, Any]], user_text: str
+    ) -> tuple[str, list[dict[str, Any]], RagMatch | None]:
+        """M5의 멀티턴 대화 한 턴을 처리한다. history는 이전 턴들의 원본 메시지
+        (role/content 블록)이고, 반환하는 messages를 다음 턴 history로 그대로 넘기면 된다."""
+        system = SYSTEM_PROMPT.format(name=customer_name)
+        messages = [*history, {"role": "user", "content": user_text}]
+        return self._run_turn(system, messages)
 
     def summarize_for_report(self, conversation: str, rag: RagMatch | None) -> str:
         rag_summary = (
