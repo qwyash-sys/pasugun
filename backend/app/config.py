@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     stt_provider: str = "local"  # local | transcribe
 
     anthropic_api_key: str = ""
-    anthropic_model: str = "claude-sonnet-4-5"
+    anthropic_model: str = "claude-haiku-4-5"  # 현재 라인업 최저가($1/$5 per 1M) — 프로토타입 기본값
 
     aws_region: str = "ap-northeast-2"
     aws_access_key_id: str = ""
