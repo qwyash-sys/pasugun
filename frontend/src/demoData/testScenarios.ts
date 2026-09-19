@@ -10,6 +10,8 @@ export interface TestScenario {
   amount: number;
   payeeBank: string;
   payeeAccount: string;
+  /** SPEC 5장 케이스가 가정한 시각. 지금 시각을 쓰면 새벽 접속 시 이용시간대 신호(+5~10)가 붙어 점수가 달라진다. */
+  currentTime: string;
   overrides: TransferQuoteRequest["context_overrides"];
 }
 
@@ -21,6 +23,7 @@ export const TEST_SCENARIOS: TestScenario[] = [
     amount: 20_000_000,
     payeeBank: "미래에셋증권",
     payeeAccount: "010-6660-98261",
+    currentTime: "2026-08-11T01:10:00+09:00",
     overrides: { fund_source_recent: true },
   },
   {
@@ -30,6 +33,7 @@ export const TEST_SCENARIOS: TestScenario[] = [
     amount: 5_000_000,
     payeeBank: "신한은행",
     payeeAccount: "110-452-118834",
+    currentTime: "2026-08-09T11:00:00+09:00",
     overrides: { limit_changed_recent: true },
   },
   {
@@ -39,6 +43,7 @@ export const TEST_SCENARIOS: TestScenario[] = [
     amount: 1_000_000,
     payeeBank: "카카오뱅크",
     payeeAccount: "301-8827-4410",
+    currentTime: "2026-08-12T15:00:00+09:00",
     overrides: {},
   },
   {
@@ -48,6 +53,7 @@ export const TEST_SCENARIOS: TestScenario[] = [
     amount: 150_000,
     payeeBank: "국민은행",
     payeeAccount: "552-102-993841",
+    currentTime: "2026-08-13T18:00:00+09:00",
     overrides: {},
   },
   {
@@ -57,6 +63,7 @@ export const TEST_SCENARIOS: TestScenario[] = [
     amount: 50_000_000,
     payeeBank: "우리은행",
     payeeAccount: "088-19-284755",
+    currentTime: "2026-08-14T11:00:00+09:00",
     overrides: {},
   },
 ];

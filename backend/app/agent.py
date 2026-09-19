@@ -35,6 +35,19 @@ REPORT_SUMMARY_PROMPT = """아래는 고객과의 대화 원문과 RAG 사례 �
 RAG 대조 결과: {rag_summary}
 """
 
+CONCLUSION_PROMPT = """{name}님과의 확인 대화가 끝났고, 별도의 결정론적 로직이 이미 최종 판정을 확정했습니다.
+최종 판정: {verdict}
+판정 근거: {reasons}
+
+당신은 판정을 바꾸거나 점수·등급을 언급하지 않고, 이 판정에 맞는 다음 행동을 {name}님께 배려 있는
+말투로 2문장 이내로 안내합니다. 위험이면 송금을 막지는 않되 잠시 멈추고 영업점이나 공식 채널로 먼저
+확인해보시길 권하고, 주의면 상대방 신원을 공식 번호로 다시 확인해보시길 권하고, 안전이면 안심시킵니다.
+"보이스피싱", "사기" 같은 단정적 표현은 쓰지 말고, 마크다운 없이 평문으로만 답합니다.
+
+대화 원문:
+{conversation}
+"""
+
 SCENARIO_RAG_TOOL = {
     "name": "scenario_rag",
     "description": (
@@ -110,6 +123,24 @@ class PasugunAgent:
         system = SYSTEM_PROMPT.format(name=customer_name)
         messages = [*history, {"role": "user", "content": user_text}]
         return self._run_turn(system, messages)
+
+    def conclude(self, customer_name: str, verdict: str, reasons: list[str], conversation: str) -> str:
+        """확정된 판정(scoring이 이미 결정)에 맞춰 결론 안내 문구만 자연어로 쓴다 — 판정은 바꾸지 않는다."""
+        response = self._llm.chat(
+            system="당신은 확정된 판정을 고객에게 다정하게 안내하는 파수꾼의 AI 상담원입니다.",
+            messages=[
+                {
+                    "role": "user",
+                    "content": CONCLUSION_PROMPT.format(
+                        name=customer_name,
+                        verdict=verdict,
+                        reasons=", ".join(reasons) or "특이사항 없음",
+                        conversation=conversation,
+                    ),
+                }
+            ],
+        )
+        return "".join(b["text"] for b in response["content"] if b["type"] == "text").strip()
 
     def summarize_for_report(self, conversation: str, rag: RagMatch | None) -> str:
         rag_summary = (

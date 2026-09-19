@@ -146,9 +146,19 @@ def finalize(session_id: str):
         signals=session.account_signals, total_score=session.account_score, level=session.account_level
     )
 
+    agent = PasugunAgent(get_llm(), get_rag())
+
+    # 결과 화면 상단의 결론 안내(데모 모드의 agentReply와 같은 자리). 마지막 채팅 답장은 대개
+    # 후속 질문이라 결론으로 부적절하므로, 판정이 확정된 뒤 결론 문구만 따로 생성한다.
+    conclusion = None
+    if combined_text:
+        try:
+            conclusion = agent.conclude(session.customer_name, final.final, final.reasons, combined_text)
+        except Exception:
+            logger.exception("Conclusion generation failed")
+
     report = None
     if final.final == "위험":
-        agent = PasugunAgent(get_llm(), get_rag())
         customer = get_customer(session.customer_id)
         payee = get_payee(session.payee_account)
         try:
@@ -170,11 +180,9 @@ def finalize(session_id: str):
             logger.exception("Report generation failed")
             raise HTTPException(status_code=502, detail="리포트 생성 중 문제가 발생했어요.") from e
 
-    # 마지막 AI 답장은 대개 대화를 이어가는 후속 질문이라 결론 말풍선으로 부적절하다 —
-    # 결과 화면은 판정·근거 그래프·행동 안내로 결론을 대신한다.
     return {
         "final": final,
-        "agent_reply": None,
+        "agent_reply": conclusion,
         "report": report,
         "account": account,
         "context": context,

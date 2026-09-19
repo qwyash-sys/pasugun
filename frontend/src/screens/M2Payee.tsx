@@ -36,7 +36,7 @@ export default function M2Payee({ demoCase, scenario, customerId, amount, client
         customer_id: customerId,
         payee_account: account,
         amount,
-        current_time: new Date().toISOString(),
+        current_time: scenario?.currentTime ?? new Date().toISOString(),
         context_overrides: scenario?.overrides,
       })
       .then((q) => {

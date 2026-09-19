@@ -98,8 +98,9 @@ def test_chat_turns_accumulate_and_finalize_uses_session_state():
     final = client.post(f"/api/transfer/{session_id}/finalize")
     assert final.status_code == 200, final.text
     data = final.json()
-    # 마지막 AI 답장은 후속 질문인 경우가 많아 결론 말풍선으로 내보내지 않는다.
-    assert data["agent_reply"] is None
+    # 마지막 채팅 답장(후속 질문)이 아니라, 확정 판정 뒤에 따로 생성한 결론 문구여야 한다.
+    # FakeLlm 호출: 채팅 2턴(tool_use 1 + 텍스트 2) = 3회 → 결론이 4번째 응답.
+    assert data["agent_reply"] == "AI 응답 4"
     assert data["context"]["used_input_or_attachment"] is True
     assert data["context"]["rag"]["hit"] is True
     assert data["context"]["rag"]["matched_id"] == "S02"
@@ -159,6 +160,25 @@ def test_chat_unknown_session_returns_404():
 def test_finalize_unknown_session_returns_404():
     res = client.post("/api/transfer/does-not-exist/finalize")
     assert res.status_code == 404
+
+
+def test_finalize_survives_conclusion_llm_failure(monkeypatch):
+    """결론 문구 생성이 실패해도 판정 자체는 결정론적이므로 finalize는 성공하고 agent_reply만 비어야 한다."""
+
+    class ConclusionFailsLlm(FakeLlm):
+        def chat(self, system, messages, tools=None):
+            if "최종 판정" in str(messages[-1]["content"]):
+                raise RuntimeError("boom")
+            return super().chat(system, messages, tools)
+
+    monkeypatch.setattr(chat_router, "get_llm", lambda: ConclusionFailsLlm())
+    session_id = _quote(payee_account="000-0000-000000", amount=10_000)["session_id"]
+    client.post(f"/api/transfer/{session_id}/chat", json={"text": "그냥 확인차 물어봤어요"})
+
+    res = client.post(f"/api/transfer/{session_id}/finalize")
+    assert res.status_code == 200, res.text
+    assert res.json()["agent_reply"] is None
+    assert res.json()["final"]["final"] in ("안전", "주의", "위험")
 
 
 def test_finalize_with_no_chat_and_no_answers_skips_context():
