@@ -184,7 +184,7 @@ export default function App() {
           loading={busy}
           error={error}
           hint={demoCase?.chatHint ?? ""}
-          scriptedChat={demoCase?.scriptedChat}
+          chatTurns={demoCase?.chatTurns}
           onDemoSubmit={handleDemoChatSubmit}
           onSendTurn={handleChatTurn}
           onFinish={handleChatFinish}

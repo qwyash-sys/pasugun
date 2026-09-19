@@ -8,15 +8,21 @@ interface ChatTurnResult {
   maxTurns: number;
 }
 
+interface DemoTurn {
+  user: string;
+  ai: string;
+}
+
 interface Props {
   customerName: string;
   isDemo: boolean;
   loading: boolean;
   error: string | null;
-  /** demo 모드 전용: 이 케이스의 각본이 상정하는 단일 입력(결과는 어차피 대본대로 고정). */
+  /** demo 모드 전용: AI 첫 인사말에 덧붙는 안내, 그리고 버튼을 눌러 한 턴씩 재생하는 대본.
+   * 결과 자체는 어차피 대본대로 고정된다 — 대본은 화면에서 "실제로 대화하는 느낌"만 준다. */
   hint?: string;
-  scriptedChat?: { text: string | null; skip: boolean };
-  onDemoSubmit?: (payload: { text: string; attachmentBase64: string | null; skipped: boolean }) => void;
+  chatTurns?: DemoTurn[];
+  onDemoSubmit?: (payload: { skipped: boolean }) => void;
   /** local/remote 모드 전용: 실제 멀티턴 대화. */
   onSendTurn?: (payload: { text: string; attachmentBase64: string | null }) => Promise<ChatTurnResult>;
   /** 대화를 건너뛰거나(0턴) 충분히 나눈 뒤(1턴 이상) 결과 화면으로 넘어간다 — 서버가
@@ -37,79 +43,89 @@ export default function M5Chat(props: Props) {
   return props.isDemo ? <DemoChat {...props} /> : <LiveChat {...props} />;
 }
 
-/** demo 모드: 대본대로 고정된 결과가 나오므로, 텍스트 한 번 입력(또는 건너뛰기)만 받는다. */
-function DemoChat({ hint, onDemoSubmit, error, scriptedChat }: Props) {
-  const [text, setText] = useState("");
-  const [attachedName, setAttachedName] = useState<string | null>(null);
-  const [attachmentBase64, setAttachmentBase64] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+interface ChatMessage {
+  role: "user" | "ai";
+  text: string;
+}
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAttachedName(file.name);
-    setAttachmentBase64(await fileToBase64(file));
+/** demo 모드: 결과는 대본대로 고정돼있지만, 화면은 실제 채팅처럼 보이게 재생한다. 대사를
+ * 직접 타이핑하게 하면 시연 중 오타·삭제로 흐름이 끊기니, 다음 대사를 누르면 사용자 말풍선이
+ * 뜨고 잠시 후 AI 응답이 이어지는 식으로 버튼 클릭만으로 진행시킨다. */
+function DemoChat({ hint, chatTurns, onDemoSubmit }: Props) {
+  const turns = chatTurns ?? [];
+  const [completed, setCompleted] = useState(0);
+  const [pendingUser, setPendingUser] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const messages: ChatMessage[] = [
+    { role: "ai", text: `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황을 편하게 말씀해주세요."}` },
+  ];
+  for (let i = 0; i < completed; i++) {
+    messages.push({ role: "user", text: turns[i].user });
+    messages.push({ role: "ai", text: turns[i].ai });
+  }
+  if (pendingUser) messages.push({ role: "user", text: pendingUser });
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ block: "end" });
+  }, [messages.length, pendingUser]);
+
+  function playNext() {
+    const turn = turns[completed];
+    if (!turn || pendingUser) return;
+    setPendingUser(turn.user);
+    setTimeout(() => {
+      setPendingUser(null);
+      setCompleted((c) => c + 1);
+    }, 900);
   }
 
-  const scriptedSkip = scriptedChat?.skip ?? false;
-  const scriptedText = scriptedChat?.text ?? null;
+  const done = completed >= turns.length;
+  const noChat = turns.length === 0;
 
   return (
     <>
       <AppBar title="AI 안전확인" />
       <AiTag />
-      <div className="chat-bubble">
-        현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. {hint || "상황 설명이나 자료 뭐든 올려주시면 확인해드릴게요."}
+
+      <div className="chat-thread">
+        {messages.map((m, i) => (
+          <div key={i} className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>
+            {m.text}
+          </div>
+        ))}
+        {pendingUser && (
+          <div className="chat-typing">
+            <span />
+            <span />
+            <span />
+          </div>
+        )}
+        <div ref={bottomRef} />
       </div>
-
-      {scriptedText && (
-        <p className="script-hint">
-          💡 이 시나리오 입력 예시: "{scriptedText}"{" "}
-          <button className="script-hint-fill" onClick={() => setText(scriptedText)}>
-            채우기
-          </button>
-        </p>
-      )}
-      {scriptedSkip && <p className="script-hint">💡 이 시나리오는 아무것도 입력하지 않고 "건너뛰기"를 눌러주세요</p>}
-
-      <textarea
-        placeholder="상황을 설명해주세요 (선택)"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-
-      <div className="attach-row">
-        <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => fileInputRef.current?.click()}>
-          📷 첨부{attachedName ? `: ${attachedName}` : ""}
-        </button>
-        <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFile} />
-      </div>
-
-      {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
 
       <div className="spacer" />
-      <div className="btn-row">
-        <button
-          className={`btn btn-secondary ${scriptedSkip ? "scripted" : ""}`}
-          onClick={() => onDemoSubmit?.({ text: "", attachmentBase64: null, skipped: true })}
-        >
-          건너뛰기
+
+      {noChat && (
+        <p className="script-hint">💡 이 시나리오는 대화 없이 바로 결과를 확인해요</p>
+      )}
+
+      {!noChat && !done && (
+        <>
+          <p className="script-hint">💡 아래 말풍선을 눌러 대화를 진행해보세요</p>
+          <button className="btn btn-outline" disabled={!!pendingUser} onClick={playNext}>
+            💬 "{turns[completed].user}"
+          </button>
+        </>
+      )}
+
+      {(noChat || done) && (
+        <button className="btn btn-primary" onClick={() => onDemoSubmit?.({ skipped: noChat })}>
+          결과 확인하기
         </button>
-        <button
-          className="btn btn-primary"
-          disabled={!text && !attachmentBase64}
-          onClick={() => onDemoSubmit?.({ text, attachmentBase64, skipped: false })}
-        >
-          확인 요청
-        </button>
-      </div>
+      )}
     </>
   );
-}
-
-interface ChatMessage {
-  role: "user" | "ai";
-  text: string;
 }
 
 /** local/remote 모드: 실제 AI 상담원과 2~3턴 정도 주고받는 채팅. 게시판에 글 올리고 결과만

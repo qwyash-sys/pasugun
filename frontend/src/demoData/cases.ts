@@ -26,8 +26,12 @@ export interface DemoCase {
    * 케이스(예: 확인 1탭 경로)는 null. */
   context: ContextAssessment | null;
   questions: Question[];
-  /** M5 화면에서 보여줄 안내(실제 입력 내용과 무관하게 이 시나리오 그대로 재생) */
+  /** M5 화면 AI 첫 인사말에 덧붙이는 안내 문구. */
   chatHint: string;
+  /** M5에서 재생할 대본: 버튼을 누를 때마다 한 턴(사용자 발화 -> AI 응답)씩 진행된다.
+   * 비어있으면 이 케이스는 대화 없이 바로 결과로 넘어간다(저위험 확인 경로). 마지막 턴의
+   * ai 텍스트가 곧 M6에 표시되는 agentReply와 같아야 한다. */
+  chatTurns: { user: string; ai: string }[];
   agentReply: string | null;
   final: FinalRisk;
   report: ReportPayload | null;
@@ -35,8 +39,6 @@ export interface DemoCase {
    * 이 케이스의 "각본"과 실제로 맞아떨어지는 선택지가 뭔지 화면에 하이라이트해주기 위한 값.
    * question_id -> 그 시나리오가 실제로 상정한 choice_id. */
   scriptedAnswers: Record<string, string>;
-  /** M5에서 이 시나리오가 상정하는 입력(텍스트 그대로 또는 건너뛰기). */
-  scriptedChat: { text: string | null; skip: boolean };
 }
 
 const empathyChoices = (extra?: { label: string; weight: number }[]) => [
@@ -128,7 +130,16 @@ export const DEMO_CASES: DemoCase[] = [
     questions: [empathyQuestion("남용환"), safetyQuestion()],
     chatHint: "상황 설명이나 안내문자 캡처를 올려주세요.",
     scriptedAnswers: { empathy: "normal_known", safety: "safety_yes" },
-    scriptedChat: { text: "검찰이라며 안전계좌로 옮기라고 안내받았어요", skip: false },
+    chatTurns: [
+      {
+        user: "검찰이라며 제 계좌가 범죄에 연루됐다고 안전계좌로 옮기라고 했어요",
+        ai: "혹시 전화 주신 분이 신분증이나 공문 같은 걸 보여주셨나요? 안내문자나 캡처가 있다면 같이 보여주시겠어요?",
+      },
+      {
+        user: "네, 검찰 공무원증 사진을 보내줬고 '지금 안전계좌로 옮기지 않으면 계좌가 동결된다'는 문자도 왔어요",
+        ai: "말씀해주신 내용과 캡처를 확인해보니 검찰·금감원을 사칭해 '안전계좌'로 유도하는 사례와 매우 유사해요. 지금 이체를 잠시 멈추고 가까운 영업점에서 확인해보시는 게 좋겠어요.",
+      },
+    ],
     agentReply:
       "말씀해주신 내용과 캡처를 확인해보니 검찰·금감원을 사칭해 '안전계좌'로 유도하는 사례와 매우 유사해요. 지금 이체를 잠시 멈추고 가까운 영업점에서 확인해보시는 게 좋겠어요.",
     final: {
@@ -302,7 +313,16 @@ export const DEMO_CASES: DemoCase[] = [
     questions: [empathyQuestion("김도윤"), safetyQuestion()],
     chatHint: "대출 상담 문자나 통화 내용을 올려주세요.",
     scriptedAnswers: { empathy: "risky_offer", safety: "safety_no" },
-    scriptedChat: { text: "저금리 대환대출 안내를 받고 먼저 상환금을 보내려 합니다", skip: false },
+    chatTurns: [
+      {
+        user: "저금리로 대환대출 해준다고 해서 먼저 상환금부터 보내려고 해요",
+        ai: "혹시 그 안내를 어디로 받으셨나요? 은행 공식 앱이나 창구가 아니라 문자·전화로 먼저 연락이 왔다면 조금 더 확인해볼게요.",
+      },
+      {
+        user: "네, 저축은행 직원이라면서 문자로 먼저 연락이 왔고 한도도 이미 올려놨다고 했어요",
+        ai: "저금리 대환대출을 이유로 먼저 돈을 보내달라는 절차는 정상적인 은행 대출 절차와 달라요. 지금 이체를 멈추고 은행 공식 채널로 다시 확인해보시는 게 안전해요.",
+      },
+    ],
     agentReply:
       "저금리 대환대출을 이유로 먼저 돈을 보내달라는 절차는 정상적인 은행 대출 절차와 달라요. 지금 이체를 멈추고 은행 공식 채널로 다시 확인해보시는 게 안전해요.",
     final: {
@@ -472,7 +492,16 @@ export const DEMO_CASES: DemoCase[] = [
     questions: [empathyQuestion("남용환")],
     chatHint: "대화 캡처나 상황을 적어주세요.",
     scriptedAnswers: { empathy: "risky_text_only" },
-    scriptedChat: { text: "아는 사람인데 전화는 안 받고 문자로만 연락돼요", skip: false },
+    chatTurns: [
+      {
+        user: "아는 사람인데 전화는 안 받고 문자로만 연락돼요",
+        ai: "혹시 평소 말투나 프로필 사진이 그대로인가요? 최근 대화 내용을 조금 더 보여주실 수 있을까요?",
+      },
+      {
+        user: "말투가 평소랑 좀 다르고, 급하게 돈이 필요하다는 말만 계속해요",
+        ai: "직접 통화는 안 되고 문자로만 연락된다는 점이 걸려요. 실제로 아시는 분이 맞는지 전화나 영상통화로 한 번 더 확인해보시는 게 좋겠어요.",
+      },
+    ],
     agentReply:
       "직접 통화는 안 되고 문자로만 연락된다는 점이 걸려요. 실제로 아시는 분이 맞는지 전화나 영상통화로 한 번 더 확인해보시는 게 좋겠어요.",
     final: {
@@ -610,7 +639,7 @@ export const DEMO_CASES: DemoCase[] = [
     questions: [],
     chatHint: "",
     scriptedAnswers: {},
-    scriptedChat: { text: null, skip: true },
+    chatTurns: [],
     agentReply: null,
     final: {
       account_level: "저",
@@ -660,7 +689,7 @@ export const DEMO_CASES: DemoCase[] = [
     questions: [empathyQuestion("박지훈")],
     chatHint: "",
     scriptedAnswers: { empathy: "normal_settlement" },
-    scriptedChat: { text: null, skip: true },
+    chatTurns: [],
     agentReply: null,
     final: {
       account_level: "중",
