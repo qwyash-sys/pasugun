@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 RiskLevel = Literal["저", "중", "고"]
 FinalVerdict = Literal["안전", "주의", "위험"]
@@ -26,11 +27,21 @@ class ContextOverrides(BaseModel):
 
 
 class TransferRequest(BaseModel):
-    customer_id: str
-    payee_account: str
-    amount: int
+    customer_id: str = Field(min_length=1, max_length=32)
+    payee_account: str = Field(min_length=1, max_length=64)
+    amount: int = Field(gt=0, le=100_000_000_000)
     current_time: str  # ISO8601
     context_overrides: ContextOverrides = ContextOverrides()
+
+    @field_validator("current_time")
+    @classmethod
+    def _iso8601(cls, v: str) -> str:
+        # 형식이 틀리면 하위 신호 툴에서 터져 502로 새므로, 입구에서 422로 막는다.
+        try:
+            datetime.fromisoformat(v)
+        except ValueError as e:
+            raise ValueError("current_time은 ISO8601 형식이어야 합니다") from e
+        return v
 
 
 class AccountAssessment(BaseModel):

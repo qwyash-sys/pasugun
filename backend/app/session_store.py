@@ -28,6 +28,7 @@ class TransferSession:
     chat_turns: int = 0
     rag_match: RagMatch | None = None
     attachments_present: bool = False
+    finalized: bool = False
 
 
 _sessions: dict[str, TransferSession] = {}

@@ -46,6 +46,9 @@ export default function M5Chat(props: Props) {
   return props.isDemo ? <DemoChat {...props} /> : <LiveChat {...props} />;
 }
 
+// 백엔드 상한(base64 약 14MB ≈ 원본 10MB)보다 여유 있게 잡는다.
+const MAX_ATTACHMENT_BYTES = 7 * 1024 * 1024;
+
 interface ChatMessage {
   role: "user" | "ai";
   text: string;
@@ -156,8 +159,16 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
   }, [messages, sending]);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const fileInput = e.target;
+    const file = fileInput.files?.[0];
+    // 같은 파일을 다시 골라도 change가 발생하도록 비워둔다(안 비우면 같은 파일 재선택이 무반응).
+    fileInput.value = "";
     if (!file) return;
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      setSendError("이미지가 너무 커요. 7MB 이하로 올려주세요.");
+      return;
+    }
+    setSendError(null);
     setAttachedName(file.name);
     setAttachmentBase64(await fileToBase64(file));
   }
@@ -242,6 +253,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
                 }
               }}
               rows={1}
+              maxLength={2000}
             />
             <button className="chat-send-btn" disabled={sending} onClick={() => fileInputRef.current?.click()}>
               📷

@@ -4,7 +4,7 @@ import base64
 import logging
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.aggregator import calculate_final_risk
 from app.agent import PasugunAgent
@@ -13,7 +13,7 @@ from app.models import AccountAssessment, ContextAnswer
 from app.providers.llm.factory import get_llm
 from app.providers.ocr.factory import get_ocr
 from app.providers.rag.factory import get_rag
-from app.questions import SAFETY_QUESTION, empathy_question
+from app.questions import SAFETY_QUESTION, empathy_question, questions_for
 from app.reports import build_report
 from app.scoring import build_context_assessment
 from app.session_store import get_session
@@ -38,8 +38,9 @@ class AnswersRequest(BaseModel):
 
 
 class ChatTurnRequest(BaseModel):
-    text: str = ""
-    attachment_base64: str | None = None
+    # 상한이 없으면 수십만 자 입력이 그대로 LLM 호출(=크레딧)로 이어진다.
+    text: str = Field(default="", max_length=2000)
+    attachment_base64: str | None = Field(default=None, max_length=14_000_000)  # base64 약 10MB
 
 
 class ChatTurnResponse(BaseModel):
@@ -63,6 +64,19 @@ def submit_answers(session_id: str, payload: AnswersRequest):
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
+    if session.finalized:
+        raise HTTPException(status_code=409, detail="이미 확정된 이체예요.")
+
+    # 클라이언트가 점수를 조작하지 못하게: 이 세션이 실제로 받은 질문에 대한 답만, 질문당 1번씩만 인정한다.
+    allowed = {q["question_id"] for q in questions_for(session.intervention, session.customer_name)}
+    seen: set[str] = set()
+    for answer in payload.answers:
+        if answer.question_id not in allowed:
+            raise HTTPException(status_code=400, detail=f"이 이체에서 묻지 않은 질문이에요: {answer.question_id}")
+        if answer.question_id in seen:
+            raise HTTPException(status_code=400, detail=f"같은 질문에 중복 답변할 수 없어요: {answer.question_id}")
+        seen.add(answer.question_id)
+
     session.answers = []
     for answer in payload.answers:
         choice = _choice_lookup(answer.question_id, answer.choice_id, session.customer_name)
@@ -83,6 +97,9 @@ def chat_turn(session_id: str, payload: ChatTurnRequest):
         session = get_session(session_id)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+
+    if session.finalized:
+        raise HTTPException(status_code=409, detail="이미 확정된 이체예요.")
 
     if session.chat_turns >= MAX_CHAT_TURNS:
         raise HTTPException(status_code=400, detail="대화 턴 한도를 넘었어요. 결과를 확인해주세요.")
@@ -179,6 +196,8 @@ def finalize(session_id: str):
         except Exception as e:
             logger.exception("Report generation failed")
             raise HTTPException(status_code=502, detail="리포트 생성 중 문제가 발생했어요.") from e
+
+    session.finalized = True
 
     return {
         "final": final,

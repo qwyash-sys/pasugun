@@ -189,3 +189,61 @@ def test_finalize_with_no_chat_and_no_answers_skips_context():
     final = client.post(f"/api/transfer/{session_id}/finalize")
     assert final.status_code == 200, final.text
     assert final.json()["context"] is None
+
+
+# ---- 입력 검증 / 점수 조작 방어 (API 퍼징에서 발견된 구멍들) ----
+
+
+@pytest.mark.parametrize(
+    "override",
+    [{"amount": -5}, {"amount": 0}, {"amount": 10**18}, {"current_time": "어제"}, {"payee_account": ""}, {"payee_account": "9" * 500}],
+)
+def test_quote_rejects_invalid_input_with_422(override):
+    payload = {
+        "customer_id": "C001",
+        "payee_account": "010-6660-98261",
+        "amount": 1_000_000,
+        "current_time": "2026-08-11T01:10:00+09:00",
+        **override,
+    }
+    assert client.post("/api/transfer/quote", json=payload).status_code == 422
+
+
+def test_answers_cannot_inflate_score_by_repeating_or_faking_questions():
+    # 중고거래 케이스: 개입=confirm_only(질문 없음). 안전질문 '예'를 5번 보내면 예전엔 250점·🔴가 됐다.
+    session_id = _quote(payee_account="552-102-993841", amount=150_000)["session_id"]
+    forged = {"question_id": "safety", "choice_id": "safety_yes"}
+    res = client.post(f"/api/transfer/{session_id}/answers", json={"answers": [forged] * 5})
+    assert res.status_code == 400
+    assert client.post(f"/api/transfer/{session_id}/finalize").json()["final"]["final"] == "안전"
+
+
+def test_answers_reject_duplicate_question():
+    q = _quote()  # 검찰사칭 계좌: empathy + safety 질문
+    assert q["intervention"] == "empathy_question+safety_question"
+    dup = {"question_id": "safety", "choice_id": "safety_yes"}
+    res = client.post(f"/api/transfer/{q['session_id']}/answers", json={"answers": [dup, dup]})
+    assert res.status_code == 400
+
+
+def test_answers_accept_the_questions_actually_asked():
+    q = _quote()
+    res = client.post(
+        f"/api/transfer/{q['session_id']}/answers",
+        json={"answers": [{"question_id": "empathy", "choice_id": "normal_known"}, {"question_id": "safety", "choice_id": "safety_no"}]},
+    )
+    assert res.status_code == 200
+
+
+def test_chat_rejects_oversized_text():
+    session_id = _quote()["session_id"]
+    assert client.post(f"/api/transfer/{session_id}/chat", json={"text": "가" * 2001}).status_code == 422
+
+
+def test_session_is_locked_after_finalize():
+    session_id = _quote()["session_id"]
+    assert client.post(f"/api/transfer/{session_id}/finalize").status_code == 200
+    assert client.post(f"/api/transfer/{session_id}/chat", json={"text": "또 말해요"}).status_code == 409
+    assert client.post(f"/api/transfer/{session_id}/answers", json={"answers": []}).status_code == 409
+    # finalize 자체는 재호출해도 안전(멱등)해야 한다 — 프론트 "다시 시도" 버튼용.
+    assert client.post(f"/api/transfer/{session_id}/finalize").status_code == 200
