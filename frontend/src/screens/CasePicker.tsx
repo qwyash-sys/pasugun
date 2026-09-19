@@ -5,7 +5,7 @@ export default function CasePicker({ onSelect }: { onSelect: (caseId: string) =>
     <>
       <div className="ai-tag">파수꾼 데모</div>
       <h1 className="title">시연 케이스 선택</h1>
-      <p className="subtitle">SPEC 5장 검산 완료 케이스 5종을 그대로 재생합니다.</p>
+      <p className="subtitle">SPEC 5장 검산 완료 케이스 5종 + 주의(🟡) 케이스 1종을 그대로 재생합니다.</p>
       <div className="case-picker-list">
         {DEMO_CASES.map((c) => (
           <button key={c.id} className="case-picker-item" onClick={() => onSelect(c.id)}>

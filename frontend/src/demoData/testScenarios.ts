@@ -47,6 +47,16 @@ export const TEST_SCENARIOS: TestScenario[] = [
     overrides: {},
   },
   {
+    label: "🟡 투자 권유",
+    hint: "질문에 '투자 안내' 선택 → 채팅 건너뛰면 주의",
+    customerId: "C001",
+    amount: 1_000_000,
+    payeeBank: "카카오뱅크",
+    payeeAccount: "301-8827-4410",
+    currentTime: "2026-08-12T15:00:00+09:00",
+    overrides: {},
+  },
+  {
     label: "🟢 중고거래",
     hint: "질문·채팅 없이 확인 1탭",
     customerId: "C001",

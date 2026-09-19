@@ -705,6 +705,58 @@ export const DEMO_CASES: DemoCase[] = [
     },
     report: null,
   },
+  {
+    // SPEC 5장의 5케이스에는 🟡가 없어, 3단계 판정(🟢🟡🔴)을 모두 보여주려고 추가한 케이스.
+    // 수치는 실제 엔진(backend)이 같은 입력에서 내는 값 그대로다.
+    id: "case6",
+    emoji: "🟡",
+    title: "투자 권유",
+    subtitle: "투자 안내 받고 100만원 · 신규계좌 (애매하면 막지 않고 '주의' 안내)",
+    input: {
+      customerName: "남용환",
+      customerAccount: "351-0000-0001",
+      payeeBank: "카카오뱅크",
+      payeeName: "황민석",
+      payeeAccount: "301-8827-4410",
+      amount: 1_000_000,
+    },
+    account: {
+      signals: [
+        { signal: "payee_fraud", hit: false, score: 0, detail: "-" },
+        { signal: "amount_anomaly", hit: true, score: 8, detail: "평소 대비 3.3배" },
+        { signal: "fund_source", hit: false, score: 0, detail: "-" },
+        { signal: "payee_freshness", hit: true, score: 20, detail: "개설 6일" },
+        { signal: "limit_change", hit: false, score: 0, detail: "-" },
+        { signal: "velocity", hit: false, score: 0, detail: "-" },
+        { signal: "device", hit: false, score: 0, detail: "-" },
+        { signal: "time_pattern", hit: false, score: 0, detail: "-" },
+      ],
+      total_score: 28,
+      level: "저",
+    },
+    context: {
+      answers: [{ question_id: "empathy", choice_id: "risky_offer", choice_weight: 25, hard_override: false }],
+      used_input_or_attachment: false,
+      rag: null,
+      total_score: 25,
+      level: "중",
+      hard_override: false,
+    },
+    questions: [empathyQuestion("남용환")],
+    chatHint: "",
+    scriptedAnswers: { empathy: "risky_offer" },
+    chatTurns: [],
+    agentReply: null,
+    final: {
+      account_level: "저",
+      context_level: "중",
+      final: "주의",
+      hard_override: false,
+      reasons: ["평소 대비 3.3배(+8)", "개설 6일(+20)", "대출·투자 안내 응답(+25)"],
+      action: "공식번호로 직접 확인 안내 후 진행 여부 재확인",
+    },
+    report: null,
+  },
 ];
 
 export function findDemoCase(id: string): DemoCase {
