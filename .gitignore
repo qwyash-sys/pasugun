@@ -30,3 +30,7 @@ npm-debug.log*
 
 # FAISS index artifacts (regenerated from scenarios.json)
 backend/app/providers/rag/index/
+
+# Tesseract language data (kor+eng, ~38MB) — winget's silent install only ships
+# English, so this is downloaded separately per-machine; see backend/tessdata note.
+backend/tessdata/

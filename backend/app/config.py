@@ -5,6 +5,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MOCK_DATA_DIR = BASE_DIR / "mock_data"
+# winget의 무인 설치는 영어 언어팩만 넣고 한국어(kor.traineddata)는 빠뜨린다 — 시스템
+# tessdata를 덮어쓰는 대신, 한국어까지 받아둔 이 프로젝트 로컬 폴더를 대신 가리킨다.
+TESSDATA_DIR = BASE_DIR / "tessdata"
 
 
 class Settings(BaseSettings):
