@@ -322,6 +322,20 @@ select {
   margin-bottom: 14px;
 }
 
+.chat-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chat-msg-user {
+  align-items: flex-end;
+}
+
+.chat-msg-ai {
+  align-items: flex-start;
+}
+
 .chat-bubble-user {
   align-self: flex-end;
   max-width: 82%;

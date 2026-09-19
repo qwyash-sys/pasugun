@@ -11,6 +11,9 @@ interface ChatTurnResult {
 interface DemoTurn {
   user: string;
   ai: string;
+  /** 이 턴에서 함께 첨부하는 자료(안내문자 캡처 등)의 표시용 파일명. 실제 파일은 필요
+   * 없다 — 시연 중 파일 선택창을 띄우지 않고도 첨부 흐름 자체를 보여주기 위한 연출. */
+  attachment?: string;
 }
 
 interface Props {
@@ -46,6 +49,7 @@ export default function M5Chat(props: Props) {
 interface ChatMessage {
   role: "user" | "ai";
   text: string;
+  attachment?: string;
 }
 
 /** demo 모드: 결과는 대본대로 고정돼있지만, 화면은 실제 채팅처럼 보이게 재생한다. 대사를
@@ -54,34 +58,35 @@ interface ChatMessage {
 function DemoChat({ hint, chatTurns, onDemoSubmit }: Props) {
   const turns = chatTurns ?? [];
   const [completed, setCompleted] = useState(0);
-  const [pendingUser, setPendingUser] = useState<string | null>(null);
+  const [pending, setPending] = useState<DemoTurn | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const messages: ChatMessage[] = [
     { role: "ai", text: `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황을 편하게 말씀해주세요."}` },
   ];
   for (let i = 0; i < completed; i++) {
-    messages.push({ role: "user", text: turns[i].user });
+    messages.push({ role: "user", text: turns[i].user, attachment: turns[i].attachment });
     messages.push({ role: "ai", text: turns[i].ai });
   }
-  if (pendingUser) messages.push({ role: "user", text: pendingUser });
+  if (pending) messages.push({ role: "user", text: pending.user, attachment: pending.attachment });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length, pendingUser]);
+  }, [messages.length, pending]);
 
   function playNext() {
     const turn = turns[completed];
-    if (!turn || pendingUser) return;
-    setPendingUser(turn.user);
+    if (!turn || pending) return;
+    setPending(turn);
     setTimeout(() => {
-      setPendingUser(null);
+      setPending(null);
       setCompleted((c) => c + 1);
     }, 900);
   }
 
   const done = completed >= turns.length;
   const noChat = turns.length === 0;
+  const nextTurn = !done ? turns[completed] : null;
 
   return (
     <>
@@ -90,11 +95,12 @@ function DemoChat({ hint, chatTurns, onDemoSubmit }: Props) {
 
       <div className="chat-thread">
         {messages.map((m, i) => (
-          <div key={i} className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>
-            {m.text}
+          <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
+            {m.attachment && <div className="chat-attach-chip">📷 {m.attachment}</div>}
+            <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>
           </div>
         ))}
-        {pendingUser && (
+        {pending && (
           <div className="chat-typing">
             <span />
             <span />
@@ -110,11 +116,11 @@ function DemoChat({ hint, chatTurns, onDemoSubmit }: Props) {
         <p className="script-hint">💡 이 시나리오는 대화 없이 바로 결과를 확인해요</p>
       )}
 
-      {!noChat && !done && (
+      {!noChat && nextTurn && (
         <>
           <p className="script-hint">💡 아래 말풍선을 눌러 대화를 진행해보세요</p>
-          <button className="btn btn-outline" disabled={!!pendingUser} onClick={playNext}>
-            💬 "{turns[completed].user}"
+          <button className="btn btn-outline" disabled={!!pending} onClick={playNext}>
+            {nextTurn.attachment ? "💬📷 " : "💬 "}"{nextTurn.user}"
           </button>
         </>
       )}

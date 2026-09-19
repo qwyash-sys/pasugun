@@ -30,8 +30,9 @@ export interface DemoCase {
   chatHint: string;
   /** M5에서 재생할 대본: 버튼을 누를 때마다 한 턴(사용자 발화 -> AI 응답)씩 진행된다.
    * 비어있으면 이 케이스는 대화 없이 바로 결과로 넘어간다(저위험 확인 경로). 마지막 턴의
-   * ai 텍스트가 곧 M6에 표시되는 agentReply와 같아야 한다. */
-  chatTurns: { user: string; ai: string }[];
+   * ai 텍스트가 곧 M6에 표시되는 agentReply와 같아야 한다. attachment는 그 턴에 함께
+   * 보여줄 첨부파일명(연출용, 실제 파일 없음) — 없으면 첨부 없이 텍스트만 보낸다. */
+  chatTurns: { user: string; ai: string; attachment?: string }[];
   agentReply: string | null;
   final: FinalRisk;
   report: ReportPayload | null;
@@ -137,6 +138,7 @@ export const DEMO_CASES: DemoCase[] = [
       },
       {
         user: "네, 검찰 공무원증 사진을 보내줬고 '지금 안전계좌로 옮기지 않으면 계좌가 동결된다'는 문자도 왔어요",
+        attachment: "검찰공무원증_캡처.jpg",
         ai: "말씀해주신 내용과 캡처를 확인해보니 검찰·금감원을 사칭해 '안전계좌'로 유도하는 사례와 매우 유사해요. 지금 이체를 잠시 멈추고 가까운 영업점에서 확인해보시는 게 좋겠어요.",
       },
     ],
@@ -320,6 +322,7 @@ export const DEMO_CASES: DemoCase[] = [
       },
       {
         user: "네, 저축은행 직원이라면서 문자로 먼저 연락이 왔고 한도도 이미 올려놨다고 했어요",
+        attachment: "대출안내_문자캡처.jpg",
         ai: "저금리 대환대출을 이유로 먼저 돈을 보내달라는 절차는 정상적인 은행 대출 절차와 달라요. 지금 이체를 멈추고 은행 공식 채널로 다시 확인해보시는 게 안전해요.",
       },
     ],
@@ -499,6 +502,7 @@ export const DEMO_CASES: DemoCase[] = [
       },
       {
         user: "말투가 평소랑 좀 다르고, 급하게 돈이 필요하다는 말만 계속해요",
+        attachment: "대화_캡처.jpg",
         ai: "직접 통화는 안 되고 문자로만 연락된다는 점이 걸려요. 실제로 아시는 분이 맞는지 전화나 영상통화로 한 번 더 확인해보시는 게 좋겠어요.",
       },
     ],
