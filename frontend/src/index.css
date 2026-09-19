@@ -315,6 +315,52 @@ select {
   margin-bottom: 14px;
 }
 
+.test-scenarios {
+  background: #f3efff;
+  border: 1px dashed #b8a9f0;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 14px;
+}
+
+.test-scenarios-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5b46b5;
+  margin-bottom: 8px;
+}
+
+.test-scenarios-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.test-scenario-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  background: white;
+  border: 1.5px solid #d6ccf7;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.test-scenario-btn span {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.test-scenario-btn.active {
+  border-color: #5b46b5;
+  background: #ece6ff;
+}
+
 .chat-thread {
   display: flex;
   flex-direction: column;

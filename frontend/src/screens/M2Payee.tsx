@@ -4,10 +4,12 @@ import BankBadge from "../components/BankBadge";
 import { BANK_OPTIONS } from "../demoData/banks";
 import type { BackendClient } from "../api/client";
 import type { DemoCase } from "../demoData/cases";
+import type { TestScenario } from "../demoData/testScenarios";
 import type { QuoteResponse } from "../types";
 
 interface Props {
   demoCase?: DemoCase;
+  scenario?: TestScenario;
   customerId: string;
   amount: number;
   client: BackendClient;
@@ -15,9 +17,9 @@ interface Props {
   onNext: (quote: QuoteResponse, sessionId: string) => void;
 }
 
-export default function M2Payee({ demoCase, customerId, amount, client, onBack, onNext }: Props) {
-  const [bank, setBank] = useState(demoCase?.input.payeeBank ?? BANK_OPTIONS[0]);
-  const [account, setAccount] = useState(demoCase?.input.payeeAccount ?? "");
+export default function M2Payee({ demoCase, scenario, customerId, amount, client, onBack, onNext }: Props) {
+  const [bank, setBank] = useState(demoCase?.input.payeeBank ?? scenario?.payeeBank ?? BANK_OPTIONS[0]);
+  const [account, setAccount] = useState(demoCase?.input.payeeAccount ?? scenario?.payeeAccount ?? "");
   const [quote, setQuote] = useState<QuoteResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +37,7 @@ export default function M2Payee({ demoCase, customerId, amount, client, onBack, 
         payee_account: account,
         amount,
         current_time: new Date().toISOString(),
+        context_overrides: scenario?.overrides,
       })
       .then((q) => {
         if (!cancelled) setQuote(q);

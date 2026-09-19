@@ -5,7 +5,8 @@ import { RESPONSE_SOURCE } from "./config";
 import { createBackendClient, type BackendClient } from "./api/client";
 import { findDemoCase, type DemoCase } from "./demoData/cases";
 import CasePicker from "./screens/CasePicker";
-import M1Amount from "./screens/M1Amount";
+import M1Amount, { type M1Result } from "./screens/M1Amount";
+import type { TestScenario } from "./demoData/testScenarios";
 import M2Payee from "./screens/M2Payee";
 import M3Confirm from "./screens/M3Confirm";
 import M4Question from "./screens/M4Question";
@@ -24,6 +25,7 @@ export default function App() {
   const [demoCaseId, setDemoCaseId] = useState<string | null>(null);
   const [client, setClient] = useState<BackendClient | null>(isDemo ? null : createBackendClient());
   const [customerId, setCustomerId] = useState("");
+  const [scenario, setScenario] = useState<TestScenario | undefined>();
   const [amount, setAmount] = useState(0);
   const [quote, setQuote] = useState<QuoteResponse | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -41,6 +43,7 @@ export default function App() {
     setDemoCaseId(null);
     setClient(isDemo ? null : createBackendClient());
     setCustomerId("");
+    setScenario(undefined);
     setAmount(0);
     setQuote(null);
     setSessionId(null);
@@ -72,7 +75,8 @@ export default function App() {
     setScreen("m1");
   }
 
-  function handleM1Next(data: { customerId: string; amount: number }) {
+  function handleM1Next(data: M1Result) {
+    setScenario(data.scenario);
     setCustomerId(data.customerId);
     setAmount(data.amount);
     setScreen("m2");
@@ -142,6 +146,7 @@ export default function App() {
       {screen === "m2" && client && (
         <M2Payee
           demoCase={demoCase}
+          scenario={scenario}
           customerId={customerId}
           amount={amount}
           client={client}
