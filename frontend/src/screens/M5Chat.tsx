@@ -155,7 +155,9 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
+    // 하단 고정 푸터가 음수 마진을 써서 sentinel이 실제 끝보다 위에 놓이므로, 화면 컨테이너를 직접 맨 아래로 내린다.
+    const screen = bottomRef.current?.closest(".screen");
+    screen?.scrollTo({ top: screen.scrollHeight });
   }, [messages, sending]);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -225,63 +227,67 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
             <span />
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
-
-      {turn > 0 && (
-        <p className="chat-turn-counter">
-          {reachedCap ? "대화를 충분히 확인했어요" : `${turn}/${maxTurns}번 확인했어요`}
-        </p>
-      )}
-
-      {(sendError || error) && <p style={{ color: "var(--danger)", fontSize: 13 }}>{sendError || error}</p>}
-
-      {!reachedCap && (
-        <>
-          {attachedName && <div className="chat-attach-chip">📷 {attachedName}</div>}
-          <div className="chat-input-row">
-            <textarea
-              placeholder="상황을 편하게 말씀해주세요"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                // 한글 등 조합형 입력 중 조합을 확정하는 Enter까지 전송으로 처리하면
-                // 마지막 글자가 끊긴 채로 보내진다 — 조합 중(isComposing)에는 무시한다.
-                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              rows={1}
-              maxLength={2000}
-            />
-            <button className="chat-send-btn" disabled={sending} onClick={() => fileInputRef.current?.click()}>
-              📷
-            </button>
-            <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFile} />
-            <button
-              className="chat-send-btn"
-              disabled={sending || (!input.trim() && !attachmentBase64)}
-              onClick={handleSend}
-            >
-              ↑
-            </button>
-          </div>
-        </>
-      )}
 
       <div className="spacer" />
 
-      {beforeFirstTurn && !reachedCap && (
-        <button className="chat-skip-link" onClick={onFinish}>
-          건너뛰고 바로 결과 볼게요
-        </button>
-      )}
-      {turn > 0 && (
-        <button className={`btn ${reachedCap ? "btn-primary" : "btn-outline"}`} onClick={onFinish}>
-          결과 확인하기
-        </button>
-      )}
+      {/* 입력창·결과 버튼은 스크롤과 무관하게 화면 하단에 고정한다 — 대화가 쌓이면 폰에서
+          입력창과 "결과 확인하기"가 화면 밖으로 밀려나 매번 스크롤해야 했다. */}
+      <div className="chat-footer">
+        {turn > 0 && (
+          <p className="chat-turn-counter">
+            {reachedCap ? "대화를 충분히 확인했어요" : `${turn}/${maxTurns}번 확인했어요`}
+          </p>
+        )}
+
+        {(sendError || error) && <p style={{ color: "var(--danger)", fontSize: 13 }}>{sendError || error}</p>}
+
+        {!reachedCap && (
+          <>
+            {attachedName && <div className="chat-attach-chip">📷 {attachedName}</div>}
+            <div className="chat-input-row">
+              <textarea
+                placeholder="상황을 편하게 말씀해주세요"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  // 한글 등 조합형 입력 중 조합을 확정하는 Enter까지 전송으로 처리하면
+                  // 마지막 글자가 끊긴 채로 보내진다 — 조합 중(isComposing)에는 무시한다.
+                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                rows={1}
+                maxLength={2000}
+              />
+              <button className="chat-send-btn" disabled={sending} onClick={() => fileInputRef.current?.click()}>
+                📷
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFile} />
+              <button
+                className="chat-send-btn"
+                disabled={sending || (!input.trim() && !attachmentBase64)}
+                onClick={handleSend}
+              >
+                ↑
+              </button>
+            </div>
+          </>
+        )}
+
+        {beforeFirstTurn && !reachedCap && (
+          <button className="chat-skip-link" onClick={onFinish}>
+            건너뛰고 바로 결과 볼게요
+          </button>
+        )}
+        {turn > 0 && (
+          <button className={`btn ${reachedCap ? "btn-primary" : "btn-outline"}`} onClick={onFinish}>
+            결과 확인하기
+          </button>
+        )}
+      </div>
+      <div ref={bottomRef} />
     </>
   );
 }
