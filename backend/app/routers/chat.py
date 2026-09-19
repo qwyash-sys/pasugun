@@ -111,7 +111,6 @@ def chat_turn(session_id: str, payload: ChatTurnRequest):
     session.chat_history = new_history
     session.conversation_text = (session.conversation_text + "\n" + text).strip()
     session.chat_turns += 1
-    session.last_reply = reply
     if rag_match is not None:
         session.rag_match = rag_match
 
@@ -127,6 +126,15 @@ def finalize(session_id: str):
 
     combined_text = session.conversation_text
     used_input_or_attachment = bool(combined_text) or session.attachments_present
+
+    # 에이전트가 scenario_rag를 호출할지는 LLM 재량이라, 소형 모델은 사기 정황이 뚜렷해도
+    # 되묻기만 하고 넘어가는 경우가 있다. 2단계 RAG 점수·후보비교는 시연의 핵심이므로,
+    # 대화가 있었는데도 매칭이 비어 있으면 서버가 대화 내용으로 직접 한 번 돌린다(로컬 FAISS라 무료).
+    if combined_text and session.rag_match is None:
+        try:
+            session.rag_match = get_rag().scenario_rag(combined_text)
+        except Exception:
+            logger.exception("RAG fallback failed")
 
     context = None
     if session.answers or used_input_or_attachment:
@@ -162,9 +170,11 @@ def finalize(session_id: str):
             logger.exception("Report generation failed")
             raise HTTPException(status_code=502, detail="리포트 생성 중 문제가 발생했어요.") from e
 
+    # 마지막 AI 답장은 대개 대화를 이어가는 후속 질문이라 결론 말풍선으로 부적절하다 —
+    # 결과 화면은 판정·근거 그래프·행동 안내로 결론을 대신한다.
     return {
         "final": final,
-        "agent_reply": session.last_reply,
+        "agent_reply": None,
         "report": report,
         "account": account,
         "context": context,

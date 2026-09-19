@@ -98,12 +98,29 @@ def test_chat_turns_accumulate_and_finalize_uses_session_state():
     final = client.post(f"/api/transfer/{session_id}/finalize")
     assert final.status_code == 200, final.text
     data = final.json()
-    assert data["agent_reply"] == "AI 응답 3"
+    # 마지막 AI 답장은 후속 질문인 경우가 많아 결론 말풍선으로 내보내지 않는다.
+    assert data["agent_reply"] is None
     assert data["context"]["used_input_or_attachment"] is True
     assert data["context"]["rag"]["hit"] is True
     assert data["context"]["rag"]["matched_id"] == "S02"
     # RAG는 1번째 턴에서만 호출됐지만(FakeLlm 2번째 호출부터는 tool_use 없음),
     # 세션에 남아 2번째 턴 이후에도 finalize에 그대로 반영돼야 한다.
+
+
+def test_finalize_runs_rag_itself_when_llm_never_called_the_tool(monkeypatch):
+    """소형 모델이 scenario_rag를 호출하지 않고 되묻기만 해도, 대화가 있었다면 finalize가
+    직접 RAG를 돌려 2단계 점수·후보비교가 비지 않아야 한다."""
+
+    class NeverCallsToolLlm:
+        def chat(self, system, messages, tools=None):
+            return {"content": [{"type": "text", "text": "더 자세히 말씀해주실래요?"}], "stop_reason": "end_turn"}
+
+    monkeypatch.setattr(chat_router, "get_llm", lambda: NeverCallsToolLlm())
+    session_id = _quote()["session_id"]
+    client.post(f"/api/transfer/{session_id}/chat", json={"text": "검찰이 안전계좌로 옮기라고 했어요"})
+
+    data = client.post(f"/api/transfer/{session_id}/finalize").json()
+    assert data["context"]["rag"]["matched_id"] == "S02"
 
 
 def test_chat_turn_cap_enforced_server_side():

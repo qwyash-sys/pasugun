@@ -27,7 +27,6 @@ class TransferSession:
     conversation_text: str = ""
     chat_turns: int = 0
     rag_match: RagMatch | None = None
-    last_reply: str | None = None
     attachments_present: bool = False
 
 
