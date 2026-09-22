@@ -141,7 +141,9 @@ export default function App() {
     <PhoneFrame screenKey={screen}>
       {screen === "case-picker" && <CasePicker onSelect={selectDemoCase} />}
 
-      {screen === "m1" && <M1Amount isDemo={isDemo} demoCase={demoCase} onNext={handleM1Next} />}
+      {screen === "m1" && (
+        <M1Amount isDemo={isDemo} demoCase={demoCase} onNext={handleM1Next} onHome={resetFlow} />
+      )}
 
       {screen === "m2" && client && (
         <M2Payee
@@ -152,6 +154,7 @@ export default function App() {
           client={client}
           onBack={() => setScreen("m1")}
           onNext={handleM2Next}
+          onHome={resetFlow}
         />
       )}
 
@@ -162,6 +165,7 @@ export default function App() {
           amount={amount}
           onConfirm={handleConfirmOnly}
           onCancel={resetFlow}
+          onHome={resetFlow}
         />
       )}
       {screen === "m3a" && (busy || error) && (
@@ -176,6 +180,7 @@ export default function App() {
           questions={quote.questions}
           onDone={handleAnswersDone}
           scriptedAnswers={demoCase?.scriptedAnswers}
+          onHome={resetFlow}
         />
       )}
       {screen === "m4" && (busy || error) && (
@@ -193,6 +198,7 @@ export default function App() {
           onDemoSubmit={handleDemoChatSubmit}
           onSendTurn={handleChatTurn}
           onFinish={handleChatFinish}
+          onHome={resetFlow}
         />
       )}
 
@@ -208,6 +214,7 @@ export default function App() {
           onProceed={() => setScreen("m7")}
           onCancel={resetFlow}
           onViewReport={() => setScreen("report")}
+          onHome={resetFlow}
         />
       )}
 

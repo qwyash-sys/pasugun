@@ -31,6 +31,7 @@ interface Props {
   /** 대화를 건너뛰거나(0턴) 충분히 나눈 뒤(1턴 이상) 결과 화면으로 넘어간다 — 서버가
    * 세션에 쌓인 대화 유무로 알아서 판단하므로 콜백은 하나면 충분하다. */
   onFinish?: () => void;
+  onHome: () => void;
 }
 
 export default function M5Chat(props: Props) {
@@ -58,7 +59,7 @@ interface ChatMessage {
 /** demo 모드: 결과는 대본대로 고정돼있지만, 화면은 실제 채팅처럼 보이게 재생한다. 대사를
  * 직접 타이핑하게 하면 시연 중 오타·삭제로 흐름이 끊기니, 다음 대사를 누르면 사용자 말풍선이
  * 뜨고 잠시 후 AI 응답이 이어지는 식으로 버튼 클릭만으로 진행시킨다. */
-function DemoChat({ hint, chatTurns, onDemoSubmit }: Props) {
+function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
   const turns = chatTurns ?? [];
   const [completed, setCompleted] = useState(0);
   const [pending, setPending] = useState<DemoTurn | null>(null);
@@ -93,7 +94,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit }: Props) {
 
   return (
     <>
-      <AppBar title="AI 안전확인" />
+      <AppBar title="AI 안전확인" onHome={onHome} />
       <AiTag />
 
       <div className="chat-thread">
@@ -140,7 +141,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit }: Props) {
 /** local/remote 모드: 실제 AI 상담원과 2~3턴 정도 주고받는 채팅. 게시판에 글 올리고 결과만
  * 받아보는 방식 대신, 짧게라도 대화를 주고받은 뒤 결론 화면(M6)으로 넘어가게 한다. 대화가
  * 길어지면 안 되므로 턴 수는 백엔드가 하드 캡(MAX_CHAT_TURNS)으로 못박는다. */
-function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
+function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "ai", text: `${customerName}님, 편하게 상황을 말씀해주세요. 몇 가지만 확인하고 바로 알려드릴게요.` },
   ]);
@@ -210,7 +211,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, error }: Props) {
 
   return (
     <>
-      <AppBar title="AI 안전확인" />
+      <AppBar title="AI 안전확인" onHome={onHome} />
       <AiTag />
 
       <div className="chat-thread">

@@ -21,7 +21,7 @@ function Row({ label, value }: { label: string; value: string }) {
 export default function ReportView({ report, questions, onBack, onRestart }: Props) {
   return (
     <>
-      <AppBar title="영업점 연계 리포트" onBack={onBack} />
+      <AppBar title="영업점 연계 리포트" onBack={onBack} onHome={onRestart} />
       <h1 className="title">파수꾼 사기의심 거래 리포트</h1>
       <p className="subtitle">#{report.report_id}</p>
 

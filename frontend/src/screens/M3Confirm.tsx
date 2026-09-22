@@ -8,14 +8,15 @@ interface Props {
   amount: number;
   onConfirm: () => void;
   onCancel: () => void;
+  onHome: () => void;
 }
 
 // 실제 올원뱅크 "한 번 더 확인해 주세요" 팝업(신규계좌 안내)을 그대로 따른다.
-export default function M3Confirm({ payeeBank, payeeName, amount, onConfirm, onCancel }: Props) {
+export default function M3Confirm({ payeeBank, payeeName, amount, onConfirm, onCancel, onHome }: Props) {
   return (
     <>
       <div className="sheet-behind">
-        <AppBar title="이체확인" />
+        <AppBar title="이체확인" onHome={onHome} />
         <div className="card">
           <div className="recipient-row">
             <BankBadge bank={payeeBank} />

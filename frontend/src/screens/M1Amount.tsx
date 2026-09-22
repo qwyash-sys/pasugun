@@ -15,6 +15,7 @@ interface Props {
   isDemo: boolean;
   demoCase?: DemoCase;
   onNext: (data: M1Result) => void;
+  onHome: () => void;
 }
 
 const QUICK_ADDS = [10_000, 50_000, 100_000, 1_000_000];
@@ -25,7 +26,7 @@ function maskAccount(account: string): string {
   return [parts[0], ...parts.slice(1, -1).map((p) => "*".repeat(p.length)), parts.at(-1)].join("-");
 }
 
-export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
+export default function M1Amount({ isDemo, demoCase, onNext, onHome }: Props) {
   const [customerId, setCustomerId] = useState(CUSTOMER_OPTIONS[0].customer_id);
   const [amount, setAmount] = useState(0);
   const [scenario, setScenario] = useState<TestScenario | undefined>();
@@ -39,7 +40,7 @@ export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
   if (isDemo && demoCase) {
     return (
       <>
-        <AppBar title="이체" />
+        <AppBar title="이체" onHome={onHome} />
         <div className="account-selector-row">
           <span>출금계좌(본인)</span>
           <span className="balance">NH농협은행 {maskAccount(demoCase.input.customerAccount)}</span>
@@ -58,7 +59,7 @@ export default function M1Amount({ isDemo, demoCase, onNext }: Props) {
 
   return (
     <>
-      <AppBar title="이체" />
+      <AppBar title="이체" onHome={onHome} />
       <div className="test-scenarios">
         <div className="test-scenarios-title">🧪 개발용 테스트 시나리오 — 누르면 아래 값이 채워져요</div>
         <div className="test-scenarios-list">

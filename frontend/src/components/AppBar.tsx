@@ -4,9 +4,12 @@
 interface Props {
   title: string;
   onBack?: () => void;
+  /** 우측 상단 ⌂ — 처음 화면으로 돌아간다(demo는 케이스 선택, local/remote는 이체 입력).
+   * 안 넘기면 예전처럼 눌러도 반응 없는 장식 아이콘으로 남는다. */
+  onHome?: () => void;
 }
 
-export default function AppBar({ title, onBack }: Props) {
+export default function AppBar({ title, onBack, onHome }: Props) {
   return (
     <div className="appbar">
       {onBack ? (
@@ -18,7 +21,13 @@ export default function AppBar({ title, onBack }: Props) {
       )}
       <span className="appbar-title">{title}</span>
       <span className="appbar-icons">
-        <span>⌂</span>
+        {onHome ? (
+          <button className="appbar-home" onClick={onHome} aria-label="처음으로">
+            ⌂
+          </button>
+        ) : (
+          <span>⌂</span>
+        )}
       </span>
     </div>
   );

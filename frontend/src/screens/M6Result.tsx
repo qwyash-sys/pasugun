@@ -14,6 +14,7 @@ interface Props {
   onProceed: () => void; // 안전/주의/위험(그래도 송금) -> M7
   onCancel: () => void; // 주의(취소) -> 처음으로
   onViewReport: () => void; // 위험 -> 리포트 보기
+  onHome: () => void;
 }
 
 const VARIANT = {
@@ -33,13 +34,14 @@ export default function M6Result({
   onProceed,
   onCancel,
   onViewReport,
+  onHome,
 }: Props) {
   const v = VARIANT[final.final];
   const [confirmingProceed, setConfirmingProceed] = useState(false);
 
   return (
     <>
-      <AppBar title="이체결과" />
+      <AppBar title="이체결과" onHome={onHome} />
       {final.final !== "안전" && <AiTag />}
       <span className={`verdict-badge ${v.badgeClass}`}>
         {v.emoji} {final.final}

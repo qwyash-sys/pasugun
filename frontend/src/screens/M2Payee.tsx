@@ -15,9 +15,10 @@ interface Props {
   client: BackendClient;
   onBack: () => void;
   onNext: (quote: QuoteResponse, sessionId: string) => void;
+  onHome: () => void;
 }
 
-export default function M2Payee({ demoCase, scenario, customerId, amount, client, onBack, onNext }: Props) {
+export default function M2Payee({ demoCase, scenario, customerId, amount, client, onBack, onNext, onHome }: Props) {
   const [bank, setBank] = useState(demoCase?.input.payeeBank ?? scenario?.payeeBank ?? BANK_OPTIONS[0]);
   const [account, setAccount] = useState(demoCase?.input.payeeAccount ?? scenario?.payeeAccount ?? "");
   const [quote, setQuote] = useState<QuoteResponse | null>(null);
@@ -56,7 +57,7 @@ export default function M2Payee({ demoCase, scenario, customerId, amount, client
 
   return (
     <>
-      <AppBar title="수취계좌" onBack={onBack} />
+      <AppBar title="수취계좌" onBack={onBack} onHome={onHome} />
       <p className="subtitle">{amount.toLocaleString()}원을 보낼 계좌를 알려주세요.</p>
 
       <div className="field-label">은행</div>

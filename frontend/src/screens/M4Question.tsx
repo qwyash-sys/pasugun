@@ -13,9 +13,10 @@ interface Props {
   /** demo 모드에서만: 이 케이스의 각본이 실제로 상정하는 question_id -> choice_id.
    * local/remote 모드에서는 undefined — 실제 선택이 실제로 점수에 반영되므로 힌트가 없다. */
   scriptedAnswers?: Record<string, string>;
+  onHome: () => void;
 }
 
-export default function M4Question({ payeeBank, payeeName, amount, questions, onDone, scriptedAnswers }: Props) {
+export default function M4Question({ payeeBank, payeeName, amount, questions, onDone, scriptedAnswers, onHome }: Props) {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerSubmission[]>([]);
 
@@ -36,7 +37,7 @@ export default function M4Question({ payeeBank, payeeName, amount, questions, on
   return (
     <>
       <div className="sheet-behind">
-        <AppBar title="이체확인" />
+        <AppBar title="이체확인" onHome={onHome} />
         <div className="card">
           <div className="recipient-row">
             <BankBadge bank={payeeBank} />

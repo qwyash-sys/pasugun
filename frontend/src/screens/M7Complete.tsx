@@ -13,7 +13,7 @@ export default function M7Complete({ final, payeeName, amount, onRestart }: Prop
 
   return (
     <>
-      <AppBar title={isDelayed ? "지연이체 접수" : "이체완료"} />
+      <AppBar title={isDelayed ? "지연이체 접수" : "이체완료"} onHome={onRestart} />
       <div className="spacer" />
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>{isDelayed ? "⏳" : "✅"}</div>
