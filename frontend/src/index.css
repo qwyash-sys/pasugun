@@ -564,6 +564,33 @@ select {
   margin-bottom: 10px;
 }
 
+.chat-attach-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.chat-attach-list .chat-attach-chip {
+  margin-bottom: 0;
+}
+
+.chat-attach-chip.removable button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--nh-green-dark);
+  color: white;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 .chat-skip-link {
   display: block;
   text-align: center;

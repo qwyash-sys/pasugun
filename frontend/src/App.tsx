@@ -117,11 +117,11 @@ export default function App() {
 
   /** local/remote 모드 전용: 채팅 한 턴을 보내고 AI 응답을 받아온다(finalize와 무관 —
    * 화면 전환 없이 대화만 이어간다). */
-  async function handleChatTurn(payload: { text: string; attachmentBase64: string | null }) {
+  async function handleChatTurn(payload: { text: string; attachmentsBase64: string[] }) {
     if (!client || !sessionId) throw new Error("세션이 없어요");
     const res = await client.chatTurn(sessionId, {
       text: payload.text,
-      attachment_base64: payload.attachmentBase64,
+      attachments_base64: payload.attachmentsBase64,
     });
     return { reply: res.reply, turn: res.turn, maxTurns: res.max_turns };
   }

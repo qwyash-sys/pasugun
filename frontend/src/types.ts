@@ -132,7 +132,7 @@ export interface TransferQuoteRequest {
 
 export interface ChatTurnRequest {
   text?: string;
-  attachment_base64?: string | null;
+  attachments_base64?: string[];
 }
 
 export interface ChatTurnResponse {

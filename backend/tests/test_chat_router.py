@@ -8,6 +8,8 @@ LLM/RAG는 가짜로 주입해 API 키나 모델 로딩 없이 빠르고 결정�
 main.py가 아니라 chat.py 모듈 안에서 직접 호출되므로(FastAPI Depends가 아님) 그 모듈
 네임스페이스를 monkeypatch한다."""
 
+import base64
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -144,12 +146,45 @@ def test_chat_bad_attachment_base64_returns_502_not_500():
     session_id = _quote()["session_id"]
     res = client.post(
         f"/api/transfer/{session_id}/chat",
-        json={"text": "", "attachment_base64": "%%%not-valid-base64%%%"},
+        json={"text": "", "attachments_base64": ["%%%not-valid-base64%%%"]},
     )
     assert res.status_code == 502
     # main.py의 전역 예외 핸들러(ServerErrorMiddleware 경유, CORS 헤더 누락)로 새지
     # 않고 chat.py가 직접 HTTPException(502)로 잡아야 CORS 헤더가 정상적으로 붙는다.
     assert res.status_code != 500
+
+
+def test_chat_rejects_more_than_5_attachments():
+    session_id = _quote()["session_id"]
+    res = client.post(
+        f"/api/transfer/{session_id}/chat",
+        json={"text": "확인해주세요", "attachments_base64": ["aGk="] * 6},
+    )
+    assert res.status_code == 422
+
+
+def test_chat_accepts_multiple_attachments_and_ocrs_each(monkeypatch):
+    """이미지 여러 장을 보내면 장마다 OCR을 돌려야 한다(한 장만 처리하고 나머지를
+    무시하면 안 됨) — 각 이미지 바이트를 그대로 받아 디코딩됐는지까지 확인한다."""
+    seen_images: list[bytes] = []
+
+    class RecordingOcr:
+        def ocr_extract(self, image_bytes: bytes) -> dict:
+            seen_images.append(image_bytes)
+            return {"text": f"OCR결과{len(seen_images)}"}
+
+    monkeypatch.setattr(chat_router, "get_ocr", lambda: RecordingOcr())
+    session_id = _quote()["session_id"]
+
+    res = client.post(
+        f"/api/transfer/{session_id}/chat",
+        json={
+            "text": "이 문자들 확인해주세요",
+            "attachments_base64": [base64.b64encode(b"img1").decode(), base64.b64encode(b"img2").decode()],
+        },
+    )
+    assert res.status_code == 200, res.text
+    assert seen_images == [b"img1", b"img2"]
 
 
 def test_chat_unknown_session_returns_404():

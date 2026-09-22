@@ -2,6 +2,7 @@
 
 import base64
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -26,6 +27,7 @@ router = APIRouter(prefix="/api/transfer", tags=["chat"])
 # 안 되니 사용자 턴 수를 하드 캡으로 못박는다(에이전트가 스스로 대화를 끝내게 두지 않음 —
 # 최종 판정과 마찬가지로 대화 종료 시점도 결정론적으로 정한다).
 MAX_CHAT_TURNS = 3
+MAX_ATTACHMENTS_PER_TURN = 5
 
 
 class AnswerIn(BaseModel):
@@ -40,7 +42,10 @@ class AnswersRequest(BaseModel):
 class ChatTurnRequest(BaseModel):
     # 상한이 없으면 수십만 자 입력이 그대로 LLM 호출(=크레딧)로 이어진다.
     text: str = Field(default="", max_length=2000)
-    attachment_base64: str | None = Field(default=None, max_length=14_000_000)  # base64 약 10MB
+    # 이미지 장당 base64 약 10MB, 한 턴에 최대 5장.
+    attachments_base64: list[Annotated[str, Field(max_length=14_000_000)]] = Field(
+        default_factory=list, max_length=MAX_ATTACHMENTS_PER_TURN
+    )
 
 
 class ChatTurnResponse(BaseModel):
@@ -105,14 +110,19 @@ def chat_turn(session_id: str, payload: ChatTurnRequest):
         raise HTTPException(status_code=400, detail="대화 턴 한도를 넘었어요. 결과를 확인해주세요.")
 
     text = payload.text.strip()
-    if payload.attachment_base64:
-        try:
-            image_bytes = base64.b64decode(payload.attachment_base64)
-            ocr_result = get_ocr().ocr_extract(image_bytes)
-            text = (text + "\n" + ocr_result["text"]).strip()
-        except Exception as e:
-            logger.exception("OCR failed")
-            raise HTTPException(status_code=502, detail="첨부 이미지 처리 중 문제가 발생했어요.") from e
+    if payload.attachments_base64:
+        ocr_texts = []
+        for b64 in payload.attachments_base64:
+            try:
+                image_bytes = base64.b64decode(b64)
+                ocr_result = get_ocr().ocr_extract(image_bytes)
+            except Exception as e:
+                logger.exception("OCR failed")
+                raise HTTPException(status_code=502, detail="첨부 이미지 처리 중 문제가 발생했어요.") from e
+            if ocr_result["text"]:
+                ocr_texts.append(ocr_result["text"])
+        if ocr_texts:
+            text = (text + "\n" + "\n".join(ocr_texts)).strip()
         session.attachments_present = True
 
     if not text:

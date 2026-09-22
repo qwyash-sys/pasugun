@@ -28,7 +28,7 @@ interface Props {
   chatTurns?: DemoTurn[];
   onDemoSubmit?: (payload: { skipped: boolean }) => void;
   /** local/remote 모드 전용: 실제 멀티턴 대화. */
-  onSendTurn?: (payload: { text: string; attachmentBase64: string | null }) => Promise<ChatTurnResult>;
+  onSendTurn?: (payload: { text: string; attachmentsBase64: string[] }) => Promise<ChatTurnResult>;
   /** 대화를 건너뛰거나(0턴) 충분히 나눈 뒤(1턴 이상) 결과 화면으로 넘어간다 — 서버가
    * 세션에 쌓인 대화 유무로 알아서 판단하므로 콜백은 하나면 충분하다. */
   onFinish?: () => void;
@@ -50,11 +50,13 @@ export default function M5Chat(props: Props) {
 
 // 백엔드 상한(base64 약 14MB ≈ 원본 10MB)보다 여유 있게 잡는다.
 const MAX_ATTACHMENT_BYTES = 7 * 1024 * 1024;
+// 백엔드 ChatTurnRequest.attachments_base64의 max_length와 맞춘다.
+const MAX_ATTACHMENTS = 5;
 
 interface ChatMessage {
   role: "user" | "ai";
   text: string;
-  attachment?: string;
+  attachments?: string[];
 }
 
 /** demo 모드: 결과는 대본대로 고정돼있지만, 화면은 실제 채팅처럼 보이게 재생한다. 대사를
@@ -73,8 +75,9 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
     { role: "ai", text: `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황을 편하게 말씀해주세요."}` },
   ];
   for (let i = 0; i < completed; i++) {
-    messages.push({ role: "user", text: turns[i].user, attachment: turns[i].attachment });
-    messages.push({ role: "ai", text: turns[i].ai });
+    const { user, ai, attachment } = turns[i];
+    messages.push({ role: "user", text: user, attachments: attachment ? [attachment] : undefined });
+    messages.push({ role: "ai", text: ai });
   }
 
   useEffect(() => {
@@ -103,7 +106,11 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
       <div className="chat-thread">
         {messages.map((m, i) => (
           <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
-            {m.attachment && <div className="chat-attach-chip">📷 {m.attachment}</div>}
+            {m.attachments?.map((name) => (
+              <div key={name} className="chat-attach-chip">
+                📷 {name}
+              </div>
+            ))}
             <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>
           </div>
         ))}
@@ -151,8 +158,11 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
       {!noChat && nextTurn && (
         <>
           <p className="script-hint">💡 아래 말풍선을 눌러 대화를 진행해보세요</p>
+          {/* 실채팅(LiveChat)에서 파일을 고르면 전송 전 여기와 같은 칩으로 미리보기가 뜬다 —
+              데모도 다음 대사에 첨부가 딸려있다는 걸 같은 방식으로 미리 보여준다. */}
+          {nextTurn.attachment && <div className="chat-attach-chip">📷 {nextTurn.attachment}</div>}
           <button className="btn btn-outline" onClick={playNext}>
-            {nextTurn.attachment ? "💬📷 " : "💬 "}"{nextTurn.user}"
+            💬 "{nextTurn.user}"
           </button>
         </>
       )}
@@ -174,8 +184,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
     { role: "ai", text: `${customerName}님, 편하게 상황을 말씀해주세요. 몇 가지만 확인하고 바로 알려드릴게요.` },
   ]);
   const [input, setInput] = useState("");
-  const [attachedName, setAttachedName] = useState<string | null>(null);
-  const [attachmentBase64, setAttachmentBase64] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<{ name: string; base64: string }[]>([]);
   const [sending, setSending] = useState(false);
   // 백엔드가 완성된 답을 한 번에 돌려주지만(멀티턴 tool-use 루프라 진짜 토큰 스트리밍은
   // 배보다 배꼽), 도착 즉시 통째로 박아넣지 않고 여기 잠깐 담아뒀다가 화면에서 흘려보낸다.
@@ -194,34 +203,51 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const fileInput = e.target;
-    const file = fileInput.files?.[0];
+    const picked = Array.from(fileInput.files ?? []);
     // 같은 파일을 다시 골라도 change가 발생하도록 비워둔다(안 비우면 같은 파일 재선택이 무반응).
     fileInput.value = "";
-    if (!file) return;
-    if (file.size > MAX_ATTACHMENT_BYTES) {
+    if (picked.length === 0) return;
+
+    const room = MAX_ATTACHMENTS - attachments.length;
+    const within = picked.slice(0, room);
+    const sized = within.filter((f) => f.size <= MAX_ATTACHMENT_BYTES);
+    const droppedForSize = within.length - sized.length;
+
+    if (picked.length > room) {
+      setSendError(`이미지는 최대 ${MAX_ATTACHMENTS}장까지 첨부할 수 있어요.`);
+    } else if (droppedForSize > 0) {
       setSendError("이미지가 너무 커요. 7MB 이하로 올려주세요.");
-      return;
+    } else {
+      setSendError(null);
     }
-    setSendError(null);
-    setAttachedName(file.name);
-    setAttachmentBase64(await fileToBase64(file));
+    if (sized.length === 0) return;
+
+    const encoded = await Promise.all(
+      sized.map(async (f) => ({ name: f.name, base64: await fileToBase64(f) })),
+    );
+    setAttachments((prev) => [...prev, ...encoded]);
+  }
+
+  function removeAttachment(index: number) {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleSend() {
     const text = input.trim();
-    if ((!text && !attachmentBase64) || sending || pendingReply || !onSendTurn) return;
+    if ((!text && attachments.length === 0) || sending || pendingReply || !onSendTurn) return;
 
-    const attachment = attachmentBase64;
-    const attachmentLabel = attachedName;
-    setMessages((prev) => [...prev, { role: "user", text, attachment: attachmentLabel ?? undefined }]);
+    const staged = attachments;
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", text, attachments: staged.length > 0 ? staged.map((a) => a.name) : undefined },
+    ]);
     setInput("");
-    setAttachedName(null);
-    setAttachmentBase64(null);
+    setAttachments([]);
     setSending(true);
     setSendError(null);
 
     try {
-      const res = await onSendTurn({ text, attachmentBase64: attachment });
+      const res = await onSendTurn({ text, attachmentsBase64: staged.map((a) => a.base64) });
       // 여기서 바로 messages에 넣지 않는다 — pendingReply로 넘겨 화면에서 흘려보낸 뒤,
       // 다 나오면(onDone) 그때 확정해 넣는다. turn/maxTurns도 같이 미뤄서, 스트리밍
       // 도중에 "결과 확인하기" 같은 버튼이 먼저 나타나는 걸 막는다.
@@ -230,8 +256,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
       // 실패해도 방금 쓴 말이 사라지면 안 되니 입력창에 되돌려 바로 재전송할 수 있게 한다.
       setMessages((prev) => prev.slice(0, -1));
       setInput(text);
-      setAttachedName(attachmentLabel);
-      setAttachmentBase64(attachment);
+      setAttachments(staged);
       setSendError("메시지 전송에 실패했어요. 다시 시도해주세요.");
     } finally {
       setSending(false);
@@ -250,7 +275,11 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
       <div className="chat-thread">
         {messages.map((m, i) => (
           <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
-            {m.attachment && <div className="chat-attach-chip">📷 {m.attachment}</div>}
+            {m.attachments?.map((name) => (
+              <div key={name} className="chat-attach-chip">
+                📷 {name}
+              </div>
+            ))}
             {m.text && <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>}
           </div>
         ))}
@@ -293,7 +322,18 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
 
         {!reachedCap && (
           <>
-            {attachedName && <div className="chat-attach-chip">📷 {attachedName}</div>}
+            {attachments.length > 0 && (
+              <div className="chat-attach-list">
+                {attachments.map((a, i) => (
+                  <div key={`${a.name}-${i}`} className="chat-attach-chip removable">
+                    📷 {a.name}
+                    <button type="button" aria-label={`${a.name} 첨부 취소`} onClick={() => removeAttachment(i)}>
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="chat-input-row">
               <textarea
                 placeholder="상황을 편하게 말씀해주세요"
@@ -310,13 +350,18 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
                 rows={1}
                 maxLength={2000}
               />
-              <button className="chat-send-btn" disabled={busy} onClick={() => fileInputRef.current?.click()}>
-                📷
-              </button>
-              <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFile} />
               <button
                 className="chat-send-btn"
-                disabled={busy || (!input.trim() && !attachmentBase64)}
+                disabled={busy || attachments.length >= MAX_ATTACHMENTS}
+                title={`사진 첨부 (최대 ${MAX_ATTACHMENTS}장)`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                📷
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleFile} />
+              <button
+                className="chat-send-btn"
+                disabled={busy || (!input.trim() && attachments.length === 0)}
                 onClick={handleSend}
               >
                 ↑
