@@ -134,18 +134,39 @@ body {
   font-size: 16px;
 }
 
+.appbar .appbar-icons > svg {
+  width: 18px;
+  height: 18px;
+}
+
 .appbar .appbar-home {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
+  margin: -3px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: none;
   border: none;
+  border-radius: 50%;
   padding: 0;
-  font-size: 16px;
-  color: inherit;
+  color: var(--text-muted);
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.appbar .appbar-home svg {
+  width: 18px;
+  height: 18px;
+}
+
+.appbar .appbar-home:hover {
+  background: var(--nh-green-soft);
+  color: var(--nh-green-dark);
+}
+
+.appbar .appbar-home:active {
+  background: var(--border);
 }
 
 .ai-tag {
@@ -249,6 +270,11 @@ select {
   font-weight: 700;
   cursor: pointer;
   text-align: center;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .btn-primary {
@@ -456,6 +482,27 @@ select {
   }
 }
 
+.stream-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  margin-left: 2px;
+  background: currentColor;
+  vertical-align: text-bottom;
+  animation: stream-blink 0.9s steps(1) infinite;
+}
+
+@keyframes stream-blink {
+  50%,
+  100% {
+    opacity: 0;
+  }
+  0%,
+  49% {
+    opacity: 1;
+  }
+}
+
 .chat-footer {
   position: sticky;
   bottom: -24px; /* .screen의 하단 패딩(24px)만큼 내려 화면 맨 아래에 붙인다 */
@@ -527,6 +574,11 @@ select {
   cursor: pointer;
   padding: 6px 0 2px;
   text-decoration: underline;
+}
+
+.chat-skip-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 textarea {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import AppBar, { AiTag } from "../components/AppBar";
+import StreamingText from "../components/StreamingText";
 import { fileToBase64 } from "../utils/file";
 
 interface ChatTurnResult {
@@ -62,7 +63,10 @@ interface ChatMessage {
 function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
   const turns = chatTurns ?? [];
   const [completed, setCompleted] = useState(0);
+  // pending: 사용자 말풍선 + "입력 중" 점 3개(생각하는 척). revealing: 그 다음, AI 답장이
+  // 한 글자씩 흘러나오는 단계 — 둘을 나눠야 "타이핑 중" 연출과 "스트리밍" 연출이 따로 보인다.
   const [pending, setPending] = useState<DemoTurn | null>(null);
+  const [revealing, setRevealing] = useState<DemoTurn | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const messages: ChatMessage[] = [
@@ -72,25 +76,24 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
     messages.push({ role: "user", text: turns[i].user, attachment: turns[i].attachment });
     messages.push({ role: "ai", text: turns[i].ai });
   }
-  if (pending) messages.push({ role: "user", text: pending.user, attachment: pending.attachment });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length, pending]);
+  }, [messages.length, pending, revealing]);
 
   function playNext() {
     const turn = turns[completed];
-    if (!turn || pending) return;
+    if (!turn || pending || revealing) return;
     setPending(turn);
     setTimeout(() => {
       setPending(null);
-      setCompleted((c) => c + 1);
+      setRevealing(turn);
     }, 900);
   }
 
   const done = completed >= turns.length;
   const noChat = turns.length === 0;
-  const nextTurn = !done ? turns[completed] : null;
+  const nextTurn = !done && !pending && !revealing ? turns[completed] : null;
 
   return (
     <>
@@ -105,11 +108,36 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
           </div>
         ))}
         {pending && (
-          <div className="chat-typing">
-            <span />
-            <span />
-            <span />
-          </div>
+          <>
+            <div className="chat-msg chat-msg-user">
+              {pending.attachment && <div className="chat-attach-chip">📷 {pending.attachment}</div>}
+              <div className="chat-bubble-user">{pending.user}</div>
+            </div>
+            <div className="chat-typing">
+              <span />
+              <span />
+              <span />
+            </div>
+          </>
+        )}
+        {revealing && (
+          <>
+            <div className="chat-msg chat-msg-user">
+              {revealing.attachment && <div className="chat-attach-chip">📷 {revealing.attachment}</div>}
+              <div className="chat-bubble-user">{revealing.user}</div>
+            </div>
+            <div className="chat-msg chat-msg-ai">
+              <div className="chat-bubble-ai">
+                <StreamingText
+                  text={revealing.ai}
+                  onDone={() => {
+                    setRevealing(null);
+                    setCompleted((c) => c + 1);
+                  }}
+                />
+              </div>
+            </div>
+          </>
         )}
         <div ref={bottomRef} />
       </div>
@@ -123,7 +151,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
       {!noChat && nextTurn && (
         <>
           <p className="script-hint">💡 아래 말풍선을 눌러 대화를 진행해보세요</p>
-          <button className="btn btn-outline" disabled={!!pending} onClick={playNext}>
+          <button className="btn btn-outline" onClick={playNext}>
             {nextTurn.attachment ? "💬📷 " : "💬 "}"{nextTurn.user}"
           </button>
         </>
@@ -149,6 +177,9 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
   const [attachedName, setAttachedName] = useState<string | null>(null);
   const [attachmentBase64, setAttachmentBase64] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  // 백엔드가 완성된 답을 한 번에 돌려주지만(멀티턴 tool-use 루프라 진짜 토큰 스트리밍은
+  // 배보다 배꼽), 도착 즉시 통째로 박아넣지 않고 여기 잠깐 담아뒀다가 화면에서 흘려보낸다.
+  const [pendingReply, setPendingReply] = useState<{ text: string; turn: number; maxTurns: number } | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
   const [turn, setTurn] = useState(0);
   const [maxTurns, setMaxTurns] = useState(3);
@@ -159,7 +190,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
     // 하단 고정 푸터가 음수 마진을 써서 sentinel이 실제 끝보다 위에 놓이므로, 화면 컨테이너를 직접 맨 아래로 내린다.
     const screen = bottomRef.current?.closest(".screen");
     screen?.scrollTo({ top: screen.scrollHeight });
-  }, [messages, sending]);
+  }, [messages, sending, pendingReply]);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const fileInput = e.target;
@@ -178,7 +209,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
 
   async function handleSend() {
     const text = input.trim();
-    if ((!text && !attachmentBase64) || sending || !onSendTurn) return;
+    if ((!text && !attachmentBase64) || sending || pendingReply || !onSendTurn) return;
 
     const attachment = attachmentBase64;
     const attachmentLabel = attachedName;
@@ -191,9 +222,10 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
 
     try {
       const res = await onSendTurn({ text, attachmentBase64: attachment });
-      setMessages((prev) => [...prev, { role: "ai", text: res.reply }]);
-      setTurn(res.turn);
-      setMaxTurns(res.maxTurns);
+      // 여기서 바로 messages에 넣지 않는다 — pendingReply로 넘겨 화면에서 흘려보낸 뒤,
+      // 다 나오면(onDone) 그때 확정해 넣는다. turn/maxTurns도 같이 미뤄서, 스트리밍
+      // 도중에 "결과 확인하기" 같은 버튼이 먼저 나타나는 걸 막는다.
+      setPendingReply({ text: res.reply, turn: res.turn, maxTurns: res.maxTurns });
     } catch {
       // 실패해도 방금 쓴 말이 사라지면 안 되니 입력창에 되돌려 바로 재전송할 수 있게 한다.
       setMessages((prev) => prev.slice(0, -1));
@@ -208,6 +240,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
 
   const reachedCap = turn >= maxTurns;
   const beforeFirstTurn = turn === 0;
+  const busy = sending || !!pendingReply;
 
   return (
     <>
@@ -226,6 +259,21 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
             <span />
             <span />
             <span />
+          </div>
+        )}
+        {pendingReply && (
+          <div className="chat-msg chat-msg-ai">
+            <div className="chat-bubble-ai">
+              <StreamingText
+                text={pendingReply.text}
+                onDone={() => {
+                  setMessages((prev) => [...prev, { role: "ai", text: pendingReply.text }]);
+                  setTurn(pendingReply.turn);
+                  setMaxTurns(pendingReply.maxTurns);
+                  setPendingReply(null);
+                }}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -262,13 +310,13 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
                 rows={1}
                 maxLength={2000}
               />
-              <button className="chat-send-btn" disabled={sending} onClick={() => fileInputRef.current?.click()}>
+              <button className="chat-send-btn" disabled={busy} onClick={() => fileInputRef.current?.click()}>
                 📷
               </button>
               <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFile} />
               <button
                 className="chat-send-btn"
-                disabled={sending || (!input.trim() && !attachmentBase64)}
+                disabled={busy || (!input.trim() && !attachmentBase64)}
                 onClick={handleSend}
               >
                 ↑
@@ -278,12 +326,12 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
         )}
 
         {beforeFirstTurn && !reachedCap && (
-          <button className="chat-skip-link" onClick={onFinish}>
+          <button className="chat-skip-link" disabled={busy} onClick={onFinish}>
             건너뛰고 바로 결과 볼게요
           </button>
         )}
         {turn > 0 && (
-          <button className={`btn ${reachedCap ? "btn-primary" : "btn-outline"}`} onClick={onFinish}>
+          <button className={`btn ${reachedCap ? "btn-primary" : "btn-outline"}`} disabled={busy} onClick={onFinish}>
             결과 확인하기
           </button>
         )}
