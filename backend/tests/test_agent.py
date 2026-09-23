@@ -52,7 +52,7 @@ def test_agent_calls_scenario_rag_tool_and_returns_final_reply():
     rag = FakeRagProvider(rag_match)
 
     agent = PasugunAgent(llm, rag)
-    result = agent.analyze("남용환", "검찰이 안전계좌로 옮기라고 했다")
+    result = agent.analyze("남용준", "검찰이 안전계좌로 옮기라고 했다")
 
     assert rag.called_with == "검찰이 안전계좌로 옮기라고 했다"
     assert result.rag is rag_match
@@ -69,7 +69,7 @@ def test_agent_returns_direct_text_without_tool_use():
             return {"content": [{"type": "text", "text": "네, 알겠습니다."}], "stop_reason": "end_turn"}
 
     agent = PasugunAgent(DirectTextLlm(), FaissLocalRagProvider())
-    result = agent.analyze("김도윤", "그냥 확인차 여쭤봤어요")
+    result = agent.analyze("김도현", "그냥 확인차 여쭤봤어요")
 
     assert result.reply == "네, 알겠습니다."
     assert result.rag is None
@@ -90,11 +90,11 @@ def test_agent_chat_turn_carries_history_across_turns():
     llm = RecordingLlm()
     agent = PasugunAgent(llm, FaissLocalRagProvider())
 
-    reply1, history1, rag1 = agent.chat_turn("남용환", [], "첫 메시지")
+    reply1, history1, rag1 = agent.chat_turn("남용준", [], "첫 메시지")
     assert reply1 == "reply 1"
     assert rag1 is None
 
-    reply2, history2, rag2 = agent.chat_turn("남용환", history1, "두번째 메시지")
+    reply2, history2, rag2 = agent.chat_turn("남용준", history1, "두번째 메시지")
     assert reply2 == "reply 2"
 
     second_call_messages = llm.calls[1]

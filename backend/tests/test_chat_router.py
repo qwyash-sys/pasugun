@@ -75,7 +75,7 @@ def patch_providers(monkeypatch, fake_llm):
 def _quote(**overrides) -> dict:
     payload = {
         "customer_id": "C001",
-        "payee_account": "010-6660-98261",
+        "payee_account": "010-6691-98217",
         "amount": 20_000_000,
         "current_time": "2026-08-11T01:10:00+09:00",
         **overrides,
@@ -236,7 +236,7 @@ def test_finalize_with_no_chat_and_no_answers_skips_context():
 def test_quote_rejects_invalid_input_with_422(override):
     payload = {
         "customer_id": "C001",
-        "payee_account": "010-6660-98261",
+        "payee_account": "010-6691-98217",
         "amount": 1_000_000,
         "current_time": "2026-08-11T01:10:00+09:00",
         **override,
@@ -246,7 +246,7 @@ def test_quote_rejects_invalid_input_with_422(override):
 
 def test_answers_cannot_inflate_score_by_repeating_or_faking_questions():
     # 중고거래 케이스: 개입=confirm_only(질문 없음). 안전질문 '예'를 5번 보내면 예전엔 250점·🔴가 됐다.
-    session_id = _quote(payee_account="552-102-993841", amount=150_000)["session_id"]
+    session_id = _quote(payee_account="552-102-993917", amount=150_000)["session_id"]
     forged = {"question_id": "safety", "choice_id": "safety_yes"}
     res = client.post(f"/api/transfer/{session_id}/answers", json={"answers": [forged] * 5})
     assert res.status_code == 400

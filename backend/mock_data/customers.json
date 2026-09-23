@@ -1,9 +1,9 @@
 [
   {
     "customer_id": "C001",
-    "name": "남용환",
-    "phone": "010-2001-0001",
-    "account": "351-0000-0001",
+    "name": "남용준",
+    "phone": "010-2091-0001",
+    "account": "351-0091-0001",
     "balance": 8050864,
     "baseline": {
       "avg_transfer_amount": 300000,
@@ -25,9 +25,9 @@
   },
   {
     "customer_id": "C002",
-    "name": "김도윤",
-    "phone": "010-2002-0002",
-    "account": "351-0000-0002",
+    "name": "김도현",
+    "phone": "010-2092-0002",
+    "account": "351-0092-0002",
     "balance": 12450000,
     "baseline": {
       "avg_transfer_amount": 200000,
@@ -49,9 +49,9 @@
   },
   {
     "customer_id": "C003",
-    "name": "이서연",
-    "phone": "010-2003-0003",
-    "account": "351-0000-0003",
+    "name": "이서인",
+    "phone": "010-2093-0003",
+    "account": "351-0093-0003",
     "balance": 3220000,
     "baseline": {
       "avg_transfer_amount": 150000,
@@ -72,9 +72,9 @@
   },
   {
     "customer_id": "C004",
-    "name": "박지훈",
-    "phone": "010-2004-0004",
-    "account": "351-0000-0004",
+    "name": "박지원",
+    "phone": "010-2094-0004",
+    "account": "351-0094-0004",
     "balance": 152300000,
     "baseline": {
       "avg_transfer_amount": 3000000,

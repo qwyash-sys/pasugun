@@ -21,7 +21,7 @@ def _signal(signals, name):
 def test_case1_prosecutor_impersonation_red():
     signals = run_all_account_signals(
         customer_id="C001",
-        payee_account="010-6660-98261",
+        payee_account="010-6691-98217",
         amount=20_000_000,
         current_time="2026-08-11T01:10:00+09:00",
         overrides=ContextOverrides(
@@ -53,7 +53,7 @@ def test_case1_prosecutor_impersonation_red():
 def test_case2_loan_refinancing_scam_red():
     signals = run_all_account_signals(
         customer_id="C002",
-        payee_account="110-452-118834",
+        payee_account="110-452-118921",
         amount=5_000_000,
         current_time="2026-08-09T11:00:00+09:00",
         overrides=ContextOverrides(
@@ -79,7 +79,7 @@ def test_case2_loan_refinancing_scam_red():
 def test_case3_messenger_phishing_caught_by_context_despite_low_account_score():
     signals = run_all_account_signals(
         customer_id="C001",
-        payee_account="301-8827-4410",
+        payee_account="301-8827-4491",
         amount=1_000_000,
         current_time="2026-08-12T15:00:00+09:00",
         overrides=ContextOverrides(),
@@ -106,7 +106,7 @@ def test_case3_messenger_phishing_caught_by_context_despite_low_account_score():
 def test_case4_secondhand_trade_normal_green_no_question():
     signals = run_all_account_signals(
         customer_id="C001",
-        payee_account="552-102-993841",
+        payee_account="552-102-993917",
         amount=150_000,
         current_time="2026-08-13T18:00:00+09:00",
         overrides=ContextOverrides(),
@@ -124,7 +124,7 @@ def test_case4_secondhand_trade_normal_green_no_question():
 def test_case5_real_estate_settlement_normal_green_false_positive_suppressed():
     signals = run_all_account_signals(
         customer_id="C004",
-        payee_account="088-19-284755",
+        payee_account="088-19-284812",
         amount=50_000_000,
         current_time="2026-08-14T11:00:00+09:00",
         overrides=ContextOverrides(),
