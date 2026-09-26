@@ -16,6 +16,7 @@ import M4Question from "./screens/M4Question";
 import M5Chat from "./screens/M5Chat";
 import M6Result from "./screens/M6Result";
 import M7Complete from "./screens/M7Complete";
+import BranchBooking from "./screens/BranchBooking";
 import ReportView from "./screens/ReportView";
 import ReportList from "./screens/ReportList";
 import type { AnswerSubmission, FinalizeResponse, QuoteResponse, ReportPayload, ReportQuery } from "./types";
@@ -30,6 +31,7 @@ type Screen =
   | "m5"
   | "m6"
   | "m7"
+  | "branch-booking"
   | "report"
   | "report-list";
 
@@ -130,6 +132,17 @@ export default function App() {
       const res = await client.finalize(sessionId);
       setResult(res);
       setScreen("m6");
+    });
+  }
+
+  /** 채팅의 "AI분석 무시하고 송금 진행하기": 결과 화면을 건너뛰고 곧바로 송금 단계로 간다.
+   * 판정 자체는 지금까지 쌓인 내용으로 확정한다 — 위험이면 M7이 지연이체로 접수한다. */
+  function skipAnalysisAndSend() {
+    if (!client || !sessionId) return;
+    runGuarded(async () => {
+      const res = await client.finalize(sessionId);
+      setResult(res);
+      setScreen("m7");
     });
   }
 
@@ -248,6 +261,7 @@ export default function App() {
           onDemoSubmit={finalizeToResult}
           onSendTurn={handleChatTurn}
           onFinish={finalizeToResult}
+          onSkipAnalysis={skipAnalysisAndSend}
           onHome={resetFlow}
         />
       )}
@@ -263,6 +277,7 @@ export default function App() {
           amount={amount}
           onProceed={() => setScreen("m7")}
           onCancel={resetFlow}
+          onBookBranch={() => setScreen("branch-booking")}
           onViewReport={openCurrentReport}
           onHome={resetFlow}
         />
@@ -270,6 +285,10 @@ export default function App() {
 
       {screen === "m7" && result && quote && role && (
         <M7Complete role={role} final={result.final} payeeName={quote.payee_name} amount={amount} onRestart={resetFlow} />
+      )}
+
+      {screen === "branch-booking" && quote && (
+        <BranchBooking customerName={quote.customer_name} onBack={() => setScreen("m6")} onHome={resetFlow} />
       )}
 
       {/* 리포트·리포트 목록은 내부직원(관리자) 전용 화면이다. */}

@@ -78,7 +78,7 @@ export default function ReportList({ query, onQueryChange: setQuery, backLabel, 
 
         <div className="report-filter-grid">
           <label>
-            계좌 등급
+            송금위험 등급
             <select value={query.account_level} onChange={(e) => update({ account_level: e.target.value as RiskLevel | "" })}>
               <option value="">전체</option>
               {LEVELS.map((l) => (
@@ -89,7 +89,7 @@ export default function ReportList({ query, onQueryChange: setQuery, backLabel, 
             </select>
           </label>
           <label>
-            맥락 등급
+            AI분석 등급
             <select value={query.context_level} onChange={(e) => update({ context_level: e.target.value as RiskLevel | "" })}>
               <option value="">전체</option>
               {LEVELS.map((l) => (
@@ -150,10 +150,10 @@ export default function ReportList({ query, onQueryChange: setQuery, backLabel, 
             </div>
             <div className="report-item-tags">
               <span className={`tag level-${r.account_level}`}>
-                계좌 {r.account_level} {r.account_score}
+                송금위험 {r.account_level} {r.account_score}
               </span>
               <span className={`tag level-${r.context_level}`}>
-                맥락 {r.context_level} {r.context_score ?? "-"}
+                AI분석 {r.context_level} {r.context_score ?? "-"}
               </span>
               {r.hard_override && <span className="tag tag-danger">결정적 징후</span>}
               <span className="tag">

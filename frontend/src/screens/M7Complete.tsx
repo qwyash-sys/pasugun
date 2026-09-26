@@ -29,9 +29,12 @@ export default function M7Complete({ role, final, payeeName, amount, onRestart }
             영업점·112·1332로 확인할 수 있어요.
           </p>
         )}
+        {isDelayed && (
+          <p className="delayed-callback">📞 지연이체 진행 전 고객센터에서 최대한 빠르게 확인상담 연락을 드릴 거예요.</p>
+        )}
         {role === "admin" && (
           <p style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
-            판정 근거: 계좌위험 {final.account_level} · 맥락위험 {final.context_level} · 최종 {final.final}
+            판정 근거: 송금위험 {final.account_level} · AI분석 {final.context_level} · 최종 {final.final}
           </p>
         )}
       </div>

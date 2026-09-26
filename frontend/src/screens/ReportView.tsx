@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import AppBar from "../components/AppBar";
 import RiskBreakdown from "../components/RiskBreakdown";
 import { resolveAssetUrl } from "../api/reports";
@@ -12,12 +12,24 @@ interface Props {
   onRestart: () => void;
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="report-row">
-      <span className="label">{label}</span>
-      <span className="value">{value}</span>
+    <div>
+      <dt>{label}</dt>
+      <dd>{children}</dd>
     </div>
+  );
+}
+
+function Section({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="report-section">
+      <h2 className="report-section-title">
+        {title}
+        {aside && <span className="report-section-aside">{aside}</span>}
+      </h2>
+      {children}
+    </section>
   );
 }
 
@@ -25,38 +37,63 @@ function formatDateTime(iso: string): string {
   return iso.slice(0, 16).replace("T", " ");
 }
 
+const VERDICT_TONE = { 안전: "safe", 주의: "warn", 위험: "danger" } as const;
+
 export default function ReportView({ report, backLabel, onBack, onOpenList, onRestart }: Props) {
   const [viewing, setViewing] = useState<number | null>(null);
   const attachments = report.attachments ?? [];
+  const { final } = report;
 
   return (
     <>
       <AppBar title="영업점 연계 리포트" onBack={onBack} onHome={onRestart} />
-      <h1 className="title">AI파수꾼 사기의심 거래 리포트</h1>
-      <p className="subtitle">#{report.report_id}</p>
 
-      <div className="report-sheet">
-        <Row label="고객 정보" value={`${report.customer_name} / ${report.customer_phone_masked} / ${report.customer_account_masked}`} />
-        <Row
-          label="시도 거래"
-          value={`${report.payee_bank} ${report.payee_account} (예금주: ${report.payee_name}) / ${report.amount.toLocaleString()}원`}
-        />
-        <Row label="시도 일시" value={formatDateTime(report.attempted_at)} />
-        <Row
-          label="최종 위험 판정"
-          value={`${report.final.final} (계좌 ${report.final.account_level} / 맥락 ${report.final.context_level})`}
-        />
-        <Row label="대화 진단 요약" value={report.conversation_summary} />
-        <Row label="첨부자료" value={attachments.length ? `${attachments.length}건` : "없음"} />
-        <Row label="권고 조치" value={report.recommendation} />
-        <Row label="생성 일시" value={formatDateTime(report.generated_at)} />
+      {/* 한눈에: 판정 · 금액 · 누가 누구에게 */}
+      <div className={`report-hero tone-${VERDICT_TONE[final.final]}`}>
+        <div className="report-hero-top">
+          <span className="report-hero-verdict">{final.final}</span>
+          <span className="report-hero-id">#{report.report_id}</span>
+        </div>
+        <div className="report-hero-amount">{report.amount.toLocaleString()}원</div>
+        <div className="report-hero-parties">
+          {report.customer_name} → {report.payee_name} <span>({report.payee_bank})</span>
+        </div>
+        <div className="report-hero-tags">
+          <span className={`tag level-${final.account_level}`}>송금위험 {final.account_level}</span>
+          <span className={`tag level-${final.context_level}`}>AI분석 {final.context_level}</span>
+          {final.hard_override && <span className="tag tag-danger">결정적 피싱징후</span>}
+        </div>
       </div>
 
-      {attachments.length > 0 && (
-        <>
-          <p className="field-label" style={{ marginTop: 16 }}>
-            첨부자료 보기 · 눌러서 크게 보기
-          </p>
+      <Section title="권고 조치">
+        <p className="report-callout">{report.recommendation}</p>
+      </Section>
+
+      <Section title="시도 거래">
+        <dl className="info-list">
+          <InfoRow label="받는 분">{report.payee_name}</InfoRow>
+          <InfoRow label="입금 계좌">
+            {report.payee_bank} {report.payee_account}
+          </InfoRow>
+          <InfoRow label="금액">{report.amount.toLocaleString()}원</InfoRow>
+          <InfoRow label="시도 일시">{formatDateTime(report.attempted_at)}</InfoRow>
+        </dl>
+      </Section>
+
+      <Section title="고객 정보">
+        <dl className="info-list">
+          <InfoRow label="이름">{report.customer_name}</InfoRow>
+          <InfoRow label="연락처">{report.customer_phone_masked}</InfoRow>
+          <InfoRow label="출금 계좌">{report.customer_account_masked}</InfoRow>
+        </dl>
+      </Section>
+
+      <Section title="AI 대화 진단 요약">
+        <p className="report-quote">{report.conversation_summary}</p>
+      </Section>
+
+      <Section title="첨부자료" aside={attachments.length ? `${attachments.length}건 · 눌러서 크게 보기` : "없음"}>
+        {attachments.length > 0 ? (
           <div className="attach-grid">
             {attachments.map((a, i) => (
               <button key={`${a.name}-${i}`} className="attach-thumb" onClick={() => setViewing(i)}>
@@ -65,13 +102,16 @@ export default function ReportView({ report, backLabel, onBack, onOpenList, onRe
               </button>
             ))}
           </div>
-        </>
-      )}
+        ) : (
+          <p className="report-empty">고객이 올린 캡처·사진이 없어요.</p>
+        )}
+      </Section>
 
-      <p className="field-label" style={{ marginTop: 16 }}>
-        위험 판정 상세 근거
-      </p>
-      <RiskBreakdown account={report.account} context={report.context} />
+      <Section title="AI파수꾼 위험 판정 근거" aside="1단계 · 2단계 · 3단계">
+        <RiskBreakdown account={report.account} context={report.context} />
+      </Section>
+
+      <p className="report-generated">리포트 생성 {formatDateTime(report.generated_at)}</p>
 
       <div className="spacer" />
       <button className="btn btn-outline" style={{ marginBottom: 10 }} onClick={onOpenList}>

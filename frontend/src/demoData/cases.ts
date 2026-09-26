@@ -31,9 +31,9 @@ export interface DemoCase {
   chatHint: string;
   /** M5에서 재생할 대본: 버튼을 누를 때마다 한 턴(사용자 발화 -> AI 응답)씩 진행된다.
    * 비어있으면 이 케이스는 대화 없이 바로 결과로 넘어간다(저위험 확인 경로). 마지막 턴의
-   * ai 텍스트가 곧 M6에 표시되는 agentReply와 같아야 한다. attachment는 그 턴에 함께
-   * 보여줄 첨부파일명(연출용, 실제 파일 없음) — 없으면 첨부 없이 텍스트만 보낸다. */
-  chatTurns: { user: string; ai: string; attachment?: string }[];
+   * ai 텍스트가 곧 M6에 표시되는 agentReply와 같아야 한다. attachments는 그 턴에 함께
+   * 보여줄 첨부파일명들(연출용, 실제 파일 없음) — 없으면 첨부 없이 텍스트만 보낸다. */
+  chatTurns: { user: string; ai: string; attachments?: string[] }[];
   agentReply: string | null;
   final: FinalRisk;
   report: ReportPayload | null;
@@ -139,7 +139,7 @@ export const DEMO_CASES: DemoCase[] = [
       },
       {
         user: "네, 검찰 공무원증 사진을 보내줬고 '지금 안전계좌로 옮기지 않으면 계좌가 동결된다'는 문자도 왔어요",
-        attachment: "검찰공무원증_캡처.jpg",
+        attachments: ["검찰공무원증_캡처.jpg", "사건공문_사진.jpg"],
         ai: "말씀해주신 내용과 캡처를 확인해보니 검찰·금감원을 사칭해 '안전계좌'로 유도하는 사례와 매우 유사해요. 지금 이체를 잠시 멈추고 가까운 영업점에서 확인해보시는 게 좋겠어요.",
       },
     ],
@@ -181,12 +181,16 @@ export const DEMO_CASES: DemoCase[] = [
         action: "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
       },
       account_reasons: ["위험계좌 정보(+40)", "평소 대비 고액(+25)", "자금이동 적금해지(+25)"],
-      conversation_summary: "\"검찰이 안전계좌로 옮기라 했다\"고 응답, 안내문자 캡처 1건 업로드",
+      conversation_summary: "\"검찰이 안전계좌로 옮기라 했다\"고 응답, 캡처 2건 업로드(검찰공무원증_캡처.jpg, 사건공문_사진.jpg)",
       attachments_present: true,
       attachments: [
         {
           name: "검찰공무원증_캡처.jpg",
           url: captureDataUrl(["[Web발신] 서울중앙지검 사건조회", "귀하 명의 계좌가 범죄에 연루되어", "지금 안전계좌로 옮기지 않으면", "계좌가 동결됩니다"]),
+        },
+        {
+          name: "사건공문_사진.jpg",
+          url: captureDataUrl(["서울중앙지방검찰청", "사건번호 2026형제XXXXX호", "피의자 명의 계좌 범죄 연루", "자산 동결 전 보호조치 요망"]),
         },
       ],
       rag: {
@@ -329,7 +333,7 @@ export const DEMO_CASES: DemoCase[] = [
       },
       {
         user: "네, 저축은행 직원이라면서 문자로 먼저 연락이 왔고 한도도 이미 올려놨다고 했어요",
-        attachment: "대출안내_문자캡처.jpg",
+        attachments: ["대출안내_문자캡처.jpg", "대출승인_안내서.jpg", "상담원_카톡.jpg"],
         ai: "저금리 대환대출을 이유로 먼저 돈을 보내달라는 절차는 정상적인 은행 대출 절차와 달라요. 지금 이체를 멈추고 은행 공식 채널로 다시 확인해보시는 게 안전해요.",
       },
     ],
@@ -370,12 +374,20 @@ export const DEMO_CASES: DemoCase[] = [
         action: "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
       },
       account_reasons: ["평소 대비 고액(+25)", "신규계좌(+20)", "이체한도 상향(+20)"],
-      conversation_summary: "\"저금리 대환대출 안내를 받고 먼저 상환금을 보내려 한다\"고 응답, 문자 캡처 업로드",
+      conversation_summary: "\"저금리 대환대출 안내를 받고 먼저 상환금을 보내려 한다\"고 응답, 캡처 3건 업로드(대출안내_문자캡처.jpg, 대출승인_안내서.jpg, 상담원_카톡.jpg)",
       attachments_present: true,
       attachments: [
         {
           name: "대출안내_문자캡처.jpg",
           url: captureDataUrl(["[Web발신] 저금리 대환대출 승인 안내", "기존 대출 선상환 확인 후", "승인금 즉시 입금 예정", "한도 상향 후 상환금 이체 바랍니다"]),
+        },
+        {
+          name: "대출승인_안내서.jpg",
+          url: captureDataUrl(["대출 승인 예정 안내", "승인 한도 30,000,000원 / 연 3.2%", "기존 대출 상환 확인 후 실행", "상환 계좌로 선입금 요망"]),
+        },
+        {
+          name: "상담원_카톡.jpg",
+          url: captureDataUrl(["오늘 오후 3시 전까지 입금하셔야", "승인이 유지됩니다", "입금 후 캡처 보내주세요"]),
         },
       ],
       rag: {
@@ -453,7 +465,7 @@ export const DEMO_CASES: DemoCase[] = [
     id: "case3",
     emoji: "🔴",
     title: "메신저피싱",
-    subtitle: "카톡 받고 100만원 · 신규계좌 (계좌점수 낮아도 맥락으로 포착)",
+    subtitle: "카톡 받고 100만원 · 신규계좌 (송금위험도 낮아도 AI분석으로 포착)",
     input: {
       customerName: "남용준",
       customerAccount: "351-0091-0001",
@@ -515,7 +527,7 @@ export const DEMO_CASES: DemoCase[] = [
       },
       {
         user: "말투가 평소랑 좀 다르고, 급하게 돈이 필요하다는 말만 계속해요",
-        attachment: "대화_캡처.jpg",
+        attachments: ["대화_캡처.jpg", "프로필_캡처.jpg"],
         ai: "직접 통화는 안 되고 문자로만 연락된다는 점이 걸려요. 실제로 아시는 분이 맞는지 전화나 영상통화로 한 번 더 확인해보시는 게 좋겠어요.",
       },
     ],
@@ -555,12 +567,16 @@ export const DEMO_CASES: DemoCase[] = [
         action: "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
       },
       account_reasons: ["평소 대비 이상거래(+8)", "신규계좌(+20)"],
-      conversation_summary: "\"아는 사람인데 문자로만 연락된다\"고 응답, 대화 캡처 업로드",
+      conversation_summary: "\"아는 사람인데 문자로만 연락된다\"고 응답, 캡처 2건 업로드(대화_캡처.jpg, 프로필_캡처.jpg)",
       attachments_present: true,
       attachments: [
         {
           name: "대화_캡처.jpg",
           url: captureDataUrl(["엄마 나 폰 고장나서 이걸로 연락해", "급하게 결제할 게 있는데", "100만원만 먼저 보내줄 수 있어?", "통화는 안 돼 문자로 해줘"]),
+        },
+        {
+          name: "프로필_캡처.jpg",
+          url: captureDataUrl(["프로필 사진 없음", "상태메시지: 폰 수리중", "친구 추가 안 된 사용자"]),
         },
       ],
       rag: {

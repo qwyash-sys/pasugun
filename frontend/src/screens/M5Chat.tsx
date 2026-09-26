@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import AppBar, { AiTag } from "../components/AppBar";
+import BottomSheet from "../components/BottomSheet";
 import StreamingText from "../components/StreamingText";
 import { fileToBase64 } from "../utils/file";
 
@@ -14,7 +15,7 @@ interface DemoTurn {
   ai: string;
   /** 이 턴에서 함께 첨부하는 자료(안내문자 캡처 등)의 표시용 파일명. 실제 파일은 필요
    * 없다 — 시연 중 파일 선택창을 띄우지 않고도 첨부 흐름 자체를 보여주기 위한 연출. */
-  attachment?: string;
+  attachments?: string[];
 }
 
 interface Props {
@@ -32,6 +33,8 @@ interface Props {
   /** 대화를 건너뛰거나(0턴) 충분히 나눈 뒤(1턴 이상) 결과 화면으로 넘어간다 — 서버가
    * 세션에 쌓인 대화 유무로 알아서 판단하므로 콜백은 하나면 충분하다. */
   onFinish?: () => void;
+  /** AI 분석을 건너뛰고 송금으로 바로 간다(막지 않는다는 원칙). 판정은 지금까지 쌓인 내용으로 확정된다. */
+  onSkipAnalysis: () => void;
   onHome: () => void;
 }
 
@@ -65,7 +68,7 @@ interface ChatMessage {
 /** demo 모드: 결과는 대본대로 고정돼있지만, 화면은 실제 채팅처럼 보이게 재생한다. 대사를
  * 직접 타이핑하게 하면 시연 중 오타·삭제로 흐름이 끊기니, 다음 대사를 누르면 사용자 말풍선이
  * 뜨고 잠시 후 AI 응답이 이어지는 식으로 버튼 클릭만으로 진행시킨다. */
-function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
+function DemoChat({ hint, chatTurns, onDemoSubmit, onSkipAnalysis, onHome }: Props) {
   const turns = chatTurns ?? [];
   const [completed, setCompleted] = useState(0);
   // pending: 사용자 말풍선 + "입력 중" 점 3개(생각하는 척). revealing: 그 다음, AI 답장이
@@ -78,8 +81,8 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
     { role: "ai", text: `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황을 편하게 말씀해주세요."}` },
   ];
   for (let i = 0; i < completed; i++) {
-    const { user, ai, attachment } = turns[i];
-    messages.push({ role: "user", text: user, attachments: attachment ? [attachment] : undefined });
+    const { user, ai, attachments } = turns[i];
+    messages.push({ role: "user", text: user, attachments });
     messages.push({ role: "ai", text: ai });
   }
 
@@ -103,7 +106,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
 
   return (
     <>
-      <AppBar title="AI파수꾼 실시간 확인" onHome={onHome} />
+      <AppBar title="AI 안심 송금" onHome={onHome} />
       <AiTag />
 
       <div className="chat-thread">
@@ -120,7 +123,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
         {pending && (
           <>
             <div className="chat-msg chat-msg-user">
-              {pending.attachment && <div className="chat-attach-chip">📷 {pending.attachment}</div>}
+              <AttachChips names={pending.attachments} />
               <div className="chat-bubble-user">{pending.user}</div>
             </div>
             <div className="chat-typing">
@@ -133,7 +136,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
         {revealing && (
           <>
             <div className="chat-msg chat-msg-user">
-              {revealing.attachment && <div className="chat-attach-chip">📷 {revealing.attachment}</div>}
+              <AttachChips names={revealing.attachments} />
               <div className="chat-bubble-user">{revealing.user}</div>
             </div>
             <div className="chat-msg chat-msg-ai">
@@ -163,7 +166,11 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
           <p className="script-hint">💡 아래 말풍선을 눌러 대화를 진행해보세요</p>
           {/* 실채팅(LiveChat)에서 파일을 고르면 전송 전 여기와 같은 칩으로 미리보기가 뜬다 —
               데모도 다음 대사에 첨부가 딸려있다는 걸 같은 방식으로 미리 보여준다. */}
-          {nextTurn.attachment && <div className="chat-attach-chip">📷 {nextTurn.attachment}</div>}
+          {nextTurn.attachments && (
+            <div className="chat-attach-list">
+              <AttachChips names={nextTurn.attachments} />
+            </div>
+          )}
           <button className="btn btn-outline" onClick={playNext}>
             💬 "{nextTurn.user}"
           </button>
@@ -175,6 +182,49 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
           결과 확인하기
         </button>
       )}
+      <SkipAnalysisButton onConfirm={onSkipAnalysis} disabled={!!pending || !!revealing} />
+    </>
+  );
+}
+
+function AttachChips({ names }: { names?: string[] }) {
+  return (
+    <>
+      {names?.map((name, i) => (
+        <div key={`${name}-${i}`} className="chat-attach-chip">
+          📷 {name}
+        </div>
+      ))}
+    </>
+  );
+}
+
+/** 채팅 맨 아래 "AI분석 무시하고 송금 진행하기". 송금을 막지 않는다는 원칙 그대로, 고객이 원하면
+ * 분석을 건너뛸 수 있게 하되 한 번 더 확인받는다 — 위험 신호가 이미 잡혔다면 지연이체로 접수된다. */
+function SkipAnalysisButton({ onConfirm, disabled }: { onConfirm: () => void; disabled: boolean }) {
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <>
+      <button className="btn btn-secondary skip-analysis-btn" disabled={disabled} onClick={() => setConfirming(true)}>
+        AI분석 무시하고 송금 진행하기
+      </button>
+      {confirming && (
+        <BottomSheet>
+          <h2 className="sheet-title">AI 분석 없이 송금할까요?</h2>
+          <p className="sheet-body">
+            지금까지 확인된 내용만으로 송금을 진행해요. 보이스피싱 위험 신호가 이미 확인된 거래라면 안전을 위해
+            지연이체로 접수되고, 고객센터에서 최대한 빠르게 확인 연락을 드려요.
+          </p>
+          <div className="btn-row">
+            <button className="btn btn-secondary" onClick={() => setConfirming(false)}>
+              계속 확인할게요
+            </button>
+            <button className="btn btn-primary" onClick={onConfirm}>
+              송금 진행
+            </button>
+          </div>
+        </BottomSheet>
+      )}
     </>
   );
 }
@@ -182,7 +232,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
 /** local/remote 모드: 실제 AI 상담원과 2~3턴 정도 주고받는 채팅. 게시판에 글 올리고 결과만
  * 받아보는 방식 대신, 짧게라도 대화를 주고받은 뒤 결론 화면(M6)으로 넘어가게 한다. 대화가
  * 길어지면 안 되므로 턴 수는 백엔드가 하드 캡(MAX_CHAT_TURNS)으로 못박는다. */
-function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) {
+function LiveChat({ customerName, onSendTurn, onFinish, onSkipAnalysis, onHome, error }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "ai", text: `${customerName}님, 편하게 상황을 말씀해주세요. 몇 가지만 확인하고 바로 알려드릴게요.` },
   ]);
@@ -272,7 +322,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
 
   return (
     <>
-      <AppBar title="AI파수꾼 실시간 확인" onHome={onHome} />
+      <AppBar title="AI 안심 송금" onHome={onHome} />
       <AiTag />
 
       <div className="chat-thread">
@@ -383,6 +433,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
             결과 확인하기
           </button>
         )}
+        <SkipAnalysisButton onConfirm={onSkipAnalysis} disabled={busy} />
       </div>
       <div ref={bottomRef} />
     </>

@@ -113,7 +113,7 @@ function RagCandidateChart({ candidates, matchedId }: { candidates: RagCandidate
 }
 
 const MATRIX_ORDER: RiskLevel[] = ["고", "중", "저"];
-// [계좌][맥락] — backend app/aggregator.py _MATRIX와 같다.
+// [송금위험(계좌)][AI분석(맥락)] — backend app/aggregator.py _MATRIX와 같다.
 const MATRIX_RESULT: Record<RiskLevel, Record<RiskLevel, string>> = {
   고: { 고: "🔴", 중: "🔴", 저: "🟡" },
   중: { 고: "🔴", 중: "🟡", 저: "🟢" },
@@ -131,14 +131,14 @@ function VerdictMatrix({ accountLevel, contextLevel }: { accountLevel: RiskLevel
       <div className="verdict-matrix-corner" />
       {MATRIX_ORDER.map((c) => (
         <div key={`h-${c}`} className={`verdict-matrix-head ${c === accountLevel ? "on" : ""}`}>
-          계좌 {c}
+          송금위험 {c}
           <small>{bandLabel(band(ACCOUNT_BANDS, c))}</small>
         </div>
       ))}
       {MATRIX_ORDER.map((r) => (
         <Fragment key={`row-${r}`}>
           <div className={`verdict-matrix-head ${r === contextLevel ? "on" : ""}`}>
-            맥락 {r}
+            AI분석 {r}
             <small>{bandLabel(band(CONTEXT_BANDS, r))}</small>
           </div>
           {MATRIX_ORDER.map((c) => {
@@ -216,20 +216,20 @@ function VerdictBasis({ account, context }: Props) {
 
   return (
     <div className="verdict-basis">
-      <LevelGauge title="1단계 계좌 점수" score={account.total_score} level={account.level} bands={ACCOUNT_BANDS} />
+      <LevelGauge title="1단계 송금위험도 점수" score={account.total_score} level={account.level} bands={ACCOUNT_BANDS} />
       {context ? (
-        <LevelGauge title="2단계 맥락 점수" score={context.total_score} level={scoreBasedContext} bands={CONTEXT_BANDS} />
+        <LevelGauge title="2단계 AI분석 점수" score={context.total_score} level={scoreBasedContext} bands={CONTEXT_BANDS} />
       ) : (
-        <p className="verdict-basis-note">2단계 미실행(확인 1탭 경로) → 맥락 저로 계산</p>
+        <p className="verdict-basis-note">2단계 미실행(확인 1탭 경로) → AI분석 저로 계산</p>
       )}
       {hardOverride && context && (
         <p className="verdict-basis-note danger">
           결정적 피싱징후: {hardOverrideCauses(context).join(" · ") || "위험신호 직접 확인"}
-          <br />→ 점수와 무관하게 맥락 <strong>고</strong>, 최종 <strong>위험</strong>으로 고정
+          <br />→ 점수와 무관하게 AI분석 <strong>고</strong>, 최종 <strong>위험</strong>으로 고정
         </p>
       )}
       <p className="verdict-basis-result">
-        계좌 <strong>{account.level}</strong> × 맥락 <strong>{contextLevel}</strong> → 매트릭스{" "}
+        송금위험 <strong>{account.level}</strong> × AI분석 <strong>{contextLevel}</strong> → 매트릭스{" "}
         <strong>
           {matrixMark} {VERDICT_NAME[matrixMark]}
         </strong>
@@ -244,7 +244,7 @@ export default function RiskBreakdown({ account, context }: Props) {
     <div className="risk-breakdown">
       <div className="risk-stage">
         <div className="risk-stage-header">
-          <span>1단계 · 계좌 신호</span>
+          <span>1단계 · 송금위험도 판단</span>
           <span className="risk-stage-total">
             {account.total_score}점 · {account.level}
           </span>
@@ -270,7 +270,7 @@ export default function RiskBreakdown({ account, context }: Props) {
 
       <div className="risk-stage">
         <div className="risk-stage-header">
-          <span>2단계 · 맥락 분석</span>
+          <span>2단계 · AI 분석</span>
           <span className="risk-stage-total">
             {context ? `${context.total_score}점 · ${context.level}` : "미실행(질문 없음)"}
             {context?.hard_override ? " · 결정적 피싱징후" : ""}
