@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
+
+KST = timezone(timedelta(hours=9))
 
 RiskLevel = Literal["저", "중", "고"]
 FinalVerdict = Literal["안전", "주의", "위험"]
@@ -38,9 +40,14 @@ class TransferRequest(BaseModel):
     def _iso8601(cls, v: str) -> str:
         # 형식이 틀리면 하위 신호 툴에서 터져 502로 새므로, 입구에서 422로 막는다.
         try:
-            datetime.fromisoformat(v)
+            dt = datetime.fromisoformat(v)
         except ValueError as e:
             raise ValueError("current_time은 ISO8601 형식이어야 합니다") from e
+        # 이용시간대 신호는 고객의 현지(한국) 시각 기준이다. UTC("...Z")로 들어온 걸 그대로
+        # .hour로 쓰면 한국 낮 9~15시가 새벽 0~6시로 잡혀 점수가 붙는다 — 오프셋이 있으면
+        # KST로 바꿔 저장한다(리포트의 시도 일시도 이 값). 오프셋 없는 값은 이미 KST로 본다.
+        if dt.tzinfo is not None:
+            return dt.astimezone(KST).isoformat(timespec="seconds")
         return v
 
 
@@ -130,6 +137,7 @@ class ReportSummary(BaseModel):
     """관리자 리포트 목록 한 줄 — 목록 화면에 필요한 값만 추린다(상세는 ReportPayload)."""
 
     report_id: str
+    generated_at: str
     attempted_at: str
     customer_name: str
     payee_bank: str

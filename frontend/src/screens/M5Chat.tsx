@@ -36,16 +36,19 @@ interface Props {
 }
 
 export default function M5Chat(props: Props) {
-  if (props.loading) {
-    return (
-      <div className="loading-wrap">
-        <div className="spinner" />
-        <p>AI가 확인 중이에요</p>
-      </div>
-    );
-  }
-
-  return props.isDemo ? <DemoChat {...props} /> : <LiveChat {...props} />;
+  // 결과 확정 중에는 대화 화면을 내리지 말고 위에 덮기만 한다 — 언마운트하면 확정이 실패했을 때
+  // 대화 내용·턴 수가 전부 초기화된 빈 채팅으로 되돌아온다.
+  return (
+    <>
+      {props.isDemo ? <DemoChat {...props} /> : <LiveChat {...props} />}
+      {props.loading && (
+        <div className="loading-overlay">
+          <div className="spinner" />
+          <p>AI가 확인 중이에요</p>
+        </div>
+      )}
+    </>
+  );
 }
 
 // 백엔드 상한(base64 약 14MB ≈ 원본 10MB)보다 여유 있게 잡는다.
@@ -106,8 +109,8 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
       <div className="chat-thread">
         {messages.map((m, i) => (
           <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
-            {m.attachments?.map((name) => (
-              <div key={name} className="chat-attach-chip">
+            {m.attachments?.map((name, j) => (
+              <div key={`${name}-${j}`} className="chat-attach-chip">
                 📷 {name}
               </div>
             ))}
@@ -275,8 +278,8 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
       <div className="chat-thread">
         {messages.map((m, i) => (
           <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
-            {m.attachments?.map((name) => (
-              <div key={name} className="chat-attach-chip">
+            {m.attachments?.map((name, j) => (
+              <div key={`${name}-${j}`} className="chat-attach-chip">
                 📷 {name}
               </div>
             ))}

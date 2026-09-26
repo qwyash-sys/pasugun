@@ -47,6 +47,7 @@ function toSummary(r: ReportPayload): ReportSummary {
   const ragHit = !!(r.rag && r.rag.hit);
   return {
     report_id: r.report_id,
+    generated_at: r.generated_at,
     attempted_at: r.attempted_at,
     customer_name: r.customer_name,
     payee_bank: r.payee_bank,
@@ -63,7 +64,7 @@ function toSummary(r: ReportPayload): ReportSummary {
   };
 }
 
-// backend/app/report_store.py ReportStore.search와 같은 규칙.
+// backend/app/report_store.py ReportStore.search와 같은 규칙(정렬도 같은 생성 시각 기준).
 function matches(r: ReportPayload, q: ReportQuery): boolean {
   if (q.account_level && r.final.account_level !== q.account_level) return false;
   if (q.context_level && r.final.context_level !== q.context_level) return false;
@@ -84,7 +85,7 @@ export async function listReports(q: ReportQuery): Promise<ReportListResponse> {
   if (RESPONSE_SOURCE === "demo") {
     const found = allDemoReports()
       .filter((r) => matches(r, q))
-      .sort((a, b) => b.attempted_at.localeCompare(a.attempted_at));
+      .sort((a, b) => Date.parse(b.generated_at) - Date.parse(a.generated_at));
     const start = (q.page - 1) * q.page_size;
     return {
       items: found.slice(start, start + q.page_size).map(toSummary),

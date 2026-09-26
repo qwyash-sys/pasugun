@@ -290,7 +290,7 @@ export default function App() {
         <ReportList
           query={listQuery}
           onQueryChange={setListQuery}
-          backLabel="리포트로 돌아가기"
+          backLabel="이번 거래 리포트로"
           onBack={backFromList}
           onOpen={openReportFromList}
           onHome={resetFlow}

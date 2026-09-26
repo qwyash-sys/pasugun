@@ -60,7 +60,7 @@ export default function ReportView({ report, backLabel, onBack, onOpenList, onRe
           <div className="attach-grid">
             {attachments.map((a, i) => (
               <button key={`${a.name}-${i}`} className="attach-thumb" onClick={() => setViewing(i)}>
-                <img src={resolveAssetUrl(a.url)} alt={a.name} loading="lazy" />
+                <img src={resolveAssetUrl(a.url)} alt={a.name} />
                 <span>{a.name}</span>
               </button>
             ))}

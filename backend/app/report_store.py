@@ -8,6 +8,7 @@
 import io
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from functools import lru_cache
 from html import escape
 
@@ -150,13 +151,19 @@ class ReportStore:
             if q and not any(q in s for s in (r.report_id, r.customer_name, r.payee_name, r.payee_account)):
                 continue
             result.append(r)
-        return sorted(result, key=lambda r: r.attempted_at, reverse=True)
+        # 최신 리포트가 맨 위. 거래 시각(attempted_at)이 아니라 생성 시각 기준인 이유: 개발용
+        # 테스트 시나리오는 점수 재현을 위해 거래 시각을 과거로 고정하므로, 거래 시각순이면
+        # 방금 만든 리포트가 목록 뒤쪽에 묻힌다. 오프셋이 섞일 수 있어 문자열이 아니라 시각으로 비교한다.
+        # 같은 초에 생긴 리포트는 나중에 저장된 쪽이 위(저장 순번으로 동점 처리).
+        order = {id(r): i for i, r in enumerate(self._reports)}
+        return sorted(result, key=lambda r: (datetime.fromisoformat(r.generated_at), order[id(r)]), reverse=True)
 
 
 def to_summary(r: ReportPayload) -> ReportSummary:
     rag_hit = bool(r.rag and r.rag.hit)
     return ReportSummary(
         report_id=r.report_id,
+        generated_at=r.generated_at,
         attempted_at=r.attempted_at,
         customer_name=r.customer_name,
         payee_bank=r.payee_bank,

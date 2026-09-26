@@ -50,7 +50,7 @@ def test_list_is_seeded_with_history_newest_first_and_paged():
     body = res.json()
     assert body["total"] >= 30
     assert len(body["items"]) == 5
-    dates = [i["attempted_at"] for i in body["items"]]
+    dates = [i["generated_at"] for i in body["items"]]
     assert dates == sorted(dates, reverse=True)
 
     page2 = client.get("/api/reports", params={"page": 2, "page_size": 5}).json()
@@ -106,3 +106,31 @@ def test_finalize_adds_report_with_downloadable_uploads_once():
     assert report["attachments"][0]["name"] == "캡처.png"
     img = client.get(report["attachments"][0]["url"])
     assert img.status_code == 200 and img.headers["content-type"] == "image/png"
+
+
+def test_new_report_is_listed_first_even_with_backdated_transaction_time():
+    # 개발용 시나리오는 거래 시각을 과거(8월)로 고정한다 — 그래도 방금 만든 리포트가 1페이지 맨 위여야 한다.
+    q = client.post("/api/transfer/quote", json={
+        "customer_id": "C001", "payee_account": "010-6691-98217", "amount": 20_000_000,
+        "current_time": "2026-08-11T01:10:00+09:00",
+    }).json()
+    client.post(f"/api/transfer/{q['session_id']}/chat", json={"text": "검찰이래요"})
+    report = client.post(f"/api/transfer/{q['session_id']}/finalize").json()["report"]
+    assert report["generated_at"].endswith("+09:00")
+
+    first = client.get("/api/reports", params={"page_size": 1}).json()["items"][0]
+    assert first["report_id"] == report["report_id"]
+
+
+def test_concurrent_finalize_creates_one_report():
+    from concurrent.futures import ThreadPoolExecutor
+
+    q = client.post("/api/transfer/quote", json={
+        "customer_id": "C001", "payee_account": "010-6691-98217", "amount": 20_000_000,
+        "current_time": "2026-08-11T01:10:00+09:00",
+    }).json()
+    sid = q["session_id"]
+    client.post(f"/api/transfer/{sid}/chat", json={"text": "검찰이래요"})
+    with ThreadPoolExecutor(4) as pool:
+        results = list(pool.map(lambda _: client.post(f"/api/transfer/{sid}/finalize").json(), range(4)))
+    assert len({r["report"]["report_id"] for r in results}) == 1

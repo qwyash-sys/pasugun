@@ -1,6 +1,7 @@
 """이체 세션 인메모리 저장소. 프로토타입이라 DB 없이 프로세스 메모리에 둔다.
 M2에서 1단계 백그라운드 스코어링 결과를 들고 있다가, M4/M5 단계에서 이어받는다."""
 
+import threading
 import uuid
 from dataclasses import dataclass, field
 from typing import Any
@@ -34,6 +35,9 @@ class TransferSession:
     finalized: bool = False
     # finalize를 다시 불러도(프론트 "다시 시도") 리포트가 두 번 쌓이지 않게 첫 결과를 그대로 돌려준다.
     final_response: dict[str, Any] | None = None
+    # FastAPI가 동기 엔드포인트를 스레드풀에서 돌리므로 같은 세션 요청이 동시에 들어올 수 있다
+    # (더블클릭 등). 턴 수 상한 검사·finalize 1회 보장이 깨지지 않게 세션 단위로 직렬화한다.
+    lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
 
 
 _sessions: dict[str, TransferSession] = {}

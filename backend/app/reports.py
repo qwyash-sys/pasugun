@@ -2,11 +2,11 @@
 나머지 항목은 전부 구조화 데이터 그대로 매핑한다."""
 
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from itertools import count
 
 from app.agent import PasugunAgent
-from app.models import AccountAssessment, ContextAssessment, FinalRisk, RagMatch, ReportPayload
+from app.models import KST, AccountAssessment, ContextAssessment, FinalRisk, RagMatch, ReportPayload
 
 _report_seq = count(1)
 
@@ -30,7 +30,8 @@ def _mask_account(account: str) -> str:
 
 
 def next_report_id(now: datetime | None = None) -> str:
-    now = now or datetime.now(timezone.utc)
+    # 영업점(한국) 기준 날짜 — UTC로 찍으면 한국 새벽 0~9시 리포트가 전날 번호를 받는다.
+    now = now or datetime.now(KST)
     return f"RPT-{now.strftime('%Y%m%d')}-{next(_report_seq):03d}"
 
 
@@ -57,7 +58,7 @@ def build_report(
 
     return ReportPayload(
         report_id=next_report_id(),
-        generated_at=datetime.now(timezone.utc).isoformat(),
+        generated_at=datetime.now(KST).isoformat(timespec="seconds"),
         customer_name=customer["name"],
         customer_phone_masked=_mask_phone(customer_phone),
         customer_account_masked=_mask_account(customer["account"]),

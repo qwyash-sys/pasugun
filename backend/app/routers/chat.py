@@ -17,7 +17,7 @@ from app.questions import SAFETY_QUESTION, empathy_question, questions_for
 from app.report_store import UploadedImage, get_report_store
 from app.reports import build_report
 from app.scoring import build_context_assessment
-from app.session_store import get_session
+from app.session_store import TransferSession, get_session
 
 logger = logging.getLogger("pasugun")
 
@@ -105,7 +105,11 @@ def chat_turn(session_id: str, payload: ChatTurnRequest):
         session = get_session(session_id)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+    with session.lock:
+        return _chat_turn_locked(session, payload)
 
+
+def _chat_turn_locked(session: TransferSession, payload: ChatTurnRequest) -> ChatTurnResponse:
     if session.finalized:
         raise HTTPException(status_code=409, detail="이미 확정된 이체예요.")
 
@@ -158,7 +162,11 @@ def finalize(session_id: str):
         session = get_session(session_id)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+    with session.lock:
+        return _finalize_locked(session)
 
+
+def _finalize_locked(session: TransferSession):
     if session.final_response is not None:
         return session.final_response
 

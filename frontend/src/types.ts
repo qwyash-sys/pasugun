@@ -114,6 +114,7 @@ export interface ReportPayload {
 /** 관리자 리포트 목록 한 줄(backend ReportSummary와 대응). */
 export interface ReportSummary {
   report_id: string;
+  generated_at: string;
   attempted_at: string;
   customer_name: string;
   payee_bank: string;

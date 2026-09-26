@@ -285,3 +285,15 @@ def test_session_is_locked_after_finalize():
     assert client.post(f"/api/transfer/{session_id}/answers", json={"answers": []}).status_code == 409
     # finalize 자체는 재호출해도 안전(멱등)해야 한다 — 프론트 "다시 시도" 버튼용.
     assert client.post(f"/api/transfer/{session_id}/finalize").status_code == 200
+
+
+def test_utc_time_is_scored_in_korean_local_time():
+    # 브라우저 new Date().toISOString()은 UTC("Z")다. 한국 낮 11시(=UTC 02시)를 새벽으로
+    # 잘못 보고 이용시간대 점수를 붙이면 안 된다.
+    def time_signal(current_time: str) -> dict:
+        quote = _quote(current_time=current_time)
+        return next(s for s in quote["account"]["signals"] if s["signal"] == "time_pattern")
+
+    assert time_signal("2026-08-12T02:00:00Z")["hit"] is False  # 11:00 KST
+    assert time_signal("2026-08-11T17:30:00Z")["hit"] is True  # 02:30 KST 새벽
+    assert time_signal("2026-08-12T02:00:00Z") == time_signal("2026-08-12T11:00:00+09:00")

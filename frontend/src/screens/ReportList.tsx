@@ -134,7 +134,7 @@ export default function ReportList({ query, onQueryChange: setQuery, backLabel, 
       </form>
 
       <p className="report-list-count">
-        {loading ? "불러오는 중…" : data ? `총 ${data.total.toLocaleString()}건 · ${query.page}/${totalPages} 페이지` : ""}
+        {loading ? "불러오는 중…" : data ? `총 ${data.total.toLocaleString()}건 · 최신 리포트순 · ${query.page}/${totalPages} 페이지` : ""}
       </p>
       {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
 
@@ -143,7 +143,7 @@ export default function ReportList({ query, onQueryChange: setQuery, backLabel, 
           <button key={r.report_id} className="report-item" onClick={() => onOpen(r.report_id)}>
             <div className="report-item-top">
               <span className="report-item-id">#{r.report_id}</span>
-              <span className="report-item-date">{r.attempted_at.slice(0, 16).replace("T", " ")}</span>
+              <span className="report-item-date">거래 {r.attempted_at.slice(0, 16).replace("T", " ")}</span>
             </div>
             <div className="report-item-main">
               <strong>{r.customer_name}</strong> → {r.payee_name}({r.payee_bank}) · {r.amount.toLocaleString()}원
