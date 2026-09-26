@@ -1984,3 +1984,94 @@ button.mode-pill:hover {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+/* ================= 전체 인터랙션 다듬기 ================= */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 모바일에서 누를 때 뜨는 회색 번쩍임 제거 — 대신 아래의 눌림 효과로 반응을 준다 */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn {
+  transition: transform 0.08s ease, filter 0.15s ease, background-color 0.15s ease;
+}
+
+.btn:not(:disabled):hover {
+  filter: brightness(0.96);
+}
+
+.btn:not(:disabled):active,
+.choice-btn:active,
+.case-picker-item:active,
+.report-item:active,
+.attach-thumb:active,
+.pagination button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* 키보드로 이동할 때만 포커스 테두리(마우스·터치 클릭에는 안 보임) */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--nh-green);
+  outline-offset: 2px;
+}
+
+.case-picker-item,
+.report-item,
+.attach-thumb {
+  transition: transform 0.08s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.case-picker-item:hover,
+.attach-thumb:hover {
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.18);
+}
+
+.report-item:hover {
+  box-shadow: 0 6px 16px -10px rgba(0, 166, 81, 0.35);
+}
+
+/* 화면이 바뀔 때 내용이 살짝 떠오르며 등장 — 뚝 끊기는 전환을 부드럽게 */
+.screen > * {
+  animation: screen-in 0.2s ease-out both;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 판정 카드는 한 박자 늦게 나와 시선이 모이게 */
+.verdict-hero,
+.report-hero {
+  animation: screen-in 0.28s ease-out 0.05s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen > *,
+  .verdict-hero,
+  .report-hero,
+  .sheet {
+    animation: none;
+  }
+  .btn,
+  .case-picker-item,
+  .report-item,
+  .attach-thumb {
+    transition: none;
+  }
+}
