@@ -2,7 +2,6 @@
 
 import base64
 import logging
-from typing import Annotated
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -15,6 +14,7 @@ from app.providers.llm.factory import get_llm
 from app.providers.ocr.factory import get_ocr
 from app.providers.rag.factory import get_rag
 from app.questions import SAFETY_QUESTION, empathy_question, questions_for
+from app.report_store import UploadedImage, get_report_store
 from app.reports import build_report
 from app.scoring import build_context_assessment
 from app.session_store import get_session
@@ -39,13 +39,16 @@ class AnswersRequest(BaseModel):
     answers: list[AnswerIn]
 
 
+class AttachmentIn(BaseModel):
+    # 파일명은 영업점 리포트 "첨부자료 보기"에 그대로 표시된다.
+    name: str = Field(default="첨부이미지", max_length=200)
+    base64: str = Field(max_length=14_000_000)  # 장당 base64 약 10MB
+
+
 class ChatTurnRequest(BaseModel):
     # 상한이 없으면 수십만 자 입력이 그대로 LLM 호출(=크레딧)로 이어진다.
     text: str = Field(default="", max_length=2000)
-    # 이미지 장당 base64 약 10MB, 한 턴에 최대 5장.
-    attachments_base64: list[Annotated[str, Field(max_length=14_000_000)]] = Field(
-        default_factory=list, max_length=MAX_ATTACHMENTS_PER_TURN
-    )
+    attachments: list[AttachmentIn] = Field(default_factory=list, max_length=MAX_ATTACHMENTS_PER_TURN)
 
 
 class ChatTurnResponse(BaseModel):
@@ -110,20 +113,20 @@ def chat_turn(session_id: str, payload: ChatTurnRequest):
         raise HTTPException(status_code=400, detail="대화 턴 한도를 넘었어요. 결과를 확인해주세요.")
 
     text = payload.text.strip()
-    if payload.attachments_base64:
-        ocr_texts = []
-        for b64 in payload.attachments_base64:
-            try:
-                image_bytes = base64.b64decode(b64)
-                ocr_result = get_ocr().ocr_extract(image_bytes)
-            except Exception as e:
-                logger.exception("OCR failed")
-                raise HTTPException(status_code=502, detail="첨부 이미지 처리 중 문제가 발생했어요.") from e
-            if ocr_result["text"]:
-                ocr_texts.append(ocr_result["text"])
-        if ocr_texts:
-            text = (text + "\n" + "\n".join(ocr_texts)).strip()
-        session.attachments_present = True
+    uploads: list[UploadedImage] = []
+    ocr_texts = []
+    for attachment in payload.attachments:
+        try:
+            image_bytes = base64.b64decode(attachment.base64)
+            ocr_result = get_ocr().ocr_extract(image_bytes)
+        except Exception as e:
+            logger.exception("OCR failed")
+            raise HTTPException(status_code=502, detail="첨부 이미지 처리 중 문제가 발생했어요.") from e
+        uploads.append(UploadedImage(name=attachment.name, data=image_bytes))
+        if ocr_result["text"]:
+            ocr_texts.append(ocr_result["text"])
+    if ocr_texts:
+        text = (text + "\n" + "\n".join(ocr_texts)).strip()
 
     if not text:
         raise HTTPException(status_code=400, detail="메시지를 입력해주세요.")
@@ -135,9 +138,14 @@ def chat_turn(session_id: str, payload: ChatTurnRequest):
         logger.exception("Agent chat_turn failed")
         raise HTTPException(status_code=502, detail="AI 확인 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.") from e
 
+    # 이 턴이 끝까지 성공했을 때만 반영한다 — 중간에 실패하면 프론트가 같은 이미지를
+    # 다시 보내므로, 먼저 쌓아두면 리포트에 같은 첨부가 두 번 들어간다.
     session.chat_history = new_history
     session.conversation_text = (session.conversation_text + "\n" + text).strip()
     session.chat_turns += 1
+    if uploads:
+        session.uploads.extend(uploads)
+        session.attachments_present = True
     if rag_match is not None:
         session.rag_match = rag_match
 
@@ -150,6 +158,9 @@ def finalize(session_id: str):
         session = get_session(session_id)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+
+    if session.final_response is not None:
+        return session.final_response
 
     combined_text = session.conversation_text
     used_input_or_attachment = bool(combined_text) or session.attachments_present
@@ -206,13 +217,14 @@ def finalize(session_id: str):
         except Exception as e:
             logger.exception("Report generation failed")
             raise HTTPException(status_code=502, detail="리포트 생성 중 문제가 발생했어요.") from e
+        report = get_report_store().add(report, session.uploads)
 
     session.finalized = True
-
-    return {
+    session.final_response = {
         "final": final,
         "agent_reply": conclusion,
         "report": report,
         "account": account,
         "context": context,
     }
+    return session.final_response

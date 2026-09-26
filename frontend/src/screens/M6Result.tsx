@@ -1,19 +1,20 @@
 import { useState } from "react";
 import AppBar, { AiTag } from "../components/AppBar";
 import RiskBreakdown from "../components/RiskBreakdown";
-import type { AccountAssessment, ContextAssessment, FinalRisk, Question } from "../types";
+import type { Role } from "../roles";
+import type { AccountAssessment, ContextAssessment, FinalRisk } from "../types";
 
 interface Props {
+  role: Role;
   final: FinalRisk;
   account: AccountAssessment;
   context: ContextAssessment | null;
-  questions: Question[];
   agentReply: string | null;
   payeeName: string;
   amount: number;
   onProceed: () => void; // 안전/주의/위험(그래도 송금) -> M7
   onCancel: () => void; // 주의(취소) -> 처음으로
-  onViewReport: () => void; // 위험 -> 리포트 보기
+  onViewReport: () => void; // 위험 -> 리포트 보기(관리자)
   onHome: () => void;
 }
 
@@ -23,11 +24,19 @@ const VARIANT = {
   위험: { badgeClass: "verdict-danger", emoji: "🔴", title: "보이스피싱이 의심돼요" },
 } as const;
 
+// 고객에게는 점수·단계·탐지 근거를 보여주지 않는다(탐지 로직이 노출되면 악용 소지).
+// 대신 판정에 맞는 다음 행동만 쉬운 말로 안내한다.
+const CUSTOMER_GUIDE = {
+  안전: "확인된 위험 신호가 없어요. 평소처럼 송금하셔도 괜찮아요.",
+  주의: "몇 가지 확인이 필요한 부분이 있어요. 받는 분의 신원을 공식 대표번호로 한 번 더 확인한 뒤 송금해주세요.",
+  위험: "보이스피싱 사례와 비슷한 점이 여러 가지 확인됐어요. 잠시 멈추고 아래 방법으로 먼저 확인해보세요.",
+} as const;
+
 export default function M6Result({
+  role,
   final,
   account,
   context,
-  questions,
   agentReply,
   payeeName,
   amount,
@@ -38,10 +47,11 @@ export default function M6Result({
 }: Props) {
   const v = VARIANT[final.final];
   const [confirmingProceed, setConfirmingProceed] = useState(false);
+  const isAdmin = role === "admin";
 
   return (
     <>
-      <AppBar title="이체결과" onHome={onHome} />
+      <AppBar title="이체전 AI 분석결과" onHome={onHome} />
       {final.final !== "안전" && <AiTag />}
       <span className={`verdict-badge ${v.badgeClass}`}>
         {v.emoji} {final.final}
@@ -53,7 +63,11 @@ export default function M6Result({
 
       {agentReply && <div className="chat-bubble">{agentReply}</div>}
 
-      <RiskBreakdown account={account} context={context} questions={questions} />
+      {isAdmin ? (
+        <RiskBreakdown account={account} context={context} />
+      ) : (
+        <div className="card customer-guide">{CUSTOMER_GUIDE[final.final]}</div>
+      )}
 
       <div className="spacer" />
 
@@ -65,7 +79,7 @@ export default function M6Result({
 
       {final.final === "주의" && (
         <>
-          <p className="subtitle">공식 대표번호로 상대방 신원을 직접 확인해보세요.</p>
+          {isAdmin && <p className="subtitle">공식 대표번호로 상대방 신원을 직접 확인해보세요.</p>}
           <div className="btn-row">
             <button className="btn btn-secondary" onClick={onCancel}>
               취소
@@ -78,27 +92,21 @@ export default function M6Result({
       )}
 
       {final.final === "위험" && !confirmingProceed && (
-        <>
-          <p className="subtitle">
-            송금을 막지는 않아요. 다만 안전을 위해 아래 방법으로 먼저 확인해보시길 권해요.
-          </p>
-          <div className="btn-row" style={{ marginBottom: 10 }}>
+        <div className="result-actions">
+          <p className="subtitle">송금을 막지는 않아요. 다만 안전을 위해 먼저 확인해보시길 권해요.</p>
+          {isAdmin && (
             <button className="btn btn-outline" onClick={onViewReport}>
               영업점 리포트 보기
             </button>
-          </div>
-          <div className="btn-row" style={{ marginBottom: 14 }}>
+          )}
+          <button className="btn btn-secondary" onClick={() => setConfirmingProceed(true)}>
+            그래도 송금할게요
+          </button>
+          <div className="btn-row">
             <button className="btn btn-secondary">112 신고</button>
             <button className="btn btn-secondary">1332 상담</button>
           </div>
-          <button
-            className="btn btn-secondary"
-            style={{ background: "none", color: "var(--text-muted)", fontSize: 13, textDecoration: "underline" }}
-            onClick={() => setConfirmingProceed(true)}
-          >
-            그래도 송금할게요
-          </button>
-        </>
+        </div>
       )}
 
       {final.final === "위험" && confirmingProceed && (

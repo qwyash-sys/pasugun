@@ -83,6 +83,12 @@ export interface ContextAssessment {
   hard_override: boolean;
 }
 
+export interface AttachmentMeta {
+  name: string;
+  /** 실제 모드: "/api/reports/{id}/attachments/{i}"(API 주소 기준 상대경로). 데모: data: URL. */
+  url: string;
+}
+
 export interface ReportPayload {
   report_id: string;
   generated_at: string;
@@ -102,6 +108,44 @@ export interface ReportPayload {
   recommendation: string;
   account: AccountAssessment;
   context: ContextAssessment | null;
+  attachments: AttachmentMeta[];
+}
+
+/** 관리자 리포트 목록 한 줄(backend ReportSummary와 대응). */
+export interface ReportSummary {
+  report_id: string;
+  attempted_at: string;
+  customer_name: string;
+  payee_bank: string;
+  payee_name: string;
+  amount: number;
+  account_score: number;
+  account_level: RiskLevel;
+  context_score: number | null;
+  context_level: RiskLevel;
+  hard_override: boolean;
+  rag_type: string | null;
+  rag_similarity: number | null;
+  attachment_count: number;
+}
+
+export interface ReportListResponse {
+  items: ReportSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface ReportQuery {
+  q: string;
+  account_level: RiskLevel | "";
+  context_level: RiskLevel | "";
+  /** "" 전체, "none" RAG 매칭 없음, 그 외 사례 유형명 */
+  rag_type: string;
+  date_from: string;
+  date_to: string;
+  page: number;
+  page_size: number;
 }
 
 export interface FinalizeResponse {
@@ -132,7 +176,7 @@ export interface TransferQuoteRequest {
 
 export interface ChatTurnRequest {
   text?: string;
-  attachments_base64?: string[];
+  attachments?: { name: string; base64: string }[];
 }
 
 export interface ChatTurnResponse {

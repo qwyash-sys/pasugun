@@ -6,6 +6,12 @@
       "runtimeExecutable": "C:\\Users\\nam\\Desktop\\파수꾼프로젝트\\.claude\\run-frontend.cmd",
       "runtimeArgs": [],
       "port": 5173
+    },
+    {
+      "name": "frontend-demo-mode",
+      "runtimeExecutable": "C:\\Users\\nam\\Desktop\\파수꾼프로젝트\\.claude\\run-frontend-demo.cmd",
+      "runtimeArgs": [],
+      "port": 5174
     }
   ]
 }

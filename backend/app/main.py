@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-from app.routers import chat, transfer
+from app.routers import chat, reports, transfer
 
 logger = logging.getLogger("pasugun")
 
@@ -36,6 +36,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 app.include_router(transfer.router)
 app.include_router(chat.router)
+app.include_router(reports.router)
 
 
 @app.get("/api/health")

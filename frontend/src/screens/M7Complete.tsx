@@ -1,14 +1,16 @@
 import AppBar from "../components/AppBar";
+import type { Role } from "../roles";
 import type { FinalRisk } from "../types";
 
 interface Props {
+  role: Role;
   final: FinalRisk;
   payeeName: string;
   amount: number;
   onRestart: () => void;
 }
 
-export default function M7Complete({ final, payeeName, amount, onRestart }: Props) {
+export default function M7Complete({ role, final, payeeName, amount, onRestart }: Props) {
   const isDelayed = final.final === "위험";
 
   return (
@@ -27,9 +29,11 @@ export default function M7Complete({ final, payeeName, amount, onRestart }: Prop
             영업점·112·1332로 확인할 수 있어요.
           </p>
         )}
-        <p style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
-          판정 근거: 계좌위험 {final.account_level} · 맥락위험 {final.context_level} · 최종 {final.final}
-        </p>
+        {role === "admin" && (
+          <p style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
+            판정 근거: 계좌위험 {final.account_level} · 맥락위험 {final.context_level} · 최종 {final.final}
+          </p>
+        )}
       </div>
       <div className="spacer" />
       <button className="btn btn-secondary" onClick={onRestart}>

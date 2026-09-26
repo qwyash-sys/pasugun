@@ -1,0 +1,8742 @@
+[
+ {
+  "report": {
+   "report_id": "RPT-20260924-001",
+   "generated_at": "2026-09-24T16:47:00+09:00",
+   "customer_name": "김도현",
+   "customer_phone_masked": "010-****-0002",
+   "customer_account_masked": "351-****-0002",
+   "payee_bank": "NH농협은행",
+   "payee_account": "302-1188-4501-21",
+   "payee_name": "박소율",
+   "amount": 2000000,
+   "attempted_at": "2026-09-24T16:44:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 10.0배(+25)",
+     "개설 2일(+20)",
+     "10분 내 3건(+20)",
+     "RAG 매칭: 대출사기(유사도 0.82, NH 제작 S04)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 10.0배(+25)",
+    "개설 2일(+20)",
+    "10분 내 3건(+20)"
+   ],
+   "conversation_summary": "\"신용점수 올려준다면서 한도를 올리고 수수료를 먼저 입금…\"라고 응답, 캡처 1건 업로드(대출안내_문자.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "대출사기",
+    "matched_id": "S04",
+    "similarity": 0.82,
+    "score": 50,
+    "risk_signals": [
+     "선입금요구",
+     "한도상향유도",
+     "대환대출",
+     "신용점수언급"
+    ],
+    "source": "NH 제작 S04",
+    "candidates": [
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.817
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.663
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.458
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.436
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.389
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.383
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.374
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.323
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.322
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.311
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 10.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 2일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 20,
+      "detail": "10분 내 3건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 65,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_offer",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "대출사기",
+     "matched_id": "S04",
+     "similarity": 0.82,
+     "score": 50,
+     "risk_signals": [
+      "선입금요구",
+      "한도상향유도",
+      "대환대출",
+      "신용점수언급"
+     ],
+     "source": "NH 제작 S04",
+     "candidates": [
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.817
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.663
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.458
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.436
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.389
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.383
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.374
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.323
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.322
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.311
+      }
+     ]
+    },
+    "total_score": 85,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "대출안내_문자.png",
+    "lines": [
+     "[Web발신] 정부지원 저금리 대환대출",
+     "기존 대출 선상환 확인 후",
+     "승인금 즉시 입금 예정",
+     "상담: 1600-XXXX"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260924-003",
+   "generated_at": "2026-09-24T09:46:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "우리은행",
+   "payee_account": "1002-331-448291",
+   "payee_name": "최윤서",
+   "amount": 1000000,
+   "attempted_at": "2026-09-24T09:43:00+09:00",
+   "final": {
+    "account_level": "중",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 3일(+20)",
+     "RAG 매칭: 메신저피싱(유사도 0.75, 경찰청 월간피싱 zero S05)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 3일(+20)"
+   ],
+   "conversation_summary": "\"딸이라면서 카톡이 왔는데 폰이 고장나서 전화는 안 된대…\"라고 응답, 캡처 1건 업로드(카톡_대화캡처.jpg)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.75,
+    "score": 30,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.752
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.582
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.51
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.434
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.363
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.341
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.34
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.328
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.267
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 0.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 3일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 45,
+    "level": "중"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_text_only",
+      "choice_weight": 25,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "메신저피싱",
+     "matched_id": "S05",
+     "similarity": 0.75,
+     "score": 30,
+     "risk_signals": [
+      "통화회피",
+      "문자로만연락",
+      "급전요청",
+      "신분증요구"
+     ],
+     "source": "경찰청 월간피싱 zero S05",
+     "candidates": [
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.752
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.582
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.51
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.434
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.363
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.341
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.34
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.328
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.267
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "카톡_대화캡처.jpg",
+    "lines": [
+     "엄마 나 폰 액정 깨져서 이걸로 연락해",
+     "급하게 결제할 게 있는데",
+     "이 계좌로 먼저 보내줄 수 있어?",
+     "통화는 안 돼 문자로 해줘"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260924-004",
+   "generated_at": "2026-09-24T09:39:00+09:00",
+   "customer_name": "강서윤",
+   "customer_phone_masked": "010-****-0006",
+   "customer_account_masked": "351-****-0006",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3355-02-991234",
+   "payee_name": "정하린",
+   "amount": 5000000,
+   "attempted_at": "2026-09-24T09:36:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "평소 대비 20.0배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 1일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "RAG 매칭: 스미싱(유사도 0.77, NH 제작 S07)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "평소 대비 20.0배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 1일(+20)",
+    "24시간 내 이체한도 상향(+20)"
+   ],
+   "conversation_summary": "\"택배 주소가 잘못됐다는 문자 링크를 눌렀더니 결제 확인…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "스미싱",
+    "matched_id": "S07",
+    "similarity": 0.77,
+    "score": 30,
+    "risk_signals": [
+     "URL클릭유도",
+     "악성앱설치",
+     "결제정보입력",
+     "배송오류미끼"
+    ],
+    "source": "NH 제작 S07",
+    "candidates": [
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.773
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.519
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.459
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.373
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.345
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.311
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.294
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 20.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 1일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 130,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "스미싱",
+     "matched_id": "S07",
+     "similarity": 0.77,
+     "score": 30,
+     "risk_signals": [
+      "URL클릭유도",
+      "악성앱설치",
+      "결제정보입력",
+      "배송오류미끼"
+     ],
+     "source": "NH 제작 S07",
+     "candidates": [
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.773
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.519
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.459
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.373
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.345
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.311
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.294
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260924-002",
+   "generated_at": "2026-09-24T03:49:00+09:00",
+   "customer_name": "윤지호",
+   "customer_phone_masked": "010-****-0007",
+   "customer_account_masked": "351-****-0007",
+   "payee_bank": "하나은행",
+   "payee_account": "123-456789-01-011",
+   "payee_name": "김태호",
+   "amount": 500000,
+   "attempted_at": "2026-09-24T03:46:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "평소 대비 2.8배(+8)",
+     "개설 12일(+10)",
+     "신규 기기/환경(+15)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "RAG 매칭: 스미싱(유사도 0.77, NH 제작 S07)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "평소 대비 2.8배(+8)",
+    "개설 12일(+10)",
+    "신규 기기/환경(+15)",
+    "평소 없는 새벽 시간대(00~06시)(+10)"
+   ],
+   "conversation_summary": "\"택배 주소가 잘못됐다는 문자 링크를 눌렀더니 결제 확인…\"라고 응답, 캡처 1건 업로드(택배_문자.jpg)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "스미싱",
+    "matched_id": "S07",
+    "similarity": 0.77,
+    "score": 30,
+    "risk_signals": [
+     "URL클릭유도",
+     "악성앱설치",
+     "결제정보입력",
+     "배송오류미끼"
+    ],
+    "source": "NH 제작 S07",
+    "candidates": [
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.773
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.519
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.459
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.373
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.345
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.311
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.294
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 8,
+      "detail": "평소 대비 2.8배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 12일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": true,
+      "score": 15,
+      "detail": "신규 기기/환경"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)"
+     }
+    ],
+    "total_score": 83,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "스미싱",
+     "matched_id": "S07",
+     "similarity": 0.77,
+     "score": 30,
+     "risk_signals": [
+      "URL클릭유도",
+      "악성앱설치",
+      "결제정보입력",
+      "배송오류미끼"
+     ],
+     "source": "NH 제작 S07",
+     "candidates": [
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.773
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.519
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.459
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.373
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.345
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.311
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.294
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "택배_문자.jpg",
+    "lines": [
+     "[국제발신] 주소지 불명으로 반송 예정",
+     "주소 수정: http://xx.kr/abc",
+     "미수정 시 추가요금 발생"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260923-001",
+   "generated_at": "2026-09-23T13:26:00+09:00",
+   "customer_name": "강서윤",
+   "customer_phone_masked": "010-****-0006",
+   "customer_account_masked": "351-****-0006",
+   "payee_bank": "국민은행",
+   "payee_account": "79421-43-12055",
+   "payee_name": "한지우",
+   "amount": 50000000,
+   "attempted_at": "2026-09-23T13:23:00+09:00",
+   "final": {
+    "account_level": "중",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "평소 대비 200.0배(+25)",
+     "개설 20일(+10)",
+     "RAG 매칭: 기관사칭(유사도 0.75, 경찰청 월간피싱 zero S03)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 200.0배(+25)",
+    "개설 20일(+10)"
+   ],
+   "conversation_summary": "\"카드 배송기사라더니 금감원 연결해준다고 하고 원격 앱을…\"라고 응답, 캡처 1건 업로드(검찰_안내문자.jpg)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "기관사칭",
+    "matched_id": "S03",
+    "similarity": 0.75,
+    "score": 30,
+    "risk_signals": [
+     "원격제어앱",
+     "자산보호",
+     "안전계좌",
+     "수사기관사칭"
+    ],
+    "source": "경찰청 월간피싱 zero S03",
+    "candidates": [
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.754
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.588
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.506
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.5
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.488
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.481
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.468
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.406
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 200.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 20일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 35,
+    "level": "중"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "기관사칭",
+     "matched_id": "S03",
+     "similarity": 0.75,
+     "score": 30,
+     "risk_signals": [
+      "원격제어앱",
+      "자산보호",
+      "안전계좌",
+      "수사기관사칭"
+     ],
+     "source": "경찰청 월간피싱 zero S03",
+     "candidates": [
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.754
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.588
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.506
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.5
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.488
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.481
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.468
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.406
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "검찰_안내문자.jpg",
+    "lines": [
+     "[Web발신] 서울중앙지검 사건조회",
+     "귀하 명의 계좌가 범죄에 연루되어",
+     "자산 보호를 위해 안전계좌로",
+     "금일 중 이체 바랍니다"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260923-002",
+   "generated_at": "2026-09-23T09:45:00+09:00",
+   "customer_name": "김도현",
+   "customer_phone_masked": "010-****-0002",
+   "customer_account_masked": "351-****-0002",
+   "payee_bank": "국민은행",
+   "payee_account": "79421-43-12055",
+   "payee_name": "한지우",
+   "amount": 10000000,
+   "attempted_at": "2026-09-23T09:42:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 50.0배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 20일(+10)",
+     "24시간 내 이체한도 상향(+20)",
+     "신규 기기/환경(+15)",
+     "RAG 매칭: 스미싱(유사도 0.77, NH 제작 S07)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 50.0배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 20일(+10)",
+    "24시간 내 이체한도 상향(+20)",
+    "신규 기기/환경(+15)"
+   ],
+   "conversation_summary": "\"택배 주소가 잘못됐다는 문자 링크를 눌렀더니 결제 확인…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "스미싱",
+    "matched_id": "S07",
+    "similarity": 0.77,
+    "score": 30,
+    "risk_signals": [
+     "URL클릭유도",
+     "악성앱설치",
+     "결제정보입력",
+     "배송오류미끼"
+    ],
+    "source": "NH 제작 S07",
+    "candidates": [
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.773
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.519
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.459
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.373
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.345
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.311
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.294
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 50.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 20일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": true,
+      "score": 15,
+      "detail": "신규 기기/환경"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 95,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "스미싱",
+     "matched_id": "S07",
+     "similarity": 0.77,
+     "score": 30,
+     "risk_signals": [
+      "URL클릭유도",
+      "악성앱설치",
+      "결제정보입력",
+      "배송오류미끼"
+     ],
+     "source": "NH 제작 S07",
+     "candidates": [
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.773
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.519
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.459
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.373
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.345
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.311
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.294
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260920-001",
+   "generated_at": "2026-09-20T23:22:00+09:00",
+   "customer_name": "임하은",
+   "customer_phone_masked": "010-****-0008",
+   "customer_account_masked": "351-****-0008",
+   "payee_bank": "우리은행",
+   "payee_account": "1002-331-448291",
+   "payee_name": "최윤서",
+   "amount": 20000000,
+   "attempted_at": "2026-09-20T23:19:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 33.3배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 3일(+20)",
+     "10분 내 3건(+20)",
+     "평소 이용 시간대 밖(+5)",
+     "RAG 매칭: 대출사기(유사도 0.82, NH 제작 S04)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 33.3배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 3일(+20)",
+    "10분 내 3건(+20)",
+    "평소 이용 시간대 밖(+5)"
+   ],
+   "conversation_summary": "\"신용점수 올려준다면서 한도를 올리고 수수료를 먼저 입금…\"라고 응답, 캡처 1건 업로드(대출안내_문자.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "대출사기",
+    "matched_id": "S04",
+    "similarity": 0.82,
+    "score": 50,
+    "risk_signals": [
+     "선입금요구",
+     "한도상향유도",
+     "대환대출",
+     "신용점수언급"
+    ],
+    "source": "NH 제작 S04",
+    "candidates": [
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.817
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.663
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.458
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.436
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.389
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.383
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.374
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.323
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.322
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.311
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 33.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 3일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 20,
+      "detail": "10분 내 3건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 5,
+      "detail": "평소 이용 시간대 밖"
+     }
+    ],
+    "total_score": 95,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_offer",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "대출사기",
+     "matched_id": "S04",
+     "similarity": 0.82,
+     "score": 50,
+     "risk_signals": [
+      "선입금요구",
+      "한도상향유도",
+      "대환대출",
+      "신용점수언급"
+     ],
+     "source": "NH 제작 S04",
+     "candidates": [
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.817
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.663
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.458
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.436
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.389
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.383
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.374
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.323
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.322
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.311
+      }
+     ]
+    },
+    "total_score": 85,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "대출안내_문자.png",
+    "lines": [
+     "[Web발신] 정부지원 저금리 대환대출",
+     "기존 대출 선상환 확인 후",
+     "승인금 즉시 입금 예정",
+     "상담: 1600-XXXX"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260919-001",
+   "generated_at": "2026-09-19T02:46:00+09:00",
+   "customer_name": "김도현",
+   "customer_phone_masked": "010-****-0002",
+   "customer_account_masked": "351-****-0002",
+   "payee_bank": "우리은행",
+   "payee_account": "1002-331-448291",
+   "payee_name": "최윤서",
+   "amount": 10000000,
+   "attempted_at": "2026-09-19T02:43:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "평소 대비 50.0배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 3일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "10분 내 3건(+20)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "RAG 매칭: 원격제어형(유사도 0.69, 경찰청 월간피싱 zero S10)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 50.0배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 3일(+20)",
+    "24시간 내 이체한도 상향(+20)",
+    "10분 내 3건(+20)",
+    "평소 없는 새벽 시간대(00~06시)(+10)"
+   ],
+   "conversation_summary": "\"상담원이 앱을 설치하라고 해서 깔았더니 화면을 보면서 …\"라고 응답, 캡처 1건 업로드(원격앱_설치안내.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "원격제어형",
+    "matched_id": "S10",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "원격제어앱",
+     "화면유지요구",
+     "안전계좌",
+     "수사기관사칭"
+    ],
+    "source": "경찰청 월간피싱 zero S10",
+    "candidates": [
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.685
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.58
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.555
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.515
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.489
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.487
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.466
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.465
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.464
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.457
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 50.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 3일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 20,
+      "detail": "10분 내 3건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)"
+     }
+    ],
+    "total_score": 120,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "원격제어형",
+     "matched_id": "S10",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "원격제어앱",
+      "화면유지요구",
+      "안전계좌",
+      "수사기관사칭"
+     ],
+     "source": "경찰청 월간피싱 zero S10",
+     "candidates": [
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.685
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.58
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.555
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.515
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.489
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.487
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.466
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.465
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.464
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.457
+      }
+     ]
+    },
+    "total_score": 90,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "원격앱_설치안내.png",
+    "lines": [
+     "보안 점검을 위해 아래 앱을 설치하세요",
+     "설치 후 화면을 켠 상태로 유지",
+     "상담원 안내에 따라 이체 진행"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260918-001",
+   "generated_at": "2026-09-18T10:35:00+09:00",
+   "customer_name": "임하은",
+   "customer_phone_masked": "010-****-0008",
+   "customer_account_masked": "351-****-0008",
+   "payee_bank": "하나은행",
+   "payee_account": "123-456789-01-011",
+   "payee_name": "김태호",
+   "amount": 20000000,
+   "attempted_at": "2026-09-18T10:32:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "평소 대비 33.3배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 12일(+10)",
+     "24시간 내 이체한도 상향(+20)",
+     "10분 내 2건(+10)",
+     "RAG 매칭: 협박형(유사도 0.69, 경찰청 월간피싱 zero S06)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "평소 대비 33.3배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 12일(+10)",
+    "24시간 내 이체한도 상향(+20)",
+    "10분 내 2건(+10)"
+   ],
+   "conversation_summary": "\"아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "협박형",
+    "matched_id": "S06",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "긴박감조성",
+     "즉시송금요구",
+     "통화지속강요",
+     "합의금명목"
+    ],
+    "source": "경찰청 월간피싱 zero S06",
+    "candidates": [
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.686
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.448
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.402
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.365
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.361
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.347
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.278
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 33.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 12일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 10,
+      "detail": "10분 내 2건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 130,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "협박형",
+     "matched_id": "S06",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "긴박감조성",
+      "즉시송금요구",
+      "통화지속강요",
+      "합의금명목"
+     ],
+     "source": "경찰청 월간피싱 zero S06",
+     "candidates": [
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.686
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.473
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.448
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.402
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.365
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.361
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.347
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.343
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.278
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260915-002",
+   "generated_at": "2026-09-15T21:57:00+09:00",
+   "customer_name": "최민재",
+   "customer_phone_masked": "010-****-0005",
+   "customer_account_masked": "351-****-0005",
+   "payee_bank": "하나은행",
+   "payee_account": "123-456789-01-011",
+   "payee_name": "김태호",
+   "amount": 5000000,
+   "attempted_at": "2026-09-15T21:54:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "평소 대비 12.5배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 12일(+10)",
+     "RAG 매칭: 대출사기(유사도 0.73, NH 제작 S04)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "평소 대비 12.5배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 12일(+10)"
+   ],
+   "conversation_summary": "\"저금리 대환대출 해준다고 해서 기존 대출 상환금을 먼저…\"라고 응답, 캡처 1건 업로드(대출안내_문자.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "대출사기",
+    "matched_id": "S04",
+    "similarity": 0.73,
+    "score": 30,
+    "risk_signals": [
+     "선입금요구",
+     "한도상향유도",
+     "대환대출",
+     "신용점수언급"
+    ],
+    "source": "NH 제작 S04",
+    "candidates": [
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.733
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.532
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.463
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.396
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.328
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.32
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.319
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.316
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.287
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.284
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 12.5배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 12일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 100,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_offer",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "대출사기",
+     "matched_id": "S04",
+     "similarity": 0.73,
+     "score": 30,
+     "risk_signals": [
+      "선입금요구",
+      "한도상향유도",
+      "대환대출",
+      "신용점수언급"
+     ],
+     "source": "NH 제작 S04",
+     "candidates": [
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.733
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.532
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.463
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.396
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.328
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.32
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.319
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.316
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.287
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.284
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "대출안내_문자.png",
+    "lines": [
+     "[Web발신] 정부지원 저금리 대환대출",
+     "기존 대출 선상환 확인 후",
+     "승인금 즉시 입금 예정",
+     "상담: 1600-XXXX"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260915-001",
+   "generated_at": "2026-09-15T16:56:00+09:00",
+   "customer_name": "남용준",
+   "customer_phone_masked": "010-****-0001",
+   "customer_account_masked": "351-****-0001",
+   "payee_bank": "신한은행",
+   "payee_account": "110-588-203114",
+   "payee_name": "오정민",
+   "amount": 10000000,
+   "attempted_at": "2026-09-15T16:53:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 4건(+40)",
+     "평소 대비 33.3배(+25)",
+     "개설 6일(+20)",
+     "10분 내 3건(+20)",
+     "RAG 매칭: 기관사칭(유사도 0.75, 경찰청 월간피싱 zero S03)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 4건(+40)",
+    "평소 대비 33.3배(+25)",
+    "개설 6일(+20)",
+    "10분 내 3건(+20)"
+   ],
+   "conversation_summary": "\"카드 배송기사라더니 금감원 연결해준다고 하고 원격 앱을…\"라고 응답, 캡처 1건 업로드(검찰_안내문자.jpg)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "기관사칭",
+    "matched_id": "S03",
+    "similarity": 0.75,
+    "score": 30,
+    "risk_signals": [
+     "원격제어앱",
+     "자산보호",
+     "안전계좌",
+     "수사기관사칭"
+    ],
+    "source": "경찰청 월간피싱 zero S03",
+    "candidates": [
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.754
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.588
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.506
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.5
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.488
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.481
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.468
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.406
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 4건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 33.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 6일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 20,
+      "detail": "10분 내 3건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 105,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "기관사칭",
+     "matched_id": "S03",
+     "similarity": 0.75,
+     "score": 30,
+     "risk_signals": [
+      "원격제어앱",
+      "자산보호",
+      "안전계좌",
+      "수사기관사칭"
+     ],
+     "source": "경찰청 월간피싱 zero S03",
+     "candidates": [
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.754
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.588
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.506
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.5
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.488
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.481
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.468
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.406
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 90,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "검찰_안내문자.jpg",
+    "lines": [
+     "[Web발신] 서울중앙지검 사건조회",
+     "귀하 명의 계좌가 범죄에 연루되어",
+     "자산 보호를 위해 안전계좌로",
+     "금일 중 이체 바랍니다"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260914-001",
+   "generated_at": "2026-09-14T15:34:00+09:00",
+   "customer_name": "강서윤",
+   "customer_phone_masked": "010-****-0006",
+   "customer_account_masked": "351-****-0006",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3355-02-991234",
+   "payee_name": "정하린",
+   "amount": 2000000,
+   "attempted_at": "2026-09-14T15:31:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "평소 대비 8.0배(+15)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 1일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "10분 내 2건(+10)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "평소 대비 8.0배(+15)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 1일(+20)",
+    "24시간 내 이체한도 상향(+20)",
+    "10분 내 2건(+10)"
+   ],
+   "conversation_summary": "고객 응답 없음(대화창 미사용)",
+   "attachments_present": false,
+   "rag": null,
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 15,
+      "detail": "평소 대비 8.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 1일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 10,
+      "detail": "10분 내 2건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 130,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": false,
+    "rag": null,
+    "total_score": 50,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260913-001",
+   "generated_at": "2026-09-13T13:52:00+09:00",
+   "customer_name": "최민재",
+   "customer_phone_masked": "010-****-0005",
+   "customer_account_masked": "351-****-0005",
+   "payee_bank": "신한은행",
+   "payee_account": "110-588-203114",
+   "payee_name": "오정민",
+   "amount": 50000000,
+   "attempted_at": "2026-09-13T13:49:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 4건(+40)",
+     "평소 대비 125.0배(+25)",
+     "개설 6일(+20)",
+     "10분 내 2건(+10)",
+     "RAG 매칭: 협박형(유사도 0.69, 경찰청 월간피싱 zero S06)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 4건(+40)",
+    "평소 대비 125.0배(+25)",
+    "개설 6일(+20)",
+    "10분 내 2건(+10)"
+   ],
+   "conversation_summary": "\"아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "협박형",
+    "matched_id": "S06",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "긴박감조성",
+     "즉시송금요구",
+     "통화지속강요",
+     "합의금명목"
+    ],
+    "source": "경찰청 월간피싱 zero S06",
+    "candidates": [
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.686
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.448
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.402
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.365
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.361
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.347
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.278
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 4건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 125.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 6일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 10,
+      "detail": "10분 내 2건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 95,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "협박형",
+     "matched_id": "S06",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "긴박감조성",
+      "즉시송금요구",
+      "통화지속강요",
+      "합의금명목"
+     ],
+     "source": "경찰청 월간피싱 zero S06",
+     "candidates": [
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.686
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.473
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.448
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.402
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.365
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.361
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.347
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.343
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.278
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260912-001",
+   "generated_at": "2026-09-12T20:04:00+09:00",
+   "customer_name": "최민재",
+   "customer_phone_masked": "010-****-0005",
+   "customer_account_masked": "351-****-0005",
+   "payee_bank": "NH농협은행",
+   "payee_account": "302-1188-4501-21",
+   "payee_name": "박소율",
+   "amount": 500000,
+   "attempted_at": "2026-09-12T20:01:00+09:00",
+   "final": {
+    "account_level": "중",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "개설 2일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "RAG 매칭: 메신저피싱(유사도 0.75, 경찰청 월간피싱 zero S05)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "개설 2일(+20)",
+    "24시간 내 이체한도 상향(+20)"
+   ],
+   "conversation_summary": "\"딸이라면서 카톡이 왔는데 폰이 고장나서 전화는 안 된대…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.75,
+    "score": 30,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.752
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.582
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.51
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.434
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.363
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.341
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.34
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.328
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.267
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 1.2배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 2일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 40,
+    "level": "중"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_text_only",
+      "choice_weight": 25,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "메신저피싱",
+     "matched_id": "S05",
+     "similarity": 0.75,
+     "score": 30,
+     "risk_signals": [
+      "통화회피",
+      "문자로만연락",
+      "급전요청",
+      "신분증요구"
+     ],
+     "source": "경찰청 월간피싱 zero S05",
+     "candidates": [
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.752
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.582
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.51
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.434
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.363
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.341
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.34
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.328
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.267
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260911-001",
+   "generated_at": "2026-09-11T12:00:00+09:00",
+   "customer_name": "최민재",
+   "customer_phone_masked": "010-****-0005",
+   "customer_account_masked": "351-****-0005",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3333-12-5582910",
+   "payee_name": "이하늘",
+   "amount": 1000000,
+   "attempted_at": "2026-09-11T11:57:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 2건(+40)",
+     "평소 대비 2.5배(+8)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 4일(+20)",
+     "RAG 매칭: 취업사기(유사도 0.64, NH 제작 S09)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 2건(+40)",
+    "평소 대비 2.5배(+8)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 4일(+20)"
+   ],
+   "conversation_summary": "\"고액 알바라면서 제 통장으로 들어온 돈을 다른 계좌로 …\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "취업사기",
+    "matched_id": "S09",
+    "similarity": 0.64,
+    "score": 30,
+    "risk_signals": [
+     "선입금요구",
+     "고수익미끼",
+     "반복입금유도",
+     "보증금명목"
+    ],
+    "source": "NH 제작 S09",
+    "candidates": [
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.641
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.569
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.472
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.46
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.452
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.427
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.394
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 2건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 8,
+      "detail": "평소 대비 2.5배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 4일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 93,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "취업사기",
+     "matched_id": "S09",
+     "similarity": 0.64,
+     "score": 30,
+     "risk_signals": [
+      "선입금요구",
+      "고수익미끼",
+      "반복입금유도",
+      "보증금명목"
+     ],
+     "source": "NH 제작 S09",
+     "candidates": [
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.641
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.569
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.472
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.46
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.452
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.427
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.394
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260909-001",
+   "generated_at": "2026-09-09T21:51:00+09:00",
+   "customer_name": "남용준",
+   "customer_phone_masked": "010-****-0001",
+   "customer_account_masked": "351-****-0001",
+   "payee_bank": "하나은행",
+   "payee_account": "123-456789-01-011",
+   "payee_name": "김태호",
+   "amount": 500000,
+   "attempted_at": "2026-09-09T21:48:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 12일(+10)",
+     "24시간 내 이체한도 상향(+20)",
+     "RAG 매칭: 협박형(유사도 0.69, 경찰청 월간피싱 zero S06)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 12일(+10)",
+    "24시간 내 이체한도 상향(+20)"
+   ],
+   "conversation_summary": "\"아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "협박형",
+    "matched_id": "S06",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "긴박감조성",
+     "즉시송금요구",
+     "통화지속강요",
+     "합의금명목"
+    ],
+    "source": "경찰청 월간피싱 zero S06",
+    "candidates": [
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.686
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.448
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.402
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.365
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.361
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.347
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.278
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 1.7배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 12일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 95,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "협박형",
+     "matched_id": "S06",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "긴박감조성",
+      "즉시송금요구",
+      "통화지속강요",
+      "합의금명목"
+     ],
+     "source": "경찰청 월간피싱 zero S06",
+     "candidates": [
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.686
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.473
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.448
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.402
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.365
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.361
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.347
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.343
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.278
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260906-001",
+   "generated_at": "2026-09-06T21:07:00+09:00",
+   "customer_name": "남용준",
+   "customer_phone_masked": "010-****-0001",
+   "customer_account_masked": "351-****-0001",
+   "payee_bank": "NH농협은행",
+   "payee_account": "302-1188-4501-21",
+   "payee_name": "박소율",
+   "amount": 1000000,
+   "attempted_at": "2026-09-06T21:04:00+09:00",
+   "final": {
+    "account_level": "저",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "평소 대비 3.3배(+8)",
+     "개설 2일(+20)",
+     "RAG 매칭: 원격제어형(유사도 0.69, 경찰청 월간피싱 zero S10)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 3.3배(+8)",
+    "개설 2일(+20)"
+   ],
+   "conversation_summary": "\"상담원이 앱을 설치하라고 해서 깔았더니 화면을 보면서 …\"라고 응답, 캡처 1건 업로드(원격앱_설치안내.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "원격제어형",
+    "matched_id": "S10",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "원격제어앱",
+     "화면유지요구",
+     "안전계좌",
+     "수사기관사칭"
+    ],
+    "source": "경찰청 월간피싱 zero S10",
+    "candidates": [
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.685
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.58
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.555
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.515
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.489
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.487
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.466
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.465
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.464
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.457
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 8,
+      "detail": "평소 대비 3.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 2일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 28,
+    "level": "저"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "원격제어형",
+     "matched_id": "S10",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "원격제어앱",
+      "화면유지요구",
+      "안전계좌",
+      "수사기관사칭"
+     ],
+     "source": "경찰청 월간피싱 zero S10",
+     "candidates": [
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.685
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.58
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.555
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.515
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.489
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.487
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.466
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.465
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.464
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.457
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "원격앱_설치안내.png",
+    "lines": [
+     "보안 점검을 위해 아래 앱을 설치하세요",
+     "설치 후 화면을 켠 상태로 유지",
+     "상담원 안내에 따라 이체 진행"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260905-002",
+   "generated_at": "2026-09-05T15:15:00+09:00",
+   "customer_name": "김도현",
+   "customer_phone_masked": "010-****-0002",
+   "customer_account_masked": "351-****-0002",
+   "payee_bank": "신한은행",
+   "payee_account": "110-588-203114",
+   "payee_name": "오정민",
+   "amount": 3000000,
+   "attempted_at": "2026-09-05T15:12:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 4건(+40)",
+     "평소 대비 15.0배(+25)",
+     "개설 6일(+20)",
+     "RAG 매칭: 메신저피싱(유사도 0.65, 경찰청 월간피싱 zero S05)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 4건(+40)",
+    "평소 대비 15.0배(+25)",
+    "개설 6일(+20)"
+   ],
+   "conversation_summary": "\"아는 동생이 문자로만 연락해서 급한 돈이 필요하다고 해…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.65,
+    "score": 30,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.653
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.461
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.334
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.297
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.294
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.292
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.268
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.264
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.235
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 4건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 15.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 6일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 85,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_text_only",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "메신저피싱",
+     "matched_id": "S05",
+     "similarity": 0.65,
+     "score": 30,
+     "risk_signals": [
+      "통화회피",
+      "문자로만연락",
+      "급전요청",
+      "신분증요구"
+     ],
+     "source": "경찰청 월간피싱 zero S05",
+     "candidates": [
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.653
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.461
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.334
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.297
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.294
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.292
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.268
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.264
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.235
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260905-001",
+   "generated_at": "2026-09-05T01:45:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3333-12-5582910",
+   "payee_name": "이하늘",
+   "amount": 10000000,
+   "attempted_at": "2026-09-05T01:42:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 2건(+40)",
+     "평소 대비 3.3배(+8)",
+     "개설 4일(+20)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 2건(+40)",
+    "평소 대비 3.3배(+8)",
+    "개설 4일(+20)",
+    "평소 없는 새벽 시간대(00~06시)(+10)"
+   ],
+   "conversation_summary": "고객 응답 없음(대화창 미사용)",
+   "attachments_present": false,
+   "rag": null,
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 2건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 8,
+      "detail": "평소 대비 3.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 4일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)"
+     }
+    ],
+    "total_score": 78,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": false,
+    "rag": null,
+    "total_score": 50,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260904-001",
+   "generated_at": "2026-09-04T20:26:00+09:00",
+   "customer_name": "윤지호",
+   "customer_phone_masked": "010-****-0007",
+   "customer_account_masked": "351-****-0007",
+   "payee_bank": "국민은행",
+   "payee_account": "79421-43-12055",
+   "payee_name": "한지우",
+   "amount": 20000000,
+   "attempted_at": "2026-09-04T20:23:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 111.1배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 20일(+10)",
+     "신규 기기/환경(+15)",
+     "RAG 매칭: 협박형(유사도 0.69, 경찰청 월간피싱 zero S06)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 111.1배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 20일(+10)",
+    "신규 기기/환경(+15)"
+   ],
+   "conversation_summary": "\"아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "협박형",
+    "matched_id": "S06",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "긴박감조성",
+     "즉시송금요구",
+     "통화지속강요",
+     "합의금명목"
+    ],
+    "source": "경찰청 월간피싱 zero S06",
+    "candidates": [
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.686
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.448
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.402
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.365
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.361
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.347
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.278
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 111.1배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 20일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": true,
+      "score": 15,
+      "detail": "신규 기기/환경"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 75,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "협박형",
+     "matched_id": "S06",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "긴박감조성",
+      "즉시송금요구",
+      "통화지속강요",
+      "합의금명목"
+     ],
+     "source": "경찰청 월간피싱 zero S06",
+     "candidates": [
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.686
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.473
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.448
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.402
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.365
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.361
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.347
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.343
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.278
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260903-001",
+   "generated_at": "2026-09-03T20:37:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3355-02-991234",
+   "payee_name": "정하린",
+   "amount": 2000000,
+   "attempted_at": "2026-09-03T20:34:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 1일(+20)",
+     "평소 이용 시간대 밖(+5)",
+     "RAG 매칭: 협박형(유사도 0.69, 경찰청 월간피싱 zero S06)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 1일(+20)",
+    "평소 이용 시간대 밖(+5)"
+   ],
+   "conversation_summary": "\"아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "협박형",
+    "matched_id": "S06",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "긴박감조성",
+     "즉시송금요구",
+     "통화지속강요",
+     "합의금명목"
+    ],
+    "source": "경찰청 월간피싱 zero S06",
+    "candidates": [
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.686
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.448
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.402
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.365
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.361
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.347
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.278
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 0.7배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 1일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 5,
+      "detail": "평소 이용 시간대 밖"
+     }
+    ],
+    "total_score": 90,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "협박형",
+     "matched_id": "S06",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "긴박감조성",
+      "즉시송금요구",
+      "통화지속강요",
+      "합의금명목"
+     ],
+     "source": "경찰청 월간피싱 zero S06",
+     "candidates": [
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.686
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.473
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.448
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.402
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.365
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.361
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.347
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.343
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.278
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260831-002",
+   "generated_at": "2026-08-31T21:44:00+09:00",
+   "customer_name": "윤지호",
+   "customer_phone_masked": "010-****-0007",
+   "customer_account_masked": "351-****-0007",
+   "payee_bank": "케이뱅크",
+   "payee_account": "100-032-775120",
+   "payee_name": "윤서준",
+   "amount": 10000000,
+   "attempted_at": "2026-08-31T21:41:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 55.6배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 5일(+20)",
+     "10분 내 2건(+10)",
+     "RAG 매칭: 대출사기(유사도 0.82, NH 제작 S04)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 55.6배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 5일(+20)",
+    "10분 내 2건(+10)"
+   ],
+   "conversation_summary": "\"신용점수 올려준다면서 한도를 올리고 수수료를 먼저 입금…\"라고 응답, 캡처 1건 업로드(대출안내_문자.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "대출사기",
+    "matched_id": "S04",
+    "similarity": 0.82,
+    "score": 50,
+    "risk_signals": [
+     "선입금요구",
+     "한도상향유도",
+     "대환대출",
+     "신용점수언급"
+    ],
+    "source": "NH 제작 S04",
+    "candidates": [
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.817
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.663
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.458
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.436
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.389
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.383
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.374
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.323
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.322
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.311
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 55.6배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 10,
+      "detail": "10분 내 2건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 80,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_offer",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "대출사기",
+     "matched_id": "S04",
+     "similarity": 0.82,
+     "score": 50,
+     "risk_signals": [
+      "선입금요구",
+      "한도상향유도",
+      "대환대출",
+      "신용점수언급"
+     ],
+     "source": "NH 제작 S04",
+     "candidates": [
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.817
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.663
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.458
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.436
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.389
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.383
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.374
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.323
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.322
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.311
+      }
+     ]
+    },
+    "total_score": 85,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "대출안내_문자.png",
+    "lines": [
+     "[Web발신] 정부지원 저금리 대환대출",
+     "기존 대출 선상환 확인 후",
+     "승인금 즉시 입금 예정",
+     "상담: 1600-XXXX"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260831-001",
+   "generated_at": "2026-08-31T12:01:00+09:00",
+   "customer_name": "이서인",
+   "customer_phone_masked": "010-****-0003",
+   "customer_account_masked": "351-****-0003",
+   "payee_bank": "하나은행",
+   "payee_account": "123-456789-01-011",
+   "payee_name": "김태호",
+   "amount": 10000000,
+   "attempted_at": "2026-08-31T11:58:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "평소 대비 66.7배(+25)",
+     "개설 12일(+10)",
+     "RAG 매칭: 협박형(유사도 0.69, 경찰청 월간피싱 zero S06)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "평소 대비 66.7배(+25)",
+    "개설 12일(+10)"
+   ],
+   "conversation_summary": "\"아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "협박형",
+    "matched_id": "S06",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "긴박감조성",
+     "즉시송금요구",
+     "통화지속강요",
+     "합의금명목"
+    ],
+    "source": "경찰청 월간피싱 zero S06",
+    "candidates": [
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.686
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.448
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.402
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.365
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.361
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.347
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.278
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 66.7배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 12일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 75,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "협박형",
+     "matched_id": "S06",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "긴박감조성",
+      "즉시송금요구",
+      "통화지속강요",
+      "합의금명목"
+     ],
+     "source": "경찰청 월간피싱 zero S06",
+     "candidates": [
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.686
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.473
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.448
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.402
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.365
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.361
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.347
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.343
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.278
+      }
+     ]
+    },
+    "total_score": 90,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260829-003",
+   "generated_at": "2026-08-29T23:37:00+09:00",
+   "customer_name": "윤지호",
+   "customer_phone_masked": "010-****-0007",
+   "customer_account_masked": "351-****-0007",
+   "payee_bank": "케이뱅크",
+   "payee_account": "100-032-775120",
+   "payee_name": "윤서준",
+   "amount": 2000000,
+   "attempted_at": "2026-08-29T23:34:00+09:00",
+   "final": {
+    "account_level": "중",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 11.1배(+25)",
+     "개설 5일(+20)",
+     "평소 이용 시간대 밖(+5)",
+     "RAG 매칭: 메신저피싱(유사도 0.65, 경찰청 월간피싱 zero S05)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 11.1배(+25)",
+    "개설 5일(+20)",
+    "평소 이용 시간대 밖(+5)"
+   ],
+   "conversation_summary": "\"아는 동생이 문자로만 연락해서 급한 돈이 필요하다고 해…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.65,
+    "score": 30,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.653
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.461
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.334
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.297
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.294
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.292
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.268
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.264
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.235
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 11.1배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 5,
+      "detail": "평소 이용 시간대 밖"
+     }
+    ],
+    "total_score": 50,
+    "level": "중"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_text_only",
+      "choice_weight": 25,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "메신저피싱",
+     "matched_id": "S05",
+     "similarity": 0.65,
+     "score": 30,
+     "risk_signals": [
+      "통화회피",
+      "문자로만연락",
+      "급전요청",
+      "신분증요구"
+     ],
+     "source": "경찰청 월간피싱 zero S05",
+     "candidates": [
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.653
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.461
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.334
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.297
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.294
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.292
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.268
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.264
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.235
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260829-002",
+   "generated_at": "2026-08-29T21:16:00+09:00",
+   "customer_name": "임하은",
+   "customer_phone_masked": "010-****-0008",
+   "customer_account_masked": "351-****-0008",
+   "payee_bank": "케이뱅크",
+   "payee_account": "100-032-775120",
+   "payee_name": "윤서준",
+   "amount": 1000000,
+   "attempted_at": "2026-08-29T21:13:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "개설 5일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "신규 기기/환경(+15)",
+     "평소 이용 시간대 밖(+5)",
+     "RAG 매칭: 취업사기(유사도 0.64, NH 제작 S09)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "개설 5일(+20)",
+    "24시간 내 이체한도 상향(+20)",
+    "신규 기기/환경(+15)",
+    "평소 이용 시간대 밖(+5)"
+   ],
+   "conversation_summary": "\"고액 알바라면서 제 통장으로 들어온 돈을 다른 계좌로 …\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "취업사기",
+    "matched_id": "S09",
+    "similarity": 0.64,
+    "score": 30,
+    "risk_signals": [
+     "선입금요구",
+     "고수익미끼",
+     "반복입금유도",
+     "보증금명목"
+    ],
+    "source": "NH 제작 S09",
+    "candidates": [
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.641
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.569
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.472
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.46
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.452
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.427
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.394
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 1.7배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": true,
+      "score": 15,
+      "detail": "신규 기기/환경"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 5,
+      "detail": "평소 이용 시간대 밖"
+     }
+    ],
+    "total_score": 60,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "취업사기",
+     "matched_id": "S09",
+     "similarity": 0.64,
+     "score": 30,
+     "risk_signals": [
+      "선입금요구",
+      "고수익미끼",
+      "반복입금유도",
+      "보증금명목"
+     ],
+     "source": "NH 제작 S09",
+     "candidates": [
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.641
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.569
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.472
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.46
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.452
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.427
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.394
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260829-001",
+   "generated_at": "2026-08-29T11:02:00+09:00",
+   "customer_name": "최민재",
+   "customer_phone_masked": "010-****-0005",
+   "customer_account_masked": "351-****-0005",
+   "payee_bank": "케이뱅크",
+   "payee_account": "100-032-775120",
+   "payee_name": "윤서준",
+   "amount": 500000,
+   "attempted_at": "2026-08-29T10:59:00+09:00",
+   "final": {
+    "account_level": "중",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "개설 5일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "RAG 매칭: 대출사기(유사도 0.73, NH 제작 S04)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "개설 5일(+20)",
+    "24시간 내 이체한도 상향(+20)"
+   ],
+   "conversation_summary": "\"저금리 대환대출 해준다고 해서 기존 대출 상환금을 먼저…\"라고 응답, 캡처 1건 업로드(대출안내_문자.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "대출사기",
+    "matched_id": "S04",
+    "similarity": 0.73,
+    "score": 30,
+    "risk_signals": [
+     "선입금요구",
+     "한도상향유도",
+     "대환대출",
+     "신용점수언급"
+    ],
+    "source": "NH 제작 S04",
+    "candidates": [
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.733
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.532
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.463
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.396
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.328
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.32
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.319
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.316
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.287
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.284
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 1.2배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 40,
+    "level": "중"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_offer",
+      "choice_weight": 25,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "대출사기",
+     "matched_id": "S04",
+     "similarity": 0.73,
+     "score": 30,
+     "risk_signals": [
+      "선입금요구",
+      "한도상향유도",
+      "대환대출",
+      "신용점수언급"
+     ],
+     "source": "NH 제작 S04",
+     "candidates": [
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.733
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.532
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.463
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.396
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.328
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.32
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.319
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.316
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.287
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.284
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "대출안내_문자.png",
+    "lines": [
+     "[Web발신] 정부지원 저금리 대환대출",
+     "기존 대출 선상환 확인 후",
+     "승인금 즉시 입금 예정",
+     "상담: 1600-XXXX"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260826-001",
+   "generated_at": "2026-08-26T01:49:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3355-02-991234",
+   "payee_name": "정하린",
+   "amount": 1000000,
+   "attempted_at": "2026-08-26T01:46:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 1일(+20)",
+     "신규 기기/환경(+15)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "RAG 매칭: 취업사기(유사도 0.64, NH 제작 S09)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 1일(+20)",
+    "신규 기기/환경(+15)",
+    "평소 없는 새벽 시간대(00~06시)(+10)"
+   ],
+   "conversation_summary": "\"고액 알바라면서 제 통장으로 들어온 돈을 다른 계좌로 …\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "취업사기",
+    "matched_id": "S09",
+    "similarity": 0.64,
+    "score": 30,
+    "risk_signals": [
+     "선입금요구",
+     "고수익미끼",
+     "반복입금유도",
+     "보증금명목"
+    ],
+    "source": "NH 제작 S09",
+    "candidates": [
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.641
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.569
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.472
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.46
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.452
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.427
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.394
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 0.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 1일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": true,
+      "score": 15,
+      "detail": "신규 기기/환경"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)"
+     }
+    ],
+    "total_score": 110,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "취업사기",
+     "matched_id": "S09",
+     "similarity": 0.64,
+     "score": 30,
+     "risk_signals": [
+      "선입금요구",
+      "고수익미끼",
+      "반복입금유도",
+      "보증금명목"
+     ],
+     "source": "NH 제작 S09",
+     "candidates": [
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.641
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.569
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.472
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.46
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.452
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.427
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.394
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260824-001",
+   "generated_at": "2026-08-24T23:24:00+09:00",
+   "customer_name": "이서인",
+   "customer_phone_masked": "010-****-0003",
+   "customer_account_masked": "351-****-0003",
+   "payee_bank": "케이뱅크",
+   "payee_account": "100-032-775120",
+   "payee_name": "윤서준",
+   "amount": 5000000,
+   "attempted_at": "2026-08-24T23:21:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 33.3배(+25)",
+     "개설 5일(+20)",
+     "10분 내 2건(+10)",
+     "평소 이용 시간대 밖(+5)",
+     "RAG 매칭: 취업사기(유사도 0.64, NH 제작 S09)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 33.3배(+25)",
+    "개설 5일(+20)",
+    "10분 내 2건(+10)",
+    "평소 이용 시간대 밖(+5)"
+   ],
+   "conversation_summary": "\"고액 알바라면서 제 통장으로 들어온 돈을 다른 계좌로 …\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "취업사기",
+    "matched_id": "S09",
+    "similarity": 0.64,
+    "score": 30,
+    "risk_signals": [
+     "선입금요구",
+     "고수익미끼",
+     "반복입금유도",
+     "보증금명목"
+    ],
+    "source": "NH 제작 S09",
+    "candidates": [
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.641
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.569
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.472
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.46
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.452
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.427
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.394
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 33.3배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 10,
+      "detail": "10분 내 2건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 5,
+      "detail": "평소 이용 시간대 밖"
+     }
+    ],
+    "total_score": 60,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "취업사기",
+     "matched_id": "S09",
+     "similarity": 0.64,
+     "score": 30,
+     "risk_signals": [
+      "선입금요구",
+      "고수익미끼",
+      "반복입금유도",
+      "보증금명목"
+     ],
+     "source": "NH 제작 S09",
+     "candidates": [
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.641
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.569
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.472
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.46
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.452
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.427
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.394
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260823-001",
+   "generated_at": "2026-08-23T13:03:00+09:00",
+   "customer_name": "남용준",
+   "customer_phone_masked": "010-****-0001",
+   "customer_account_masked": "351-****-0001",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3333-12-5582910",
+   "payee_name": "이하늘",
+   "amount": 5000000,
+   "attempted_at": "2026-08-23T13:00:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 2건(+40)",
+     "평소 대비 16.7배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 4일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "10분 내 3건(+20)",
+     "RAG 매칭: 기관사칭(유사도 0.68, 경찰청 월간피싱 zero S01)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 2건(+40)",
+    "평소 대비 16.7배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 4일(+20)",
+    "24시간 내 이체한도 상향(+20)",
+    "10분 내 3건(+20)"
+   ],
+   "conversation_summary": "\"금융감독원 직원이라면서 자산 보호를 위해 돈을 지정 계…\"라고 응답, 캡처 1건 업로드(검찰_안내문자.jpg)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "기관사칭",
+    "matched_id": "S01",
+    "similarity": 0.68,
+    "score": 30,
+    "risk_signals": [
+     "결백증명",
+     "예치금",
+     "수사기관사칭",
+     "비밀유지요구"
+    ],
+    "source": "경찰청 월간피싱 zero S01",
+    "candidates": [
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.679
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.66
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.617
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.548
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.542
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.472
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.452
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.424
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.36
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.335
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 2건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 16.7배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 4일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 20,
+      "detail": "10분 내 3건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 150,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "기관사칭",
+     "matched_id": "S01",
+     "similarity": 0.68,
+     "score": 30,
+     "risk_signals": [
+      "결백증명",
+      "예치금",
+      "수사기관사칭",
+      "비밀유지요구"
+     ],
+     "source": "경찰청 월간피싱 zero S01",
+     "candidates": [
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.679
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.66
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.617
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.548
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.542
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.472
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.452
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.424
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.36
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.335
+      }
+     ]
+    },
+    "total_score": 90,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "검찰_안내문자.jpg",
+    "lines": [
+     "[Web발신] 서울중앙지검 사건조회",
+     "귀하 명의 계좌가 범죄에 연루되어",
+     "자산 보호를 위해 안전계좌로",
+     "금일 중 이체 바랍니다"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260822-002",
+   "generated_at": "2026-08-22T20:57:00+09:00",
+   "customer_name": "윤지호",
+   "customer_phone_masked": "010-****-0007",
+   "customer_account_masked": "351-****-0007",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3333-12-5582910",
+   "payee_name": "이하늘",
+   "amount": 20000000,
+   "attempted_at": "2026-08-22T20:54:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 2건(+40)",
+     "평소 대비 111.1배(+25)",
+     "개설 4일(+20)",
+     "RAG 매칭: 원격제어형(유사도 0.69, 경찰청 월간피싱 zero S10)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 2건(+40)",
+    "평소 대비 111.1배(+25)",
+    "개설 4일(+20)"
+   ],
+   "conversation_summary": "\"상담원이 앱을 설치하라고 해서 깔았더니 화면을 보면서 …\"라고 응답, 캡처 1건 업로드(원격앱_설치안내.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "원격제어형",
+    "matched_id": "S10",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "원격제어앱",
+     "화면유지요구",
+     "안전계좌",
+     "수사기관사칭"
+    ],
+    "source": "경찰청 월간피싱 zero S10",
+    "candidates": [
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.685
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.58
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.555
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.515
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.489
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.487
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.466
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.465
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.464
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.457
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 2건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 111.1배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 4일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 85,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "원격제어형",
+     "matched_id": "S10",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "원격제어앱",
+      "화면유지요구",
+      "안전계좌",
+      "수사기관사칭"
+     ],
+     "source": "경찰청 월간피싱 zero S10",
+     "candidates": [
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.685
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.58
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.555
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.515
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.489
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.487
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.466
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.465
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.464
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.457
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "원격앱_설치안내.png",
+    "lines": [
+     "보안 점검을 위해 아래 앱을 설치하세요",
+     "설치 후 화면을 켠 상태로 유지",
+     "상담원 안내에 따라 이체 진행"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260822-001",
+   "generated_at": "2026-08-22T20:28:00+09:00",
+   "customer_name": "남용준",
+   "customer_phone_masked": "010-****-0001",
+   "customer_account_masked": "351-****-0001",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3333-12-5582910",
+   "payee_name": "이하늘",
+   "amount": 20000000,
+   "attempted_at": "2026-08-22T20:25:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 2건(+40)",
+     "평소 대비 66.7배(+25)",
+     "개설 4일(+20)",
+     "10분 내 3건(+20)",
+     "RAG 매칭: 메신저피싱(유사도 0.75, 경찰청 월간피싱 zero S05)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 2건(+40)",
+    "평소 대비 66.7배(+25)",
+    "개설 4일(+20)",
+    "10분 내 3건(+20)"
+   ],
+   "conversation_summary": "\"딸이라면서 카톡이 왔는데 폰이 고장나서 전화는 안 된대…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.75,
+    "score": 30,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.752
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.582
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.51
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.434
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.363
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.341
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.34
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.328
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.315
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.267
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 2건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 66.7배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 4일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 20,
+      "detail": "10분 내 3건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 105,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_text_only",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "메신저피싱",
+     "matched_id": "S05",
+     "similarity": 0.75,
+     "score": 30,
+     "risk_signals": [
+      "통화회피",
+      "문자로만연락",
+      "급전요청",
+      "신분증요구"
+     ],
+     "source": "경찰청 월간피싱 zero S05",
+     "candidates": [
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.752
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.582
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.51
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.434
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.363
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.341
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.34
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.328
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.315
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.267
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260821-001",
+   "generated_at": "2026-08-21T10:30:00+09:00",
+   "customer_name": "김도현",
+   "customer_phone_masked": "010-****-0002",
+   "customer_account_masked": "351-****-0002",
+   "payee_bank": "하나은행",
+   "payee_account": "123-456789-01-011",
+   "payee_name": "김태호",
+   "amount": 1000000,
+   "attempted_at": "2026-08-21T10:27:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "평소 대비 5.0배(+15)",
+     "개설 12일(+10)",
+     "10분 내 3건(+20)",
+     "RAG 매칭: 기관사칭(유사도 0.75, 경찰청 월간피싱 zero S03)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "평소 대비 5.0배(+15)",
+    "개설 12일(+10)",
+    "10분 내 3건(+20)"
+   ],
+   "conversation_summary": "\"카드 배송기사라더니 금감원 연결해준다고 하고 원격 앱을…\"라고 응답, 캡처 1건 업로드(검찰_안내문자.jpg)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "기관사칭",
+    "matched_id": "S03",
+    "similarity": 0.75,
+    "score": 30,
+    "risk_signals": [
+     "원격제어앱",
+     "자산보호",
+     "안전계좌",
+     "수사기관사칭"
+    ],
+    "source": "경찰청 월간피싱 zero S03",
+    "candidates": [
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.754
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.588
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.506
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.5
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.488
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.481
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.468
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.406
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 15,
+      "detail": "평소 대비 5.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 12일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 20,
+      "detail": "10분 내 3건"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 85,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "기관사칭",
+     "matched_id": "S03",
+     "similarity": 0.75,
+     "score": 30,
+     "risk_signals": [
+      "원격제어앱",
+      "자산보호",
+      "안전계좌",
+      "수사기관사칭"
+     ],
+     "source": "경찰청 월간피싱 zero S03",
+     "candidates": [
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.754
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.588
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.506
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.5
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.488
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.481
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.468
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.406
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 90,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "검찰_안내문자.jpg",
+    "lines": [
+     "[Web발신] 서울중앙지검 사건조회",
+     "귀하 명의 계좌가 범죄에 연루되어",
+     "자산 보호를 위해 안전계좌로",
+     "금일 중 이체 바랍니다"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260820-001",
+   "generated_at": "2026-08-20T03:18:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "케이뱅크",
+   "payee_account": "100-032-775120",
+   "payee_name": "윤서준",
+   "amount": 20000000,
+   "attempted_at": "2026-08-20T03:15:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 6.7배(+15)",
+     "개설 5일(+20)",
+     "10분 내 2건(+10)",
+     "신규 기기/환경(+15)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "RAG 매칭: 스미싱(유사도 0.77, NH 제작 S07)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "평소 대비 6.7배(+15)",
+    "개설 5일(+20)",
+    "10분 내 2건(+10)",
+    "신규 기기/환경(+15)",
+    "평소 없는 새벽 시간대(00~06시)(+10)"
+   ],
+   "conversation_summary": "\"택배 주소가 잘못됐다는 문자 링크를 눌렀더니 결제 확인…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "스미싱",
+    "matched_id": "S07",
+    "similarity": 0.77,
+    "score": 30,
+    "risk_signals": [
+     "URL클릭유도",
+     "악성앱설치",
+     "결제정보입력",
+     "배송오류미끼"
+    ],
+    "source": "NH 제작 S07",
+    "candidates": [
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.773
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.519
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.459
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.373
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.368
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.345
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.311
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.294
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 15,
+      "detail": "평소 대비 6.7배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": true,
+      "score": 10,
+      "detail": "10분 내 2건"
+     },
+     {
+      "signal": "device",
+      "hit": true,
+      "score": 15,
+      "detail": "신규 기기/환경"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)"
+     }
+    ],
+    "total_score": 70,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "스미싱",
+     "matched_id": "S07",
+     "similarity": 0.77,
+     "score": 30,
+     "risk_signals": [
+      "URL클릭유도",
+      "악성앱설치",
+      "결제정보입력",
+      "배송오류미끼"
+     ],
+     "source": "NH 제작 S07",
+     "candidates": [
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.773
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.519
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.459
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.373
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.368
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.345
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.311
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.294
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260819-001",
+   "generated_at": "2026-08-19T01:04:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "하나은행",
+   "payee_account": "123-456789-01-011",
+   "payee_name": "김태호",
+   "amount": 500000,
+   "attempted_at": "2026-08-19T01:01:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 1건(+40)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 12일(+10)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "RAG 매칭: 메신저피싱(유사도 0.65, 경찰청 월간피싱 zero S05)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 1건(+40)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 12일(+10)",
+    "평소 없는 새벽 시간대(00~06시)(+10)"
+   ],
+   "conversation_summary": "\"아는 동생이 문자로만 연락해서 급한 돈이 필요하다고 해…\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.65,
+    "score": 30,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.653
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.461
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.408
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.334
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.297
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.294
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.292
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.268
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.264
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.235
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 1건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 0.2배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 10,
+      "detail": "개설 12일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)"
+     }
+    ],
+    "total_score": 85,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_text_only",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "메신저피싱",
+     "matched_id": "S05",
+     "similarity": 0.65,
+     "score": 30,
+     "risk_signals": [
+      "통화회피",
+      "문자로만연락",
+      "급전요청",
+      "신분증요구"
+     ],
+     "source": "경찰청 월간피싱 zero S05",
+     "candidates": [
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.653
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.461
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.408
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.334
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.297
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.294
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.292
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.268
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.264
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.235
+      }
+     ]
+    },
+    "total_score": 65,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260818-001",
+   "generated_at": "2026-08-18T02:49:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "3333-12-5582910",
+   "payee_name": "이하늘",
+   "amount": 500000,
+   "attempted_at": "2026-08-18T02:46:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 2건(+40)",
+     "개설 4일(+20)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "RAG 매칭: 원격제어형(유사도 0.69, 경찰청 월간피싱 zero S10)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 2건(+40)",
+    "개설 4일(+20)",
+    "평소 없는 새벽 시간대(00~06시)(+10)"
+   ],
+   "conversation_summary": "\"상담원이 앱을 설치하라고 해서 깔았더니 화면을 보면서 …\"라고 응답, 캡처 1건 업로드(원격앱_설치안내.png)",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "원격제어형",
+    "matched_id": "S10",
+    "similarity": 0.69,
+    "score": 30,
+    "risk_signals": [
+     "원격제어앱",
+     "화면유지요구",
+     "안전계좌",
+     "수사기관사칭"
+    ],
+    "source": "경찰청 월간피싱 zero S10",
+    "candidates": [
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.685
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.58
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.555
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.515
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.489
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.487
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.466
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.465
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.464
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.457
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 2건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 0.2배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 4일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)"
+     }
+    ],
+    "total_score": 70,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "원격제어형",
+     "matched_id": "S10",
+     "similarity": 0.69,
+     "score": 30,
+     "risk_signals": [
+      "원격제어앱",
+      "화면유지요구",
+      "안전계좌",
+      "수사기관사칭"
+     ],
+     "source": "경찰청 월간피싱 zero S10",
+     "candidates": [
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.685
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.58
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.555
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.515
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.489
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.487
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.466
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.465
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.464
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.457
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  },
+  "attachments": [
+   {
+    "name": "원격앱_설치안내.png",
+    "lines": [
+     "보안 점검을 위해 아래 앱을 설치하세요",
+     "설치 후 화면을 켠 상태로 유지",
+     "상담원 안내에 따라 이체 진행"
+    ]
+   }
+  ]
+ },
+ {
+  "report": {
+   "report_id": "RPT-20260816-001",
+   "generated_at": "2026-08-16T11:04:00+09:00",
+   "customer_name": "박지원",
+   "customer_phone_masked": "010-****-0004",
+   "customer_account_masked": "351-****-0004",
+   "payee_bank": "신한은행",
+   "payee_account": "110-588-203114",
+   "payee_name": "오정민",
+   "amount": 3000000,
+   "attempted_at": "2026-08-16T11:01:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "중",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "사기신고 4건(+40)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 6일(+20)",
+     "RAG 매칭: 취업사기(유사도 0.64, NH 제작 S09)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)"
+   },
+   "account_reasons": [
+    "사기신고 4건(+40)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 6일(+20)"
+   ],
+   "conversation_summary": "\"고액 알바라면서 제 통장으로 들어온 돈을 다른 계좌로 …\"라고 응답",
+   "attachments_present": false,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "취업사기",
+    "matched_id": "S09",
+    "similarity": 0.64,
+    "score": 30,
+    "risk_signals": [
+     "선입금요구",
+     "고수익미끼",
+     "반복입금유도",
+     "보증금명목"
+    ],
+    "source": "NH 제작 S09",
+    "candidates": [
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.641
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.569
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.483
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.472
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.46
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.452
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.427
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.394
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.375
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 4건"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 대비 1.0배"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 6일"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대"
+     }
+    ],
+    "total_score": 85,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_trade",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "취업사기",
+     "matched_id": "S09",
+     "similarity": 0.64,
+     "score": 30,
+     "risk_signals": [
+      "선입금요구",
+      "고수익미끼",
+      "반복입금유도",
+      "보증금명목"
+     ],
+     "source": "NH 제작 S09",
+     "candidates": [
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.641
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.569
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.483
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.472
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.46
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.452
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.427
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.394
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.375
+      }
+     ]
+    },
+    "total_score": 40,
+    "level": "중",
+    "hard_override": false
+   },
+   "extra": {}
+  },
+  "attachments": []
+ }
+]

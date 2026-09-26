@@ -43,5 +43,77 @@
     "fraud_report_count": 0,
     "account_age_days": 3,
     "note": "케이스5(부동산 잔금) 신규계좌. 정상 거래(에스크로)."
+  },
+  {
+    "payee_account": "3333-12-5582910",
+    "payee_bank": "카카오뱅크",
+    "payee_name": "이하늘",
+    "is_fraud_reported": true,
+    "fraud_report_count": 2,
+    "account_age_days": 4,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
+  },
+  {
+    "payee_account": "1002-331-448291",
+    "payee_bank": "우리은행",
+    "payee_name": "최윤서",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 3,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
+  },
+  {
+    "payee_account": "123-456789-01-011",
+    "payee_bank": "하나은행",
+    "payee_name": "김태호",
+    "is_fraud_reported": true,
+    "fraud_report_count": 1,
+    "account_age_days": 12,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
+  },
+  {
+    "payee_account": "302-1188-4501-21",
+    "payee_bank": "NH농협은행",
+    "payee_name": "박소율",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 2,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
+  },
+  {
+    "payee_account": "110-588-203114",
+    "payee_bank": "신한은행",
+    "payee_name": "오정민",
+    "is_fraud_reported": true,
+    "fraud_report_count": 4,
+    "account_age_days": 6,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
+  },
+  {
+    "payee_account": "79421-43-12055",
+    "payee_bank": "국민은행",
+    "payee_name": "한지우",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 20,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
+  },
+  {
+    "payee_account": "100-032-775120",
+    "payee_bank": "케이뱅크",
+    "payee_name": "윤서준",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 5,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
+  },
+  {
+    "payee_account": "3355-02-991234",
+    "payee_bank": "카카오뱅크",
+    "payee_name": "정하린",
+    "is_fraud_reported": true,
+    "fraud_report_count": 1,
+    "account_age_days": 1,
+    "note": "리포트 이력 목업 전용 가상 수취계좌."
   }
 ]

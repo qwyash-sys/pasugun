@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from app.models import ContextAnswer, RagMatch, RiskLevel, SignalResult
+from app.report_store import UploadedImage
 
 
 @dataclass
@@ -28,7 +29,11 @@ class TransferSession:
     chat_turns: int = 0
     rag_match: RagMatch | None = None
     attachments_present: bool = False
+    # 영업점 리포트의 "첨부자료 보기"용 원본 이미지. 리포트가 생성될 때 리포트 저장소로 넘어간다.
+    uploads: list[UploadedImage] = field(default_factory=list)
     finalized: bool = False
+    # finalize를 다시 불러도(프론트 "다시 시도") 리포트가 두 번 쌓이지 않게 첫 결과를 그대로 돌려준다.
+    final_response: dict[str, Any] | None = None
 
 
 _sessions: dict[str, TransferSession] = {}

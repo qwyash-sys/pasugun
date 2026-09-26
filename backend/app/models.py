@@ -96,6 +96,13 @@ class FinalRisk(BaseModel):
     action: str
 
 
+class AttachmentMeta(BaseModel):
+    """리포트에 딸린 첨부자료 1건. url은 /api/reports/{id}/attachments/{i} 형태의 상대경로."""
+
+    name: str
+    url: str
+
+
 class ReportPayload(BaseModel):
     report_id: str
     generated_at: str
@@ -115,4 +122,31 @@ class ReportPayload(BaseModel):
     recommendation: str
     account: AccountAssessment
     context: ContextAssessment | None = None
+    attachments: list[AttachmentMeta] = []
     extra: dict[str, Any] = {}
+
+
+class ReportSummary(BaseModel):
+    """관리자 리포트 목록 한 줄 — 목록 화면에 필요한 값만 추린다(상세는 ReportPayload)."""
+
+    report_id: str
+    attempted_at: str
+    customer_name: str
+    payee_bank: str
+    payee_name: str
+    amount: int
+    account_score: int
+    account_level: RiskLevel
+    context_score: int | None
+    context_level: RiskLevel
+    hard_override: bool
+    rag_type: str | None
+    rag_similarity: float | None
+    attachment_count: int
+
+
+class ReportListResponse(BaseModel):
+    items: list[ReportSummary]
+    total: int
+    page: int
+    page_size: int

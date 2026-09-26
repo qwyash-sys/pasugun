@@ -146,7 +146,7 @@ def test_chat_bad_attachment_base64_returns_502_not_500():
     session_id = _quote()["session_id"]
     res = client.post(
         f"/api/transfer/{session_id}/chat",
-        json={"text": "", "attachments_base64": ["%%%not-valid-base64%%%"]},
+        json={"text": "", "attachments": [{"name": "x.png", "base64": "%%%not-valid-base64%%%"}]},
     )
     assert res.status_code == 502
     # main.py의 전역 예외 핸들러(ServerErrorMiddleware 경유, CORS 헤더 누락)로 새지
@@ -158,7 +158,7 @@ def test_chat_rejects_more_than_5_attachments():
     session_id = _quote()["session_id"]
     res = client.post(
         f"/api/transfer/{session_id}/chat",
-        json={"text": "확인해주세요", "attachments_base64": ["aGk="] * 6},
+        json={"text": "확인해주세요", "attachments": [{"name": "a.png", "base64": "aGk="}] * 6},
     )
     assert res.status_code == 422
 
@@ -180,7 +180,10 @@ def test_chat_accepts_multiple_attachments_and_ocrs_each(monkeypatch):
         f"/api/transfer/{session_id}/chat",
         json={
             "text": "이 문자들 확인해주세요",
-            "attachments_base64": [base64.b64encode(b"img1").decode(), base64.b64encode(b"img2").decode()],
+            "attachments": [
+                {"name": "1.png", "base64": base64.b64encode(b"img1").decode()},
+                {"name": "2.png", "base64": base64.b64encode(b"img2").decode()},
+            ],
         },
     )
     assert res.status_code == 200, res.text

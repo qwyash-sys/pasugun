@@ -7,6 +7,7 @@ import type {
   Question,
   ReportPayload,
 } from "../types";
+import { captureDataUrl } from "../utils/capturePreview";
 
 export interface DemoCase {
   id: string;
@@ -182,6 +183,12 @@ export const DEMO_CASES: DemoCase[] = [
       account_reasons: ["위험계좌 정보(+40)", "평소 대비 고액(+25)", "자금이동 적금해지(+25)"],
       conversation_summary: "\"검찰이 안전계좌로 옮기라 했다\"고 응답, 안내문자 캡처 1건 업로드",
       attachments_present: true,
+      attachments: [
+        {
+          name: "검찰공무원증_캡처.jpg",
+          url: captureDataUrl(["[Web발신] 서울중앙지검 사건조회", "귀하 명의 계좌가 범죄에 연루되어", "지금 안전계좌로 옮기지 않으면", "계좌가 동결됩니다"]),
+        },
+      ],
       rag: {
         signal: "scenario",
         hit: true,
@@ -365,6 +372,12 @@ export const DEMO_CASES: DemoCase[] = [
       account_reasons: ["평소 대비 고액(+25)", "신규계좌(+20)", "이체한도 상향(+20)"],
       conversation_summary: "\"저금리 대환대출 안내를 받고 먼저 상환금을 보내려 한다\"고 응답, 문자 캡처 업로드",
       attachments_present: true,
+      attachments: [
+        {
+          name: "대출안내_문자캡처.jpg",
+          url: captureDataUrl(["[Web발신] 저금리 대환대출 승인 안내", "기존 대출 선상환 확인 후", "승인금 즉시 입금 예정", "한도 상향 후 상환금 이체 바랍니다"]),
+        },
+      ],
       rag: {
         signal: "scenario",
         hit: true,
@@ -544,6 +557,12 @@ export const DEMO_CASES: DemoCase[] = [
       account_reasons: ["평소 대비 이상거래(+8)", "신규계좌(+20)"],
       conversation_summary: "\"아는 사람인데 문자로만 연락된다\"고 응답, 대화 캡처 업로드",
       attachments_present: true,
+      attachments: [
+        {
+          name: "대화_캡처.jpg",
+          url: captureDataUrl(["엄마 나 폰 고장나서 이걸로 연락해", "급하게 결제할 게 있는데", "100만원만 먼저 보내줄 수 있어?", "통화는 안 돼 문자로 해줘"]),
+        },
+      ],
       rag: {
         signal: "scenario",
         hit: true,

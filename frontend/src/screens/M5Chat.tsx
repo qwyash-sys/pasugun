@@ -28,7 +28,7 @@ interface Props {
   chatTurns?: DemoTurn[];
   onDemoSubmit?: (payload: { skipped: boolean }) => void;
   /** local/remote 모드 전용: 실제 멀티턴 대화. */
-  onSendTurn?: (payload: { text: string; attachmentsBase64: string[] }) => Promise<ChatTurnResult>;
+  onSendTurn?: (payload: { text: string; attachments: { name: string; base64: string }[] }) => Promise<ChatTurnResult>;
   /** 대화를 건너뛰거나(0턴) 충분히 나눈 뒤(1턴 이상) 결과 화면으로 넘어간다 — 서버가
    * 세션에 쌓인 대화 유무로 알아서 판단하므로 콜백은 하나면 충분하다. */
   onFinish?: () => void;
@@ -50,7 +50,7 @@ export default function M5Chat(props: Props) {
 
 // 백엔드 상한(base64 약 14MB ≈ 원본 10MB)보다 여유 있게 잡는다.
 const MAX_ATTACHMENT_BYTES = 7 * 1024 * 1024;
-// 백엔드 ChatTurnRequest.attachments_base64의 max_length와 맞춘다.
+// 백엔드 ChatTurnRequest.attachments의 max_length와 맞춘다.
 const MAX_ATTACHMENTS = 5;
 
 interface ChatMessage {
@@ -100,7 +100,7 @@ function DemoChat({ hint, chatTurns, onDemoSubmit, onHome }: Props) {
 
   return (
     <>
-      <AppBar title="AI 안전확인" onHome={onHome} />
+      <AppBar title="AI파수꾼 실시간 확인" onHome={onHome} />
       <AiTag />
 
       <div className="chat-thread">
@@ -247,7 +247,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
     setSendError(null);
 
     try {
-      const res = await onSendTurn({ text, attachmentsBase64: staged.map((a) => a.base64) });
+      const res = await onSendTurn({ text, attachments: staged });
       // 여기서 바로 messages에 넣지 않는다 — pendingReply로 넘겨 화면에서 흘려보낸 뒤,
       // 다 나오면(onDone) 그때 확정해 넣는다. turn/maxTurns도 같이 미뤄서, 스트리밍
       // 도중에 "결과 확인하기" 같은 버튼이 먼저 나타나는 걸 막는다.
@@ -269,7 +269,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onHome, error }: Props) 
 
   return (
     <>
-      <AppBar title="AI 안전확인" onHome={onHome} />
+      <AppBar title="AI파수꾼 실시간 확인" onHome={onHome} />
       <AiTag />
 
       <div className="chat-thread">

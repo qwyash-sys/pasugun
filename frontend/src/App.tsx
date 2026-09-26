@@ -3,8 +3,11 @@ import PhoneFrame from "./components/PhoneFrame";
 import LoadingOrError from "./components/LoadingOrError";
 import { RESPONSE_SOURCE } from "./config";
 import { createBackendClient, type BackendClient } from "./api/client";
+import { EMPTY_REPORT_QUERY, getReport } from "./api/reports";
 import { findDemoCase, type DemoCase } from "./demoData/cases";
 import CasePicker from "./screens/CasePicker";
+import RolePicker from "./screens/RolePicker";
+import type { Role } from "./roles";
 import M1Amount, { type M1Result } from "./screens/M1Amount";
 import type { TestScenario } from "./demoData/testScenarios";
 import M2Payee from "./screens/M2Payee";
@@ -14,14 +17,28 @@ import M5Chat from "./screens/M5Chat";
 import M6Result from "./screens/M6Result";
 import M7Complete from "./screens/M7Complete";
 import ReportView from "./screens/ReportView";
-import type { AnswerSubmission, FinalizeResponse, QuoteResponse } from "./types";
+import ReportList from "./screens/ReportList";
+import type { AnswerSubmission, FinalizeResponse, QuoteResponse, ReportPayload, ReportQuery } from "./types";
 
-type Screen = "case-picker" | "m1" | "m2" | "m3a" | "m4" | "m5" | "m6" | "m7" | "report";
+type Screen =
+  | "role-picker"
+  | "case-picker"
+  | "m1"
+  | "m2"
+  | "m3a"
+  | "m4"
+  | "m5"
+  | "m6"
+  | "m7"
+  | "report"
+  | "report-list";
 
 const isDemo = RESPONSE_SOURCE === "demo";
+const flowStart: Screen = isDemo ? "case-picker" : "m1";
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>(isDemo ? "case-picker" : "m1");
+  const [role, setRole] = useState<Role | null>(null);
+  const [screen, setScreen] = useState<Screen>("role-picker");
   const [demoCaseId, setDemoCaseId] = useState<string | null>(null);
   const [client, setClient] = useState<BackendClient | null>(isDemo ? null : createBackendClient());
   const [customerId, setCustomerId] = useState("");
@@ -33,12 +50,18 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState<(() => void) | null>(null);
+  // 관리자 리포트 화면: 지금 보고 있는 리포트와, 그 리포트를 어디서 열었는지(뒤로가기 목적지).
+  const [viewedReport, setViewedReport] = useState<ReportPayload | null>(null);
+  const [reportFrom, setReportFrom] = useState<"m6" | "list">("m6");
+  const [listQuery, setListQuery] = useState<ReportQuery>(EMPTY_REPORT_QUERY);
 
   const demoCase: DemoCase | undefined = useMemo(
     () => (demoCaseId ? findDemoCase(demoCaseId) : undefined),
     [demoCaseId],
   );
+  const isAdmin = role === "admin";
 
+  /** 이체 흐름만 처음으로 되돌린다 — 고른 역할은 그대로 유지. */
   function resetFlow() {
     setDemoCaseId(null);
     setClient(isDemo ? null : createBackendClient());
@@ -50,7 +73,20 @@ export default function App() {
     setResult(null);
     setError(null);
     setRetry(null);
-    setScreen(isDemo ? "case-picker" : "m1");
+    setViewedReport(null);
+    setListQuery(EMPTY_REPORT_QUERY);
+    setScreen(role ? flowStart : "role-picker");
+  }
+
+  function chooseRole(next: Role) {
+    setRole(next);
+    setScreen(flowStart);
+  }
+
+  function changeRole() {
+    resetFlow();
+    setRole(null);
+    setScreen("role-picker");
   }
 
   /** API 호출 1건을 감싸서 busy/error 상태를 일관되게 관리한다.
@@ -88,7 +124,7 @@ export default function App() {
     setScreen(q.intervention === "confirm_only" ? "m3a" : "m4");
   }
 
-  function handleConfirmOnly() {
+  function finalizeToResult() {
     if (!client || !sessionId) return;
     runGuarded(async () => {
       const res = await client.finalize(sessionId);
@@ -105,40 +141,54 @@ export default function App() {
     });
   }
 
-  /** demo 모드 전용: 대본대로 고정된 결과이므로 실제 입력 내용은 반영되지 않는다. */
-  function handleDemoChatSubmit() {
-    if (!client || !sessionId) return;
-    runGuarded(async () => {
-      const res = await client.finalize(sessionId);
-      setResult(res);
-      setScreen("m6");
-    });
-  }
-
   /** local/remote 모드 전용: 채팅 한 턴을 보내고 AI 응답을 받아온다(finalize와 무관 —
    * 화면 전환 없이 대화만 이어간다). */
-  async function handleChatTurn(payload: { text: string; attachmentsBase64: string[] }) {
+  async function handleChatTurn(payload: { text: string; attachments: { name: string; base64: string }[] }) {
     if (!client || !sessionId) throw new Error("세션이 없어요");
     const res = await client.chatTurn(sessionId, {
       text: payload.text,
-      attachments_base64: payload.attachmentsBase64,
+      attachments: payload.attachments,
     });
     return { reply: res.reply, turn: res.turn, maxTurns: res.max_turns };
   }
 
-  /** local/remote 모드 전용: 대화를 건너뛰었든(0턴) 몇 턴 나눴든, 세션에 쌓인 내용을
-   * 그대로 확정해 결과 화면으로 넘어간다. */
-  function handleChatFinish() {
-    if (!client || !sessionId) return;
+  function openCurrentReport() {
+    if (!result?.report) return;
+    setViewedReport(result.report);
+    setReportFrom("m6");
+    setScreen("report");
+  }
+
+  function openReportFromList(reportId: string) {
+    setViewedReport(null);
+    setReportFrom("list");
+    setScreen("report");
     runGuarded(async () => {
-      const res = await client.finalize(sessionId);
-      setResult(res);
-      setScreen("m6");
+      setViewedReport(await getReport(reportId));
     });
   }
 
+  function backFromReport() {
+    setError(null);
+    setRetry(null);
+    setScreen(reportFrom === "list" ? "report-list" : "m6");
+  }
+
+  // 목록은 리포트에서만 들어온다: 이번 이체의 리포트가 있으면 그리로, 없으면 결과 화면으로 돌아간다.
+  function backFromList() {
+    if (result?.report) openCurrentReport();
+    else setScreen("m6");
+  }
+
   return (
-    <PhoneFrame screenKey={screen}>
+    // 목록 페이지를 넘기면 새 화면처럼 맨 위로 스크롤돼야 해서 페이지 번호도 화면 키에 넣는다.
+    <PhoneFrame
+      screenKey={screen === "report-list" ? `${screen}-${listQuery.page}` : screen}
+      role={role}
+      onChangeRole={changeRole}
+    >
+      {screen === "role-picker" && <RolePicker onSelect={chooseRole} />}
+
       {screen === "case-picker" && <CasePicker onSelect={selectDemoCase} />}
 
       {screen === "m1" && (
@@ -163,7 +213,7 @@ export default function App() {
           payeeBank={quote.payee_bank}
           payeeName={quote.payee_name}
           amount={amount}
-          onConfirm={handleConfirmOnly}
+          onConfirm={finalizeToResult}
           onCancel={resetFlow}
           onHome={resetFlow}
         />
@@ -195,39 +245,55 @@ export default function App() {
           error={error}
           hint={demoCase?.chatHint ?? ""}
           chatTurns={demoCase?.chatTurns}
-          onDemoSubmit={handleDemoChatSubmit}
+          onDemoSubmit={finalizeToResult}
           onSendTurn={handleChatTurn}
-          onFinish={handleChatFinish}
+          onFinish={finalizeToResult}
           onHome={resetFlow}
         />
       )}
 
-      {screen === "m6" && result && quote && (
+      {screen === "m6" && result && quote && role && (
         <M6Result
+          role={role}
           final={result.final}
           account={result.account}
           context={result.context}
-          questions={quote.questions}
           agentReply={result.agent_reply}
           payeeName={quote.payee_name}
           amount={amount}
           onProceed={() => setScreen("m7")}
           onCancel={resetFlow}
-          onViewReport={() => setScreen("report")}
+          onViewReport={openCurrentReport}
           onHome={resetFlow}
         />
       )}
 
-      {screen === "m7" && result && quote && (
-        <M7Complete final={result.final} payeeName={quote.payee_name} amount={amount} onRestart={resetFlow} />
+      {screen === "m7" && result && quote && role && (
+        <M7Complete role={role} final={result.final} payeeName={quote.payee_name} amount={amount} onRestart={resetFlow} />
       )}
 
-      {screen === "report" && result?.report && quote && (
+      {/* 리포트·리포트 목록은 내부직원(관리자) 전용 화면이다. */}
+      {screen === "report" && isAdmin && viewedReport && !busy && !error && (
         <ReportView
-          report={result.report}
-          questions={quote.questions}
-          onBack={() => setScreen("m6")}
+          report={viewedReport}
+          backLabel={reportFrom === "list" ? "목록으로" : "결과로 돌아가기"}
+          onBack={backFromReport}
+          onOpenList={() => setScreen("report-list")}
           onRestart={resetFlow}
+        />
+      )}
+      {screen === "report" && isAdmin && (busy || error) && (
+        <LoadingOrError busy={busy} error={error} onRetry={retry} onCancel={backFromReport} />
+      )}
+
+      {screen === "report-list" && isAdmin && (
+        <ReportList
+          query={listQuery}
+          onQueryChange={setListQuery}
+          backLabel="리포트로 돌아가기"
+          onBack={backFromList}
+          onOpen={openReportFromList}
+          onHome={resetFlow}
         />
       )}
     </PhoneFrame>

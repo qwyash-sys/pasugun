@@ -1,7 +1,15 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { RESPONSE_SOURCE } from "../config";
+import { ROLE_LABEL, type Role } from "../roles";
 
-export default function PhoneFrame({ screenKey, children }: { screenKey: string; children: ReactNode }) {
+interface Props {
+  screenKey: string;
+  role: Role | null;
+  onChangeRole: () => void;
+  children: ReactNode;
+}
+
+export default function PhoneFrame({ screenKey, role, onChangeRole, children }: Props) {
   const screenRef = useRef<HTMLDivElement>(null);
 
   // 화면(스크린) 전환 시 스크롤 위치를 위로 되돌린다 — 안 그러면 이전 화면에서
@@ -10,9 +18,16 @@ export default function PhoneFrame({ screenKey, children }: { screenKey: string;
     screenRef.current?.scrollTo(0, 0);
   }, [screenKey]);
 
+  const mode = `${RESPONSE_SOURCE.toUpperCase()} 모드`;
   return (
     <>
-      <div className="mode-pill">{RESPONSE_SOURCE.toUpperCase()} 모드</div>
+      {role ? (
+        <button className="mode-pill" onClick={onChangeRole} title="역할 다시 선택">
+          {mode} · {ROLE_LABEL[role]} ⇄
+        </button>
+      ) : (
+        <div className="mode-pill">{mode}</div>
+      )}
       <div className="phone">
         <div className="phone-statusbar" />
         <div className="screen" ref={screenRef}>

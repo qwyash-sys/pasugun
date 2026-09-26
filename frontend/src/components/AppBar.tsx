@@ -43,5 +43,5 @@ export default function AppBar({ title, onBack, onHome }: Props) {
 }
 
 export function AiTag() {
-  return <div className="ai-tag">AI 안전 확인</div>;
+  return <div className="ai-tag">AI파수꾼 실시간 확인</div>;
 }

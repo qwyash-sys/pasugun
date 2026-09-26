@@ -8,12 +8,25 @@
     "baseline": {
       "avg_transfer_amount": 300000,
       "max_transfer_amount": 1000000,
-      "usual_hours": [9, 22],
+      "usual_hours": [
+        9,
+        22
+      ],
       "transfer_limit": 5000000
     },
     "recent_transactions": [
-      {"date": "2026-08-01", "amount": 250000, "time": "14:30", "payee": "P010"},
-      {"date": "2026-08-05", "amount": 300000, "time": "19:00", "payee": "P011"}
+      {
+        "date": "2026-08-01",
+        "amount": 250000,
+        "time": "14:30",
+        "payee": "P010"
+      },
+      {
+        "date": "2026-08-05",
+        "amount": 300000,
+        "time": "19:00",
+        "payee": "P011"
+      }
     ],
     "recent_events": {
       "limit_changed": false,
@@ -32,12 +45,25 @@
     "baseline": {
       "avg_transfer_amount": 200000,
       "max_transfer_amount": 500000,
-      "usual_hours": [8, 21],
+      "usual_hours": [
+        8,
+        21
+      ],
       "transfer_limit": 3000000
     },
     "recent_transactions": [
-      {"date": "2026-08-02", "amount": 150000, "time": "10:00", "payee": "P020"},
-      {"date": "2026-08-06", "amount": 200000, "time": "13:15", "payee": "P021"}
+      {
+        "date": "2026-08-02",
+        "amount": 150000,
+        "time": "10:00",
+        "payee": "P020"
+      },
+      {
+        "date": "2026-08-06",
+        "amount": 200000,
+        "time": "13:15",
+        "payee": "P021"
+      }
     ],
     "recent_events": {
       "limit_changed": false,
@@ -56,11 +82,19 @@
     "baseline": {
       "avg_transfer_amount": 150000,
       "max_transfer_amount": 400000,
-      "usual_hours": [9, 23],
+      "usual_hours": [
+        9,
+        23
+      ],
       "transfer_limit": 2000000
     },
     "recent_transactions": [
-      {"date": "2026-08-03", "amount": 100000, "time": "20:10", "payee": "P030"}
+      {
+        "date": "2026-08-03",
+        "amount": 100000,
+        "time": "20:10",
+        "payee": "P030"
+      }
     ],
     "recent_events": {
       "limit_changed": false,
@@ -79,12 +113,25 @@
     "baseline": {
       "avg_transfer_amount": 3000000,
       "max_transfer_amount": 10000000,
-      "usual_hours": [9, 20],
+      "usual_hours": [
+        9,
+        20
+      ],
       "transfer_limit": 100000000
     },
     "recent_transactions": [
-      {"date": "2026-07-20", "amount": 5000000, "time": "11:00", "payee": "P040"},
-      {"date": "2026-08-04", "amount": 3000000, "time": "15:40", "payee": "P041"}
+      {
+        "date": "2026-07-20",
+        "amount": 5000000,
+        "time": "11:00",
+        "payee": "P040"
+      },
+      {
+        "date": "2026-08-04",
+        "amount": 3000000,
+        "time": "15:40",
+        "payee": "P041"
+      }
     ],
     "recent_events": {
       "limit_changed": false,
@@ -93,5 +140,101 @@
       "device_new": false
     },
     "note": "평소에도 큰 거래를 하는 고객(부동산 잔금 정상 케이스5, 오탐 억제 데모). avg 대비로도 5천만원은 이상치로 잡히되(계좌 중), 맥락에서 정상 사유로 해소되어야 함."
+  },
+  {
+    "customer_id": "C005",
+    "name": "최민재",
+    "phone": "010-2095-0005",
+    "account": "351-0095-0005",
+    "balance": 10000000,
+    "baseline": {
+      "avg_transfer_amount": 400000,
+      "max_transfer_amount": 1600000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
+  },
+  {
+    "customer_id": "C006",
+    "name": "강서윤",
+    "phone": "010-2096-0006",
+    "account": "351-0096-0006",
+    "balance": 11000000,
+    "baseline": {
+      "avg_transfer_amount": 250000,
+      "max_transfer_amount": 1000000,
+      "usual_hours": [
+        8,
+        21
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
+  },
+  {
+    "customer_id": "C007",
+    "name": "윤지호",
+    "phone": "010-2097-0007",
+    "account": "351-0097-0007",
+    "balance": 12000000,
+    "baseline": {
+      "avg_transfer_amount": 180000,
+      "max_transfer_amount": 720000,
+      "usual_hours": [
+        10,
+        23
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
+  },
+  {
+    "customer_id": "C008",
+    "name": "임하은",
+    "phone": "010-2098-0008",
+    "account": "351-0098-0008",
+    "balance": 13000000,
+    "baseline": {
+      "avg_transfer_amount": 600000,
+      "max_transfer_amount": 2400000,
+      "usual_hours": [
+        9,
+        20
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
   }
 ]
