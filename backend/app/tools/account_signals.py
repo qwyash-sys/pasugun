@@ -1,4 +1,6 @@
-"""1단계 계좌 신호 툴 8종 (SPEC 3-1, 4-1). 항상 전량 호출하며, 결정론적 룰만 사용한다.
+"""1단계 계좌 신호 툴 (SPEC 3-1, 4-1의 8종 + 확장). 항상 전량 호출하며, 결정론적 룰만 사용한다.
+
+신호 추가 방법: 판정 함수를 만들고 AccountSignalSpec으로 ACCOUNT_SIGNALS에 등록(register_account_signal).
 
 SPEC은 fund_source/limit_change/device/velocity를 customer_id만으로 조회하는 툴로
 정의하지만, 이 4개 신호는 실제로는 "이번 이체 시도 시점"의 이벤트 스냅샷이다.
@@ -9,6 +11,8 @@ SPEC은 fund_source/limit_change/device/velocity를 customer_id만으로 조회�
 조회로 그대로 대체하면 된다.
 """
 
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
 
 from app.data_store import get_customer, get_payee
@@ -117,6 +121,57 @@ def check_time_pattern(current_time: str, customer_id: str) -> SignalResult:
     return SignalResult(signal="time_pattern", hit=hit, score=score, detail=detail)
 
 
+@dataclass(frozen=True)
+class SignalInput:
+    """1단계 신호가 볼 수 있는 이번 이체 시도의 입력 전부. 새 신호는 이것만 받으면 된다."""
+
+    customer_id: str
+    payee_account: str
+    amount: int
+    current_time: str
+    overrides: ContextOverrides
+
+
+@dataclass(frozen=True)
+class AccountSignalSpec:
+    """신호 하나 = 이름·표시명·만점·판정 함수. 레지스트리(ACCOUNT_SIGNALS)에 넣으면 스코어링·
+    API 응답·화면(막대/툴팁)·리포트까지 자동으로 따라온다 — 다른 파일을 고칠 필요가 없다."""
+
+    name: str
+    label: str
+    max_score: int
+    check: Callable[[SignalInput], SignalResult]
+
+    def evaluate(self, inp: SignalInput) -> SignalResult:
+        result = self.check(inp)
+        if result.signal != self.name:
+            raise ValueError(f"신호 이름 불일치: spec={self.name} result={result.signal}")
+        if not 0 <= result.score <= self.max_score:
+            raise ValueError(f"{self.name} 점수 {result.score}가 만점 {self.max_score} 범위를 벗어남")
+        return result.model_copy(update={"label": self.label, "max_score": self.max_score})
+
+
+# SPEC 4-1의 8개 신호. 순서 = 화면 표시 순서. 만점 합계가 곧 1단계 최대 점수(175).
+ACCOUNT_SIGNALS: list[AccountSignalSpec] = [
+    AccountSignalSpec("payee_fraud", "수취계좌 사기이력", 40, lambda i: check_payee_fraud(i.payee_account)),
+    AccountSignalSpec("amount_anomaly", "이체금액 이상치", 25, lambda i: check_amount_anomaly(i.customer_id, i.amount)),
+    AccountSignalSpec("fund_source", "최근 자금이동(해지 등)", 25, lambda i: check_fund_source(i.customer_id, i.overrides)),
+    AccountSignalSpec("payee_freshness", "수취계좌 개설 기간", 20, lambda i: check_payee_freshness(i.payee_account)),
+    AccountSignalSpec("limit_change", "이체한도 변경 이력", 20, lambda i: check_limit_change(i.customer_id, i.overrides)),
+    AccountSignalSpec("velocity", "단기간 반복 이체", 20, lambda i: check_velocity(i.customer_id, i.overrides)),
+    AccountSignalSpec("device", "신규 기기·환경", 15, lambda i: check_device(i.customer_id, i.overrides)),
+    AccountSignalSpec("time_pattern", "이용 시간대", 10, lambda i: check_time_pattern(i.current_time, i.customer_id)),
+]
+
+
+def register_account_signal(spec: AccountSignalSpec) -> None:
+    """신호 추가(확장 지점). 같은 이름을 두 번 넣으면 점수가 이중으로 잡히므로 막는다."""
+
+    if any(s.name == spec.name for s in ACCOUNT_SIGNALS):
+        raise ValueError(f"이미 등록된 신호: {spec.name}")
+    ACCOUNT_SIGNALS.append(spec)
+
+
 def run_all_account_signals(
     customer_id: str,
     payee_account: str,
@@ -124,15 +179,7 @@ def run_all_account_signals(
     current_time: str,
     overrides: ContextOverrides,
 ) -> list[SignalResult]:
-    """1단계 8개 툴을 항상 전량 호출한다 (SPEC 1장)."""
+    """1단계 등록된 신호를 항상 전량 호출한다 (SPEC 1장)."""
 
-    return [
-        check_payee_fraud(payee_account),
-        check_amount_anomaly(customer_id, amount),
-        check_fund_source(customer_id, overrides),
-        check_payee_freshness(payee_account),
-        check_limit_change(customer_id, overrides),
-        check_velocity(customer_id, overrides),
-        check_device(customer_id, overrides),
-        check_time_pattern(current_time, customer_id),
-    ]
+    inp = SignalInput(customer_id, payee_account, amount, current_time, overrides)
+    return [spec.evaluate(inp) for spec in ACCOUNT_SIGNALS]

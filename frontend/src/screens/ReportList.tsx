@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AppBar from "../components/AppBar";
+import { EMPTY_REPORT_QUERY, REPORT_PAGE_SIZE as PAGE_SIZE, listRagTypes, listReports } from "../api/reports";
 import { RAG_TYPES } from "../components/signalMeta";
-import { EMPTY_REPORT_QUERY, REPORT_PAGE_SIZE as PAGE_SIZE, listReports } from "../api/reports";
 import type { ReportListResponse, ReportQuery, RiskLevel } from "../types";
 
 const LEVELS: RiskLevel[] = ["고", "중", "저"];
@@ -25,6 +25,11 @@ function pageWindow(page: number, totalPages: number): number[] {
 
 export default function ReportList({ query, onQueryChange: setQuery, backLabel, onBack, onOpen, onHome }: Props) {
   const [keyword, setKeyword] = useState(query.q);
+  // 실패하면 기본 목록으로 둔다(필터 선택지가 없어서 목록 자체를 못 쓰는 일은 없게).
+  const [ragTypes, setRagTypes] = useState<readonly string[]>(RAG_TYPES);
+  useEffect(() => {
+    listRagTypes().then(setRagTypes, () => {});
+  }, []);
   // 마지막으로 받은 응답이 어떤 query에 대한 것인지 같이 기억해서, 로딩 여부는 따로 상태를 두지 않고 계산한다.
   const [loaded, setLoaded] = useState<{ query: ReportQuery; data: ReportListResponse | null; error: boolean } | null>(
     null,
@@ -104,7 +109,7 @@ export default function ReportList({ query, onQueryChange: setQuery, backLabel, 
             <select value={query.rag_type} onChange={(e) => update({ rag_type: e.target.value })}>
               <option value="">전체</option>
               <option value="none">매칭 없음</option>
-              {RAG_TYPES.map((t) => (
+              {ragTypes.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>

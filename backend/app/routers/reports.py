@@ -3,6 +3,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import Response
 
+from app.data_store import scenarios
 from app.models import ReportListResponse, ReportPayload, RiskLevel
 from app.report_store import get_report_store, to_summary
 
@@ -41,6 +42,12 @@ def list_reports(
         page=page,
         page_size=page_size,
     )
+
+
+@router.get("/rag-types", response_model=list[str])
+def rag_types():
+    """목록 RAG 필터 선택지 — 사례집(scenarios.json)에 있는 유형 그대로라, 사례를 추가하면 필터도 따라온다."""
+    return list(dict.fromkeys(s["유형"] for s in scenarios()))
 
 
 @router.get("/{report_id}", response_model=ReportPayload)

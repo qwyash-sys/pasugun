@@ -239,7 +239,25 @@ function VerdictBasis({ account, context }: Props) {
   );
 }
 
+/** 1단계 신호를 화면 순서대로: 아는 신호는 SIGNAL_ORDER 순, 백엔드에 새로 추가된 신호는 그 뒤에
+ * 백엔드가 준 순서대로 붙인다. 표시명·만점도 백엔드 값을 우선한다(프론트 수정 없이 확장 가능). */
+function stage1Rows(signals: AccountAssessment["signals"]) {
+  const rank = (name: string) => {
+    const i = SIGNAL_ORDER.indexOf(name);
+    return i === -1 ? SIGNAL_ORDER.length : i;
+  };
+  return [...signals]
+    .sort((a, b) => rank(a.signal) - rank(b.signal))
+    .map((s) => ({
+      ...s,
+      label: s.label || SIGNAL_META[s.signal]?.label || s.signal,
+      max: s.max_score || SIGNAL_META[s.signal]?.max || s.score,
+    }));
+}
+
 export default function RiskBreakdown({ account, context }: Props) {
+  const rows = stage1Rows(account.signals);
+  const stage1Scale = Math.max(STAGE1_SCALE, ...rows.map((r) => r.max));
   return (
     <div className="risk-breakdown">
       <div className="risk-stage">
@@ -249,23 +267,18 @@ export default function RiskBreakdown({ account, context }: Props) {
             {account.total_score}점 · {account.level}
           </span>
         </div>
-        <p className="risk-stage-legend">막대 축 공통 {STAGE1_SCALE}점 · 옅은 구간 = 항목 최대점</p>
-        {SIGNAL_ORDER.map((key) => {
-          const s = account.signals.find((x) => x.signal === key);
-          if (!s) return null;
-          const meta = SIGNAL_META[key];
-          return (
-            <BarRow
-              key={key}
-              label={meta.label}
-              score={s.score}
-              max={meta.max}
-              scale={STAGE1_SCALE}
-              hit={s.hit}
-              tooltip={s.detail}
-            />
-          );
-        })}
+        <p className="risk-stage-legend">막대 축 공통 {stage1Scale}점 · 옅은 구간 = 항목 최대점</p>
+        {rows.map((s) => (
+          <BarRow
+            key={s.signal}
+            label={s.label}
+            score={s.score}
+            max={s.max}
+            scale={stage1Scale}
+            hit={s.hit}
+            tooltip={s.detail}
+          />
+        ))}
       </div>
 
       <div className="risk-stage">

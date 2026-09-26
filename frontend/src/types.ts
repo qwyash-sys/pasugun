@@ -9,6 +9,9 @@ export interface SignalResult {
   hit: boolean;
   score: number;
   detail: string;
+  /** 백엔드 신호 레지스트리가 채우는 표시명·만점 — 프론트가 모르는 신규 신호도 이걸로 그린다. */
+  label?: string;
+  max_score?: number;
 }
 
 export interface AccountAssessment {

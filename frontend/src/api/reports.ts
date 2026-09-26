@@ -6,6 +6,7 @@ import { DEMO_CASES } from "../demoData/cases";
 import history from "../demoData/reportHistory.json";
 import type { ReportListResponse, ReportPayload, ReportQuery, ReportSummary } from "../types";
 import { captureDataUrl } from "../utils/capturePreview";
+import { RAG_TYPES } from "../components/signalMeta";
 
 interface HistoryEntry {
   report: Omit<ReportPayload, "attachments">;
@@ -101,6 +102,14 @@ export async function listReports(q: ReportQuery): Promise<ReportListResponse> {
   }
   const res = await fetch(`${API_BASE_URL}/api/reports?${params}`);
   if (!res.ok) throw new Error(`리포트 목록 조회 실패: ${res.status}`);
+  return res.json();
+}
+
+/** RAG 필터 선택지. 실제 모드는 백엔드 사례집 기준(사례 추가 시 자동 반영), 데모는 고정 목록. */
+export async function listRagTypes(): Promise<string[]> {
+  if (RESPONSE_SOURCE === "demo") return [...RAG_TYPES];
+  const res = await fetch(`${API_BASE_URL}/api/reports/rag-types`);
+  if (!res.ok) throw new Error(`RAG 유형 조회 실패: ${res.status}`);
   return res.json();
 }
 

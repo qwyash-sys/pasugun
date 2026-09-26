@@ -16,6 +16,9 @@ class SignalResult(BaseModel):
     hit: bool
     score: int
     detail: str
+    # 화면 표시용 메타(신호 레지스트리가 채운다). 프론트가 모르는 신규 신호도 이 값으로 그릴 수 있다.
+    label: str = ""
+    max_score: int = 0
 
 
 class ContextOverrides(BaseModel):
