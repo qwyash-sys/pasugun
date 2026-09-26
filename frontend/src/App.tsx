@@ -162,7 +162,7 @@ export default function App() {
       text: payload.text,
       attachments: payload.attachments,
     });
-    return { reply: res.reply, turn: res.turn, maxTurns: res.max_turns };
+    return { reply: res.reply, turn: res.turn, maxTurns: res.max_turns, fallback: !!res.fallback };
   }
 
   function openCurrentReport() {

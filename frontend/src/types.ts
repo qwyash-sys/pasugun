@@ -187,4 +187,6 @@ export interface ChatTurnResponse {
   reply: string;
   turn: number;
   max_turns: number;
+  /** AI(LLM) 장애로 규칙 기반 답장으로 대체됐는지. */
+  fallback?: boolean;
 }

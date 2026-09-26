@@ -1977,3 +1977,10 @@ button.mode-pill:hover {
   font-weight: 600;
   line-height: 1.5;
 }
+
+/* AI(LLM) 장애로 규칙 기반 안내가 대신 나간 답장 — 말풍선 아래 작게 */
+.chat-fallback-note {
+  margin: 4px 0 0 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}

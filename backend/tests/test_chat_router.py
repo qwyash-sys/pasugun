@@ -72,6 +72,16 @@ def patch_providers(monkeypatch, fake_llm):
     monkeypatch.setattr(chat_router, "get_rag", lambda: FakeRag())
 
 
+def _png_b64(color: str = "white") -> str:
+    import io
+
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new("RGB", (8, 8), color).save(buf, format="PNG")
+    return base64.b64encode(buf.getvalue()).decode()
+
+
 def _quote(**overrides) -> dict:
     payload = {
         "customer_id": "C001",
@@ -91,11 +101,11 @@ def test_chat_turns_accumulate_and_finalize_uses_session_state():
     res1 = client.post(f"/api/transfer/{session_id}/chat", json={"text": "검찰이 안전계좌로 옮기라고 했어요"})
     assert res1.status_code == 200, res1.text
     body1 = res1.json()
-    assert body1 == {"reply": "AI 응답 2", "turn": 1, "max_turns": 3}
+    assert body1 == {"reply": "AI 응답 2", "turn": 1, "max_turns": 3, "fallback": False}
 
     res2 = client.post(f"/api/transfer/{session_id}/chat", json={"text": "공문도 보여줬어요"})
     assert res2.status_code == 200, res2.text
-    assert res2.json() == {"reply": "AI 응답 3", "turn": 2, "max_turns": 3}
+    assert res2.json() == {"reply": "AI 응답 3", "turn": 2, "max_turns": 3, "fallback": False}
 
     final = client.post(f"/api/transfer/{session_id}/finalize")
     assert final.status_code == 200, final.text
@@ -142,16 +152,17 @@ def test_chat_requires_nonempty_text_or_attachment():
     assert res.status_code == 400
 
 
-def test_chat_bad_attachment_base64_returns_502_not_500():
+def test_chat_bad_attachment_is_a_client_error_not_a_server_error():
+    """깨진 base64·이미지가 아닌 파일은 사용자 쪽 문제 — 400 + 파일명을 담은 안내(서버 장애 502와 구분).
+    chat.py가 직접 HTTPException으로 잡아야 CORS 헤더가 붙는다(전역 핸들러로 새면 안 됨)."""
     session_id = _quote()["session_id"]
-    res = client.post(
-        f"/api/transfer/{session_id}/chat",
-        json={"text": "", "attachments": [{"name": "x.png", "base64": "%%%not-valid-base64%%%"}]},
-    )
-    assert res.status_code == 502
-    # main.py의 전역 예외 핸들러(ServerErrorMiddleware 경유, CORS 헤더 누락)로 새지
-    # 않고 chat.py가 직접 HTTPException(502)로 잡아야 CORS 헤더가 정상적으로 붙는다.
-    assert res.status_code != 500
+    for bad in ("%%%not-valid-base64%%%", base64.b64encode(b"this is not an image").decode()):
+        res = client.post(
+            f"/api/transfer/{session_id}/chat",
+            json={"text": "", "attachments": [{"name": "x.png", "base64": bad}]},
+        )
+        assert res.status_code == 400, res.text
+        assert "x.png" in res.json()["detail"]
 
 
 def test_chat_rejects_more_than_5_attachments():
@@ -181,13 +192,13 @@ def test_chat_accepts_multiple_attachments_and_ocrs_each(monkeypatch):
         json={
             "text": "이 문자들 확인해주세요",
             "attachments": [
-                {"name": "1.png", "base64": base64.b64encode(b"img1").decode()},
-                {"name": "2.png", "base64": base64.b64encode(b"img2").decode()},
+                {"name": "1.png", "base64": _png_b64("white")},
+                {"name": "2.png", "base64": _png_b64("black")},
             ],
         },
     )
     assert res.status_code == 200, res.text
-    assert seen_images == [b"img1", b"img2"]
+    assert [base64.b64encode(b).decode() for b in seen_images] == [_png_b64("white"), _png_b64("black")]
 
 
 def test_chat_unknown_session_returns_404():
@@ -201,7 +212,8 @@ def test_finalize_unknown_session_returns_404():
 
 
 def test_finalize_survives_conclusion_llm_failure(monkeypatch):
-    """결론 문구 생성이 실패해도 판정 자체는 결정론적이므로 finalize는 성공하고 agent_reply만 비어야 한다."""
+    """결론 문구 생성이 실패해도 판정 자체는 결정론적이므로 finalize는 성공하고, 결론 자리는
+    판정별 고정 문구로 채워진다(비어 있으면 결과 화면 안내가 사라진다)."""
 
     class ConclusionFailsLlm(FakeLlm):
         def chat(self, system, messages, tools=None):
@@ -215,8 +227,9 @@ def test_finalize_survives_conclusion_llm_failure(monkeypatch):
 
     res = client.post(f"/api/transfer/{session_id}/finalize")
     assert res.status_code == 200, res.text
-    assert res.json()["agent_reply"] is None
-    assert res.json()["final"]["final"] in ("안전", "주의", "위험")
+    body = res.json()
+    assert body["final"]["final"] in ("안전", "주의", "위험")
+    assert body["agent_reply"] and "보이스피싱" not in body["agent_reply"]
 
 
 def test_finalize_with_no_chat_and_no_answers_skips_context():

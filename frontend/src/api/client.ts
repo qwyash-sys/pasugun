@@ -42,7 +42,13 @@ class HttpBackendClient implements BackendClient {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req),
     });
-    if (!res.ok) throw new Error(`chat 실패: ${res.status}`);
+    if (!res.ok) {
+      // 4xx(깨진 이미지·빈 메시지·턴 초과 등)는 서버가 사용자에게 보여줄 안내를 준다 — 그대로 전달한다.
+      const detail = res.status < 500 ? await res.json().then((b) => b?.detail, () => null) : null;
+      throw Object.assign(new Error(`chat 실패: ${res.status}`), {
+        userMessage: typeof detail === "string" ? detail : undefined,
+      });
+    }
     return res.json();
   }
 

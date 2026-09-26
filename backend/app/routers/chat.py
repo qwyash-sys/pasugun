@@ -1,9 +1,12 @@
 """M4(질문 카드)~M6(최종 판정) 대응."""
 
 import base64
+import binascii
+import io
 import logging
 
 from fastapi import APIRouter, HTTPException
+from PIL import Image
 from pydantic import BaseModel, Field
 
 from app.aggregator import calculate_final_risk
@@ -55,6 +58,21 @@ class ChatTurnResponse(BaseModel):
     reply: str
     turn: int
     max_turns: int
+    # AI(LLM) 장애로 규칙 기반 답장으로 대체됐는지 — 화면에 작게 안내한다.
+    fallback: bool = False
+
+
+def _decode_image(attachment: "AttachmentIn") -> bytes:
+    """깨진 base64·이미지가 아닌 파일은 사용자 쪽 문제라 400으로 돌려준다(서버 장애 502와 구분)."""
+    try:
+        data = base64.b64decode(attachment.base64, validate=True)
+        with Image.open(io.BytesIO(data)) as img:
+            img.verify()
+    except (binascii.Error, ValueError, OSError) as e:
+        raise HTTPException(
+            status_code=400, detail=f"'{attachment.name}'은(는) 읽을 수 있는 이미지가 아니에요. 다른 이미지로 다시 시도해주세요."
+        ) from e
+    return data
 
 
 def _choice_lookup(question_id: str, choice_id: str, customer_name: str) -> dict:
@@ -119,18 +137,24 @@ def _chat_turn_locked(session: TransferSession, payload: ChatTurnRequest) -> Cha
     text = payload.text.strip()
     uploads: list[UploadedImage] = []
     ocr_texts = []
+    ocr_failed = False
     for attachment in payload.attachments:
-        try:
-            image_bytes = base64.b64decode(attachment.base64)
-            ocr_result = get_ocr().ocr_extract(image_bytes)
-        except Exception as e:
-            logger.exception("OCR failed")
-            raise HTTPException(status_code=502, detail="첨부 이미지 처리 중 문제가 발생했어요.") from e
+        image_bytes = _decode_image(attachment)
         uploads.append(UploadedImage(name=attachment.name, data=image_bytes))
-        if ocr_result["text"]:
-            ocr_texts.append(ocr_result["text"])
+        try:
+            ocr_text = get_ocr().ocr_extract(image_bytes)["text"]
+        except Exception:
+            # OCR 엔진 장애(미설치·언어팩 누락 등)로 대화 전체를 막지 않는다 — 이미지는 리포트
+            # 첨부로 그대로 남고, 영업점 직원이 원본을 직접 볼 수 있다.
+            logger.exception("OCR failed — keeping the image without extracted text")
+            ocr_failed = True
+            continue
+        if ocr_text:
+            ocr_texts.append(ocr_text)
     if ocr_texts:
         text = (text + "\n" + "\n".join(ocr_texts)).strip()
+    if not text and ocr_failed:
+        text = f"(이미지 {len(uploads)}장 첨부 — 글자 인식 불가)"
 
     if not text:
         raise HTTPException(status_code=400, detail="메시지를 입력해주세요.")
@@ -153,7 +177,9 @@ def _chat_turn_locked(session: TransferSession, payload: ChatTurnRequest) -> Cha
     if rag_match is not None:
         session.rag_match = rag_match
 
-    return ChatTurnResponse(reply=reply, turn=session.chat_turns, max_turns=MAX_CHAT_TURNS)
+    return ChatTurnResponse(
+        reply=reply, turn=session.chat_turns, max_turns=MAX_CHAT_TURNS, fallback=agent.last_turn_fallback
+    )
 
 
 @router.post("/{session_id}/finalize")

@@ -8,6 +8,7 @@ interface ChatTurnResult {
   reply: string;
   turn: number;
   maxTurns: number;
+  fallback?: boolean;
 }
 
 interface DemoTurn {
@@ -63,6 +64,8 @@ interface ChatMessage {
   role: "user" | "ai";
   text: string;
   attachments?: string[];
+  /** AI 연결 장애로 규칙 기반 안내가 대신 나갔을 때 말풍선 아래 작게 알린다. */
+  fallback?: boolean;
 }
 
 /** demo 모드: 결과는 대본대로 고정돼있지만, 화면은 실제 채팅처럼 보이게 재생한다. 대사를
@@ -241,7 +244,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onSkipAnalysis, onHome, 
   const [sending, setSending] = useState(false);
   // 백엔드가 완성된 답을 한 번에 돌려주지만(멀티턴 tool-use 루프라 진짜 토큰 스트리밍은
   // 배보다 배꼽), 도착 즉시 통째로 박아넣지 않고 여기 잠깐 담아뒀다가 화면에서 흘려보낸다.
-  const [pendingReply, setPendingReply] = useState<{ text: string; turn: number; maxTurns: number } | null>(null);
+  const [pendingReply, setPendingReply] = useState<{ text: string; turn: number; maxTurns: number; fallback?: boolean } | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
   const [turn, setTurn] = useState(0);
   const [maxTurns, setMaxTurns] = useState(3);
@@ -304,13 +307,15 @@ function LiveChat({ customerName, onSendTurn, onFinish, onSkipAnalysis, onHome, 
       // 여기서 바로 messages에 넣지 않는다 — pendingReply로 넘겨 화면에서 흘려보낸 뒤,
       // 다 나오면(onDone) 그때 확정해 넣는다. turn/maxTurns도 같이 미뤄서, 스트리밍
       // 도중에 "결과 확인하기" 같은 버튼이 먼저 나타나는 걸 막는다.
-      setPendingReply({ text: res.reply, turn: res.turn, maxTurns: res.maxTurns });
-    } catch {
+      setPendingReply({ text: res.reply, turn: res.turn, maxTurns: res.maxTurns, fallback: res.fallback });
+    } catch (e) {
       // 실패해도 방금 쓴 말이 사라지면 안 되니 입력창에 되돌려 바로 재전송할 수 있게 한다.
       setMessages((prev) => prev.slice(0, -1));
       setInput(text);
       setAttachments(staged);
-      setSendError("메시지 전송에 실패했어요. 다시 시도해주세요.");
+      // 서버가 이유를 알려준 경우(깨진 이미지 등)는 그 안내를, 아니면 일반 안내를 보여준다.
+      const userMessage = (e as { userMessage?: string }).userMessage;
+      setSendError(userMessage ?? "메시지 전송에 실패했어요. 다시 시도해주세요.");
     } finally {
       setSending(false);
     }
@@ -334,6 +339,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onSkipAnalysis, onHome, 
               </div>
             ))}
             {m.text && <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>}
+            {m.fallback && <p className="chat-fallback-note">AI 연결이 원활하지 않아 기본 안내로 답했어요</p>}
           </div>
         ))}
         {sending && (
@@ -349,7 +355,7 @@ function LiveChat({ customerName, onSendTurn, onFinish, onSkipAnalysis, onHome, 
               <StreamingText
                 text={pendingReply.text}
                 onDone={() => {
-                  setMessages((prev) => [...prev, { role: "ai", text: pendingReply.text }]);
+                  setMessages((prev) => [...prev, { role: "ai", text: pendingReply.text, fallback: pendingReply.fallback }]);
                   setTurn(pendingReply.turn);
                   setMaxTurns(pendingReply.maxTurns);
                   setPendingReply(null);
