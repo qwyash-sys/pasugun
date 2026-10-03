@@ -310,3 +310,14 @@ def test_utc_time_is_scored_in_korean_local_time():
     assert time_signal("2026-08-12T02:00:00Z")["hit"] is False  # 11:00 KST
     assert time_signal("2026-08-11T17:30:00Z")["hit"] is True  # 02:30 KST 새벽
     assert time_signal("2026-08-12T02:00:00Z") == time_signal("2026-08-12T11:00:00+09:00")
+
+
+def test_payee_lookup_ignores_hyphens_and_flags_unknown_accounts():
+    known = _quote(payee_account="552102993917")  # 등록된 552-102-993917을 하이픈 없이
+    assert known["payee_verified"] is True and known["payee_name"] != "미상"
+
+    unknown = _quote(payee_account="999-999-999999")
+    assert unknown["payee_verified"] is False and unknown["payee_name"] == "미상"
+    # 개설일을 확인할 수 없는 계좌는 신규 계좌로 취급한다(오래된 안전 계좌로 보면 안 됨).
+    fresh = next(s for s in unknown["account"]["signals"] if s["signal"] == "payee_freshness")
+    assert fresh["hit"] is True and fresh["score"] == 20

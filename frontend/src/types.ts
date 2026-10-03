@@ -38,6 +38,8 @@ export interface QuoteResponse {
   customer_name: string;
   payee_name: string;
   payee_bank: string;
+  /** 모의 데이터에 있는(예금주를 확인할 수 있는) 계좌인지. 없으면 송금을 진행하지 않는다. */
+  payee_verified?: boolean;
   account: AccountAssessment;
   intervention: Intervention;
   questions: Question[];

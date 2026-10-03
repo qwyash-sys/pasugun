@@ -62,6 +62,8 @@ const MAX_ATTACHMENTS = 5;
 // 입력창은 글이 길어지면 최대 6줄까지 늘어나고, 그 이상은 입력창 안에서 스크롤한다.
 const MAX_INPUT_LINES = 6;
 const DEMO_REPLY_DELAY_MS = 900;
+// 백엔드 ChatTurnRequest.text의 max_length와 같다. 넘기면 서버가 거절하므로 입력 단계에서 자른다.
+const MAX_INPUT_CHARS = 2000;
 
 /** M5 대화 화면. 데모와 실제 모드가 같은 채팅 화면(입력창·사진 첨부·전송)을 쓰고, 답장을
  * 만드는 방식만 다르다 — 데모는 대본, 실제 모드는 백엔드 AI. 데모에서는 대본의 다음 문장을
@@ -291,6 +293,11 @@ function ChatView({
         )}
 
         {(sendError || error) && <p className="chat-error">{sendError || error}</p>}
+        {input.length > MAX_INPUT_CHARS * 0.9 && (
+          <p className="chat-char-count">
+            {input.length.toLocaleString()}/{MAX_INPUT_CHARS.toLocaleString()}자
+          </p>
+        )}
 
         {!reachedCap && !noChat && (
           <>
@@ -306,7 +313,7 @@ function ChatView({
                 ref={textareaRef}
                 placeholder="상황을 편하게 말씀해주세요"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => setInput(e.target.value.slice(0, MAX_INPUT_CHARS))}
                 onKeyDown={(e) => {
                   // 한글 등 조합형 입력 중 조합을 확정하는 Enter까지 전송으로 처리하면
                   // 마지막 글자가 끊긴 채로 보내진다 — 조합 중(isComposing)에는 무시한다.
@@ -316,7 +323,7 @@ function ChatView({
                   }
                 }}
                 rows={1}
-                maxLength={2000}
+                maxLength={MAX_INPUT_CHARS}
               />
               <button
                 className="chat-send-btn chat-attach-btn"

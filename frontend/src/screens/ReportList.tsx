@@ -142,6 +142,11 @@ export default function ReportList({ query, onQueryChange: setQuery, backLabel, 
         {loading ? "불러오는 중…" : data ? `총 ${data.total.toLocaleString()}건 · 최신 리포트순 · ${query.page}/${totalPages} 페이지` : ""}
       </p>
       {error && <p style={{ color: "var(--danger)", fontSize: 13 }}>{error}</p>}
+      {query.date_from && query.date_to && query.date_from > query.date_to && (
+        <p className="field-error" style={{ margin: "0 0 8px" }}>
+          거래일자 시작이 끝보다 늦어요. 날짜를 다시 골라주세요.
+        </p>
+      )}
 
       <div className="report-list">
         {data?.items.map((r) => (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AppBar, { AiTag } from "../components/AppBar";
 import RiskBreakdown from "../components/RiskBreakdown";
+import BottomSheet from "../components/BottomSheet";
 import type { Role } from "../roles";
 import type { AccountAssessment, ContextAssessment, FinalRisk } from "../types";
 
@@ -28,6 +29,13 @@ const VARIANT = {
 
 // 고객에게는 점수·단계·탐지 근거를 보여주지 않는다(탐지 로직이 노출되면 악용 소지).
 // 대신 판정에 맞는 다음 행동만 쉬운 말로 안내한다.
+// 112·1332 버튼: 눌러도 아무 반응이 없으면 고장난 것처럼 보인다. 시연 중 실수로 실제 신고 전화가
+// 걸리면 곤란하므로 전화 연결 대신 어떤 번호이고 언제 거는지를 안내한다.
+const HOTLINES = {
+  "112": { title: "112 경찰 신고", body: "돈을 이미 보냈거나 보내라는 압박을 받고 있다면 112에 바로 신고하세요. 신고와 함께 지급정지를 요청할 수 있어요." },
+  "1332": { title: "1332 금융감독원 상담", body: "보이스피싱인지 확신이 서지 않을 때 금융감독원 1332에서 상담받을 수 있어요. 피해 구제 절차도 안내받을 수 있어요." },
+} as const;
+
 const CUSTOMER_GUIDE = {
   안전: "확인된 위험 신호가 없어요. 평소처럼 송금하셔도 괜찮아요.",
   주의: "몇 가지 확인이 필요한 부분이 있어요. 받는 분의 신원을 공식 대표번호로 한 번 더 확인한 뒤 송금해주세요.",
@@ -50,6 +58,7 @@ export default function M6Result({
 }: Props) {
   const v = VARIANT[final.final];
   const [confirmingProceed, setConfirmingProceed] = useState(false);
+  const [hotline, setHotline] = useState<keyof typeof HOTLINES | null>(null);
   const isAdmin = role === "admin";
 
   return (
@@ -115,8 +124,12 @@ export default function M6Result({
             그래도 송금할게요
           </button>
           <div className="btn-row">
-            <button className="btn btn-secondary">112 신고</button>
-            <button className="btn btn-secondary">1332 상담</button>
+            <button className="btn btn-secondary" onClick={() => setHotline("112")}>
+              112 신고
+            </button>
+            <button className="btn btn-secondary" onClick={() => setHotline("1332")}>
+              1332 상담
+            </button>
           </div>
         </div>
       )}
@@ -141,6 +154,19 @@ export default function M6Result({
             </button>
           </div>
         </div>
+      )}
+      {hotline && (
+        <BottomSheet>
+          <h2 className="sheet-title">{HOTLINES[hotline].title}</h2>
+          <p className="sheet-body">
+            {HOTLINES[hotline].body}
+            <br />
+            <span className="sheet-demo-note">시연용 화면이라 실제 전화는 연결하지 않아요.</span>
+          </p>
+          <button className="btn btn-primary" onClick={() => setHotline(null)}>
+            확인
+          </button>
+        </BottomSheet>
       )}
     </>
   );

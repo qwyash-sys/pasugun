@@ -7,6 +7,7 @@
 
 import io
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
@@ -148,7 +149,7 @@ class ReportStore:
                 continue
             if date_to and day > date_to:
                 continue
-            if q and not any(q in s for s in (r.report_id, r.customer_name, r.payee_name, r.payee_account)):
+            if q and not _matches_keyword(q, r):
                 continue
             result.append(r)
         # 최신 리포트가 맨 위. 거래 시각(attempted_at)이 아니라 생성 시각 기준인 이유: 개발용
@@ -157,6 +158,14 @@ class ReportStore:
         # 같은 초에 생긴 리포트는 나중에 저장된 쪽이 위(저장 순번으로 동점 처리).
         order = {id(r): i for i, r in enumerate(self._reports)}
         return sorted(result, key=lambda r: (datetime.fromisoformat(r.generated_at), order[id(r)]), reverse=True)
+
+
+def _matches_keyword(q: str, r: ReportPayload) -> bool:
+    if any(q in s for s in (r.report_id, r.customer_name, r.payee_name, r.payee_account)):
+        return True
+    # 계좌번호는 하이픈 위치와 상관없이 숫자만으로도 찾는다("333312" → "3333-12-…").
+    digits = re.sub(r"[\s-]", "", q)
+    return digits.isdigit() and len(digits) >= 3 and digits in re.sub(r"\D", "", r.payee_account)
 
 
 def to_summary(r: ReportPayload) -> ReportSummary:

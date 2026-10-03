@@ -49,6 +49,8 @@ def create_quote(payload: TransferRequest):
         "customer_name": customer["name"],
         "payee_name": payee.get("payee_name", "미상"),
         "payee_bank": payee.get("payee_bank", "미상"),
+        # 모의 데이터에 있는 계좌인지 — 아니면 화면에서 "예금주 확인됨" 대신 확인 불가로 안내한다.
+        "payee_verified": payee.get("verified", True),
         "account": {"signals": signals, "total_score": total, "level": level},
         "intervention": intervention,
         "questions": questions_for(intervention, customer["name"]),

@@ -15,11 +15,15 @@ export interface M1Result {
 interface Props {
   isDemo: boolean;
   demoCase?: DemoCase;
+  /** 수취계좌 화면에서 뒤로 돌아왔을 때 앞서 입력한 값을 그대로 보여준다. */
+  initial?: M1Result;
   onNext: (data: M1Result) => void;
   onHome: () => void;
 }
 
 const QUICK_ADDS = [10_000, 50_000, 100_000, 1_000_000];
+// 백엔드 TransferRequest.amount 상한과 같다(1회 최대 1,000억원).
+const MAX_AMOUNT = 100_000_000_000;
 
 function maskAccount(account: string): string {
   const parts = account.split("-");
@@ -27,10 +31,11 @@ function maskAccount(account: string): string {
   return [parts[0], ...parts.slice(1, -1).map((p) => "*".repeat(p.length)), parts.at(-1)].join("-");
 }
 
-export default function M1Amount({ isDemo, demoCase, onNext, onHome }: Props) {
-  const [customerId, setCustomerId] = useState(CUSTOMER_OPTIONS[0].customer_id);
-  const [amount, setAmount] = useState(0);
-  const [scenario, setScenario] = useState<TestScenario | undefined>();
+export default function M1Amount({ isDemo, demoCase, initial, onNext, onHome }: Props) {
+  const [customerId, setCustomerId] = useState(initial?.customerId || CUSTOMER_OPTIONS[0].customer_id);
+  const [amount, setAmount] = useState(initial?.amount ?? 0);
+  const [scenario, setScenario] = useState<TestScenario | undefined>(initial?.scenario);
+  const tooMuch = amount > MAX_AMOUNT;
 
   function applyScenario(s: TestScenario) {
     setScenario(s);
@@ -107,17 +112,23 @@ export default function M1Amount({ isDemo, demoCase, onNext, onHome }: Props) {
         </button>
       </div>
 
+      {/* 숫자만 받아 천 단위 쉼표를 붙여 보여준다(type=number는 소수·e·음수가 들어가고 쉼표가 안 보인다) */}
       <input
-        type="number"
-        value={amount || ""}
-        placeholder="직접 입력"
-        onChange={(e) => setAmount(Number(e.target.value))}
+        type="text"
+        inputMode="numeric"
+        value={amount ? amount.toLocaleString() : ""}
+        placeholder="직접 입력 (원)"
+        onChange={(e) => {
+          const digits = e.target.value.replace(/\D/g, "").slice(0, 13);
+          setAmount(digits ? Number(digits) : 0);
+        }}
       />
+      {tooMuch && <p className="field-error">1회 최대 {koreanAmount(MAX_AMOUNT)}까지 보낼 수 있어요.</p>}
 
       <div className="spacer" />
       <button
         className="btn btn-primary"
-        disabled={!amount || amount <= 0}
+        disabled={!amount || amount <= 0 || tooMuch}
         onClick={() => onNext({ customerId, amount, scenario })}
       >
         다음

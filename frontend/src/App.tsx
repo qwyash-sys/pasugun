@@ -228,7 +228,13 @@ export default function App() {
       {screen === "case-picker" && <CasePicker onSelect={selectDemoCase} onBack={changeRole} />}
 
       {screen === "m1" && (
-        <M1Amount isDemo={isDemo} demoCase={demoCase} onNext={handleM1Next} onHome={resetFlow} />
+        <M1Amount
+          isDemo={isDemo}
+          demoCase={demoCase}
+          initial={amount ? { customerId, amount, scenario } : undefined}
+          onNext={handleM1Next}
+          onHome={resetFlow}
+        />
       )}
 
       {screen === "m2" && client && (

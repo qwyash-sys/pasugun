@@ -61,16 +61,17 @@ def check_fund_source(customer_id: str, overrides: ContextOverrides) -> SignalRe
 
 def check_payee_freshness(payee_account: str) -> SignalResult:
     payee = get_payee(payee_account)
-    age = payee.get("account_age_days", 9999)
+    age = payee.get("account_age_days")
+    if age is None:
+        # 개설일을 확인할 수 없는 계좌는 신규 계좌와 같은 위험으로 본다.
+        return SignalResult(signal="payee_freshness", hit=True, score=20, detail="개설일 정보 없음(신규 계좌로 취급)")
     if age <= 7:
         score = 20
     elif age <= 30:
         score = 10
     else:
         score = 0
-    hit = score > 0
-    detail = f"개설 {age}일" if age < 9999 else "개설일 정보 없음(신규 취급)"
-    return SignalResult(signal="payee_freshness", hit=hit, score=score, detail=detail)
+    return SignalResult(signal="payee_freshness", hit=score > 0, score=score, detail=f"개설 {age}일")
 
 
 def check_limit_change(customer_id: str, overrides: ContextOverrides) -> SignalResult:

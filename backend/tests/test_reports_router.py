@@ -134,3 +134,10 @@ def test_concurrent_finalize_creates_one_report():
     with ThreadPoolExecutor(4) as pool:
         results = list(pool.map(lambda _: client.post(f"/api/transfer/{sid}/finalize").json(), range(4)))
     assert len({r["report"]["report_id"] for r in results}) == 1
+
+
+def test_account_search_works_without_hyphens():
+    with_hyphen = client.get("/api/reports", params={"q": "3333-12", "page_size": 50}).json()["total"]
+    digits_only = client.get("/api/reports", params={"q": "333312", "page_size": 50}).json()["total"]
+    assert with_hyphen > 0 and digits_only == with_hyphen
+    assert client.get("/api/reports", params={"q": "12"}).json()["total"] >= 0  # 짧은 숫자는 숫자 비교 안 함(오류 없음)

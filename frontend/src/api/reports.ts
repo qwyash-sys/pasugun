@@ -77,8 +77,11 @@ function matches(r: ReportPayload, q: ReportQuery): boolean {
   if (q.date_from && day < q.date_from) return false;
   if (q.date_to && day > q.date_to) return false;
   const keyword = q.q.trim();
-  if (keyword && ![r.report_id, r.customer_name, r.payee_name, r.payee_account].some((s) => s.includes(keyword)))
-    return false;
+  if (keyword && ![r.report_id, r.customer_name, r.payee_name, r.payee_account].some((s) => s.includes(keyword))) {
+    // 계좌번호는 하이픈 위치와 상관없이 숫자만으로도 찾는다(백엔드와 같은 규칙).
+    const digits = keyword.replace(/[\s-]/g, "");
+    if (!(/^\d{3,}$/.test(digits) && r.payee_account.replace(/\D/g, "").includes(digits))) return false;
+  }
   return true;
 }
 
