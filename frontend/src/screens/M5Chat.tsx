@@ -211,7 +211,7 @@ function ChatView({
     try {
       const res = await sendTurn({ text, images: staged, turnIndex: turn });
       // 턴 수도 답장이 다 흘러나온 뒤에 반영해, 스트리밍 도중 "결과 확인하기"가 먼저 뜨지 않게 한다.
-      setPendingReply({ text: res.reply, turn: res.turn, maxTurns: res.maxTurns, fallback: res.fallback });
+      setPendingReply({ text: res.reply.trim(), turn: res.turn, maxTurns: res.maxTurns, fallback: res.fallback });
     } catch (e) {
       // 실패해도 방금 쓴 말이 사라지면 안 되니 입력창에 되돌려 바로 재전송할 수 있게 한다.
       setMessages((prev) => prev.slice(0, -1));

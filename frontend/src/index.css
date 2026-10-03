@@ -2693,3 +2693,20 @@ textarea:focus-visible {
   font-size: 13px;
   margin: 0 0 8px;
 }
+
+/* 말풍선 줄바꿈: 띄어쓰기 없는 긴 숫자·영문도 말풍선 안에서 줄을 바꾸고(넘쳐서 가로 스크롤이
+   생기지 않게), 입력창에서 Shift+Enter로 나눈 줄은 그대로 살린다. 한글은 단어 단위로 끊는다. */
+.chat-bubble,
+.chat-bubble-user,
+.chat-bubble-ai,
+.chat-suggestion-text,
+.report-quote {
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.chat-msg {
+  min-width: 0;
+  max-width: 100%;
+}
