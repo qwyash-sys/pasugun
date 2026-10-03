@@ -14,7 +14,6 @@ export default function StreamingText({ text, onDone }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const chars = useMemo(() => Array.from(text), []);
   const [count, setCount] = useState(0);
-  const spanRef = useRef<HTMLSpanElement>(null);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
@@ -29,8 +28,6 @@ export default function StreamingText({ text, onDone }: Props) {
     const id = setInterval(() => {
       i = Math.min(chars.length, i + step);
       setCount(i);
-      const screen = spanRef.current?.closest(".screen");
-      if (screen) screen.scrollTop = screen.scrollHeight;
       if (i >= chars.length) {
         clearInterval(id);
         onDoneRef.current?.();
@@ -42,7 +39,7 @@ export default function StreamingText({ text, onDone }: Props) {
 
   const done = count >= chars.length;
   return (
-    <span ref={spanRef}>
+    <span>
       {chars.slice(0, count).join("")}
       {!done && <span className="stream-cursor" />}
     </span>

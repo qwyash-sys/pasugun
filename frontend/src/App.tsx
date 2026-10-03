@@ -281,7 +281,7 @@ export default function App() {
           error={error}
           hint={demoCase?.chatHint ?? ""}
           chatTurns={demoCase?.chatTurns}
-          onDemoSubmit={finalizeToResult}
+          demoAttachments={demoCase?.report?.attachments}
           onSendTurn={handleChatTurn}
           onFinish={finalizeToResult}
           onSkipAnalysis={skipAnalysisAndSend}

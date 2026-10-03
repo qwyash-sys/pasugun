@@ -2,7 +2,8 @@ import { useState, type ReactNode } from "react";
 import AppBar from "../components/AppBar";
 import RiskBreakdown from "../components/RiskBreakdown";
 import { resolveAssetUrl } from "../api/reports";
-import type { AttachmentMeta, ReportPayload } from "../types";
+import ImageLightbox from "../components/ImageLightbox";
+import type { ReportPayload } from "../types";
 
 interface Props {
   report: ReportPayload;
@@ -127,53 +128,13 @@ export default function ReportView({ report, backLabel, onBack, onOpenList, onRe
       </div>
 
       {viewing !== null && (
-        <AttachmentLightbox items={attachments} index={viewing} onIndex={setViewing} onClose={() => setViewing(null)} />
+        <ImageLightbox
+          items={attachments.map((a) => ({ name: a.name, url: resolveAssetUrl(a.url) }))}
+          index={viewing}
+          onIndex={setViewing}
+          onClose={() => setViewing(null)}
+        />
       )}
     </>
-  );
-}
-
-function AttachmentLightbox({
-  items,
-  index,
-  onIndex,
-  onClose,
-}: {
-  items: AttachmentMeta[];
-  index: number;
-  onIndex: (i: number) => void;
-  onClose: () => void;
-}) {
-  const item = items[index];
-  return (
-    <div className="lightbox" role="dialog" aria-label={item.name} onClick={onClose}>
-      <div className="lightbox-body" onClick={(e) => e.stopPropagation()}>
-        <div className="lightbox-head">
-          <span>
-            {item.name} · {index + 1}/{items.length}
-          </span>
-          <button onClick={onClose} aria-label="닫기">
-            ✕
-          </button>
-        </div>
-        <img src={resolveAssetUrl(item.url)} alt={item.name} />
-        {items.length > 1 && (
-          <div className="btn-row">
-            <button className="btn btn-secondary" disabled={index === 0} onClick={() => onIndex(index - 1)}>
-              이전
-            </button>
-            <button className="btn btn-secondary" disabled={index === items.length - 1} onClick={() => onIndex(index + 1)}>
-              다음
-            </button>
-          </div>
-        )}
-        {/* 데모 목업은 data: URL이라 새 탭으로 열 수 없다(브라우저가 차단) — 서버 파일일 때만 링크를 준다. */}
-        {!item.url.startsWith("data:") && (
-          <a className="lightbox-open" href={resolveAssetUrl(item.url)} target="_blank" rel="noreferrer">
-            새 창에서 원본 보기
-          </a>
-        )}
-      </div>
-    </div>
   );
 }

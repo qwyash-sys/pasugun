@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import AppBar, { AiTag } from "../components/AppBar";
 import BottomSheet from "../components/BottomSheet";
 import AnalyzingSteps from "../components/AnalyzingSteps";
+import ImageLightbox, { type LightboxImage } from "../components/ImageLightbox";
 import StreamingText from "../components/StreamingText";
+import { captureDataUrl } from "../utils/capturePreview";
 import { fileToBase64 } from "../utils/file";
+import type { AttachmentMeta } from "../types";
 
 interface ChatTurnResult {
   reply: string;
@@ -15,8 +18,7 @@ interface ChatTurnResult {
 interface DemoTurn {
   user: string;
   ai: string;
-  /** 이 턴에서 함께 첨부하는 자료(안내문자 캡처 등)의 표시용 파일명. 실제 파일은 필요
-   * 없다 — 시연 중 파일 선택창을 띄우지 않고도 첨부 흐름 자체를 보여주기 위한 연출. */
+  /** 이 턴에 함께 올리는 자료(안내문자 캡처 등)의 파일명 — 미리보기 이미지는 리포트 첨부에서 찾는다. */
   attachments?: string[];
 }
 
@@ -25,27 +27,86 @@ interface Props {
   isDemo: boolean;
   loading: boolean;
   error: string | null;
-  /** demo 모드 전용: AI 첫 인사말에 덧붙는 안내, 그리고 버튼을 눌러 한 턴씩 재생하는 대본.
-   * 결과 자체는 어차피 대본대로 고정된다 — 대본은 화면에서 "실제로 대화하는 느낌"만 준다. */
+  /** demo 모드 전용: AI 첫 인사말에 덧붙는 안내, 한 턴씩 재생할 대본, 대본 첨부의 미리보기 원본. */
   hint?: string;
   chatTurns?: DemoTurn[];
-  onDemoSubmit?: (payload: { skipped: boolean }) => void;
+  demoAttachments?: AttachmentMeta[];
   /** local/remote 모드 전용: 실제 멀티턴 대화. */
   onSendTurn?: (payload: { text: string; attachments: { name: string; base64: string }[] }) => Promise<ChatTurnResult>;
-  /** 대화를 건너뛰거나(0턴) 충분히 나눈 뒤(1턴 이상) 결과 화면으로 넘어간다 — 서버가
-   * 세션에 쌓인 대화 유무로 알아서 판단하므로 콜백은 하나면 충분하다. */
-  onFinish?: () => void;
+  /** 대화를 건너뛰거나(0턴) 충분히 나눈 뒤(1턴 이상) 결과 화면으로 넘어간다. */
+  onFinish: () => void;
   /** AI 분석을 건너뛰고 송금으로 바로 간다(막지 않는다는 원칙). 판정은 지금까지 쌓인 내용으로 확정된다. */
   onSkipAnalysis: () => void;
   onHome: () => void;
 }
 
+/** 입력창에 올려둔(또는 보낸) 사진. url은 미리보기용, base64는 실제 모드 전송용. */
+interface StagedImage {
+  name: string;
+  url: string;
+  base64?: string;
+}
+
+interface ChatMessage {
+  role: "user" | "ai";
+  text: string;
+  images?: StagedImage[];
+  /** AI 연결 장애로 규칙 기반 안내가 대신 나갔을 때 말풍선 아래 작게 알린다. */
+  fallback?: boolean;
+}
+
+// 백엔드 상한(base64 약 14MB ≈ 원본 10MB)보다 여유 있게 잡는다.
+const MAX_ATTACHMENT_BYTES = 7 * 1024 * 1024;
+// 백엔드 ChatTurnRequest.attachments의 max_length와 맞춘다.
+const MAX_ATTACHMENTS = 5;
+// 입력창은 글이 길어지면 최대 6줄까지 늘어나고, 그 이상은 입력창 안에서 스크롤한다.
+const MAX_INPUT_LINES = 6;
+const DEMO_REPLY_DELAY_MS = 900;
+
+/** M5 대화 화면. 데모와 실제 모드가 같은 채팅 화면(입력창·사진 첨부·전송)을 쓰고, 답장을
+ * 만드는 방식만 다르다 — 데모는 대본, 실제 모드는 백엔드 AI. 데모에서는 대본의 다음 문장을
+ * "추천 문장"으로 입력창 위에 띄워, 누르면 입력창에 채워지고 직접 ↑로 보내게 한다(버튼 한 번에
+ * 대화가 저절로 넘어가면 사용자가 직접 채팅하는 화면이라는 게 드러나지 않는다). */
 export default function M5Chat(props: Props) {
-  // 결과 확정 중에는 대화 화면을 내리지 말고 위에 덮기만 한다 — 언마운트하면 확정이 실패했을 때
-  // 대화 내용·턴 수가 전부 초기화된 빈 채팅으로 되돌아온다.
+  const { isDemo, chatTurns, hint, customerName, demoAttachments, onSendTurn } = props;
+  const turns = useMemo(() => chatTurns ?? [], [chatTurns]);
+
+  // 데모 대본 첨부 파일명 → 미리보기 이미지(리포트에 같은 이름의 첨부가 있으면 그것, 없으면 기본 캡처).
+  const demoImage = useMemo(() => {
+    const byName = new Map((demoAttachments ?? []).map((a) => [a.name, a.url]));
+    return (name: string): StagedImage => ({ name, url: byName.get(name) ?? captureDataUrl([name]) });
+  }, [demoAttachments]);
+
+  const sendTurn = async (payload: { text: string; images: StagedImage[]; turnIndex: number }): Promise<ChatTurnResult> => {
+    if (isDemo) {
+      await new Promise((r) => setTimeout(r, DEMO_REPLY_DELAY_MS));
+      const scripted = turns[payload.turnIndex];
+      return { reply: scripted?.ai ?? "", turn: payload.turnIndex + 1, maxTurns: turns.length };
+    }
+    if (!onSendTurn) throw new Error("대화를 보낼 수 없어요");
+    return onSendTurn({
+      text: payload.text,
+      attachments: payload.images.map((i) => ({ name: i.name, base64: i.base64 ?? "" })),
+    });
+  };
+
+  const greeting = isDemo
+    ? `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황을 편하게 말씀해주세요."}`
+    : `${customerName}님, 편하게 상황을 말씀해주세요. 몇 가지만 확인하고 바로 알려드릴게요.`;
+
   return (
     <>
-      {props.isDemo ? <DemoChat {...props} /> : <LiveChat {...props} />}
+      <ChatView
+        {...props}
+        greeting={greeting}
+        sendTurn={sendTurn}
+        initialMaxTurns={isDemo ? turns.length : 3}
+        suggestionFor={isDemo ? (i) => (turns[i] ? { text: turns[i].user, images: (turns[i].attachments ?? []).map(demoImage) } : null) : undefined}
+        noChat={isDemo && turns.length === 0}
+        allowSkipLink={!isDemo}
+      />
+      {/* 결과 확정 중에는 대화 화면을 내리지 말고 위에 덮기만 한다 — 언마운트하면 확정이 실패했을 때
+          대화 내용·턴 수가 전부 초기화된 빈 채팅으로 되돌아온다. */}
       {props.loading && (
         <div className="loading-overlay">
           <AnalyzingSteps />
@@ -55,151 +116,339 @@ export default function M5Chat(props: Props) {
   );
 }
 
-// 백엔드 상한(base64 약 14MB ≈ 원본 10MB)보다 여유 있게 잡는다.
-const MAX_ATTACHMENT_BYTES = 7 * 1024 * 1024;
-// 백엔드 ChatTurnRequest.attachments의 max_length와 맞춘다.
-const MAX_ATTACHMENTS = 5;
-
-interface ChatMessage {
-  role: "user" | "ai";
-  text: string;
-  attachments?: string[];
-  /** AI 연결 장애로 규칙 기반 안내가 대신 나갔을 때 말풍선 아래 작게 알린다. */
-  fallback?: boolean;
+interface ChatViewProps extends Props {
+  greeting: string;
+  sendTurn: (payload: { text: string; images: StagedImage[]; turnIndex: number }) => Promise<ChatTurnResult>;
+  initialMaxTurns: number;
+  /** 데모: n번째 턴의 추천 문장(대본). 실제 모드는 없음. */
+  suggestionFor?: (turnIndex: number) => { text: string; images: StagedImage[] } | null;
+  noChat: boolean;
+  allowSkipLink: boolean;
 }
 
-/** demo 모드: 결과는 대본대로 고정돼있지만, 화면은 실제 채팅처럼 보이게 재생한다. 대사를
- * 직접 타이핑하게 하면 시연 중 오타·삭제로 흐름이 끊기니, 다음 대사를 누르면 사용자 말풍선이
- * 뜨고 잠시 후 AI 응답이 이어지는 식으로 버튼 클릭만으로 진행시킨다. */
-function DemoChat({ hint, chatTurns, onDemoSubmit, onSkipAnalysis, onHome }: Props) {
-  const turns = chatTurns ?? [];
-  const [completed, setCompleted] = useState(0);
-  // pending: 사용자 말풍선 + "입력 중" 점 3개(생각하는 척). revealing: 그 다음, AI 답장이
-  // 한 글자씩 흘러나오는 단계 — 둘을 나눠야 "타이핑 중" 연출과 "스트리밍" 연출이 따로 보인다.
-  const [pending, setPending] = useState<DemoTurn | null>(null);
-  const [revealing, setRevealing] = useState<DemoTurn | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+function ChatView({
+  greeting,
+  sendTurn,
+  initialMaxTurns,
+  suggestionFor,
+  noChat,
+  allowSkipLink,
+  onFinish,
+  onSkipAnalysis,
+  onHome,
+  error,
+}: ChatViewProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>([{ role: "ai", text: greeting }]);
+  const [input, setInput] = useState("");
+  const [images, setImages] = useState<StagedImage[]>([]);
+  const [sending, setSending] = useState(false);
+  // 답장은 도착 즉시 통째로 넣지 않고 여기 잠깐 담아뒀다가 화면에서 한 글자씩 흘려보낸다.
+  const [pendingReply, setPendingReply] = useState<{ text: string; turn: number; maxTurns: number; fallback?: boolean } | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [turn, setTurn] = useState(0);
+  const [maxTurns, setMaxTurns] = useState(initialMaxTurns);
+  const [viewer, setViewer] = useState<{ items: LightboxImage[]; index: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
 
-  const messages: ChatMessage[] = [
-    { role: "ai", text: `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황을 편하게 말씀해주세요."}` },
-  ];
-  for (let i = 0; i < completed; i++) {
-    const { user, ai, attachments } = turns[i];
-    messages.push({ role: "user", text: user, attachments });
-    messages.push({ role: "ai", text: ai });
+  const reachedCap = !noChat && turn >= maxTurns;
+  const busy = sending || !!pendingReply;
+  const suggestion = !busy && !reachedCap && !input.trim() && images.length === 0 ? suggestionFor?.(turn) ?? null : null;
+
+  useAutoScroll(threadRef, footerRef);
+  useAutoGrow(textareaRef, input);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const fileInput = e.target;
+    const picked = Array.from(fileInput.files ?? []);
+    // 같은 파일을 다시 골라도 change가 발생하도록 비워둔다(안 비우면 같은 파일 재선택이 무반응).
+    fileInput.value = "";
+    if (picked.length === 0) return;
+
+    const room = MAX_ATTACHMENTS - images.length;
+    const within = picked.slice(0, room);
+    const sized = within.filter((f) => f.size <= MAX_ATTACHMENT_BYTES);
+    // 실제로 열리는 이미지인지 브라우저에서 먼저 확인한다 — 아니면 깨진 썸네일이 올라갔다가
+    // 보낸 뒤에야 서버에서 거절되는 대신, 고르는 순간 바로 알려준다(서버 검사는 그대로 유지).
+    const decodable = await Promise.all(sized.map((f) => isReadableImage(f)));
+    const valid = sized.filter((_, i) => decodable[i]);
+    const broken = sized.filter((_, i) => !decodable[i]);
+    if (picked.length > room) setSendError(`이미지는 최대 ${MAX_ATTACHMENTS}장까지 첨부할 수 있어요.`);
+    else if (within.length > sized.length) setSendError("이미지가 너무 커요. 7MB 이하로 올려주세요.");
+    else if (broken.length) setSendError(`'${broken[0].name}'은(는) 읽을 수 있는 이미지가 아니에요. 다른 이미지로 다시 시도해주세요.`);
+    else setSendError(null);
+    if (valid.length === 0) return;
+
+    const encoded = await Promise.all(
+      valid.map(async (f) => {
+        const base64 = await fileToBase64(f);
+        return { name: f.name, base64, url: `data:${f.type || "image/png"};base64,${base64}` };
+      }),
+    );
+    setImages((prev) => [...prev, ...encoded]);
   }
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length, pending, revealing]);
-
-  function playNext() {
-    const turn = turns[completed];
-    if (!turn || pending || revealing) return;
-    setPending(turn);
-    setTimeout(() => {
-      setPending(null);
-      setRevealing(turn);
-    }, 900);
+  function applySuggestion() {
+    if (!suggestion) return;
+    setInput(suggestion.text);
+    setImages(suggestion.images);
+    textareaRef.current?.focus();
   }
 
-  const done = completed >= turns.length;
-  const noChat = turns.length === 0;
-  const nextTurn = !done && !pending && !revealing ? turns[completed] : null;
+  async function handleSend() {
+    const text = input.trim();
+    if ((!text && images.length === 0) || busy || reachedCap) return;
+
+    const staged = images;
+    setMessages((prev) => [...prev, { role: "user", text, images: staged.length ? staged : undefined }]);
+    setInput("");
+    setImages([]);
+    setSending(true);
+    setSendError(null);
+
+    try {
+      const res = await sendTurn({ text, images: staged, turnIndex: turn });
+      // 턴 수도 답장이 다 흘러나온 뒤에 반영해, 스트리밍 도중 "결과 확인하기"가 먼저 뜨지 않게 한다.
+      setPendingReply({ text: res.reply, turn: res.turn, maxTurns: res.maxTurns, fallback: res.fallback });
+    } catch (e) {
+      // 실패해도 방금 쓴 말이 사라지면 안 되니 입력창에 되돌려 바로 재전송할 수 있게 한다.
+      setMessages((prev) => prev.slice(0, -1));
+      setInput(text);
+      setImages(staged);
+      const userMessage = (e as { userMessage?: string }).userMessage;
+      setSendError(userMessage ?? "메시지 전송에 실패했어요. 다시 시도해주세요.");
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <>
       <AppBar title="AI 안심 송금" onHome={onHome} />
       <AiTag />
 
-      <div className="chat-thread">
+      <div className="chat-thread" ref={threadRef}>
         {messages.map((m, i) => (
           <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
-            {m.attachments?.map((name, j) => (
-              <div key={`${name}-${j}`} className="chat-attach-chip">
-                📷 {name}
-              </div>
-            ))}
-            <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>
+            {m.images && (
+              <ThumbStrip
+                images={m.images}
+                align="end"
+                onOpen={(index) => setViewer({ items: m.images!, index })}
+              />
+            )}
+            {m.text && <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>}
+            {m.fallback && <p className="chat-fallback-note">AI 연결이 원활하지 않아 기본 안내로 답했어요</p>}
           </div>
         ))}
-        {pending && (
-          <>
-            <div className="chat-msg chat-msg-user">
-              <AttachChips names={pending.attachments} />
-              <div className="chat-bubble-user">{pending.user}</div>
-            </div>
-            <div className="chat-typing">
-              <span />
-              <span />
-              <span />
-            </div>
-          </>
+        {sending && (
+          <div className="chat-typing" aria-label="AI가 답장을 쓰는 중">
+            <span />
+            <span />
+            <span />
+          </div>
         )}
-        {revealing && (
-          <>
-            <div className="chat-msg chat-msg-user">
-              <AttachChips names={revealing.attachments} />
-              <div className="chat-bubble-user">{revealing.user}</div>
+        {pendingReply && (
+          <div className="chat-msg chat-msg-ai">
+            <div className="chat-bubble-ai">
+              <StreamingText
+                text={pendingReply.text}
+                onDone={() => {
+                  setMessages((prev) => [...prev, { role: "ai", text: pendingReply.text, fallback: pendingReply.fallback }]);
+                  setTurn(pendingReply.turn);
+                  setMaxTurns(pendingReply.maxTurns);
+                  setPendingReply(null);
+                }}
+              />
             </div>
-            <div className="chat-msg chat-msg-ai">
-              <div className="chat-bubble-ai">
-                <StreamingText
-                  text={revealing.ai}
-                  onDone={() => {
-                    setRevealing(null);
-                    setCompleted((c) => c + 1);
-                  }}
-                />
-              </div>
-            </div>
-          </>
+          </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       <div className="spacer" />
 
-      {noChat && (
-        <p className="script-hint">💡 이 시나리오는 대화 없이 바로 결과를 확인해요</p>
-      )}
+      {/* 입력창·결과 버튼은 화면 하단에 고정한다 — 대화가 쌓여도 매번 스크롤할 필요가 없게. */}
+      <div className="chat-footer" ref={footerRef}>
+        {turn > 0 && (
+          <p className="chat-turn-counter">
+            {reachedCap ? "대화를 충분히 확인했어요" : `${turn}/${maxTurns}번 확인했어요`}
+          </p>
+        )}
 
-      {!noChat && nextTurn && (
-        <>
-          <p className="script-hint">💡 아래 말풍선을 눌러 대화를 진행해보세요</p>
-          {/* 실채팅(LiveChat)에서 파일을 고르면 전송 전 여기와 같은 칩으로 미리보기가 뜬다 —
-              데모도 다음 대사에 첨부가 딸려있다는 걸 같은 방식으로 미리 보여준다. */}
-          {nextTurn.attachments && (
-            <div className="chat-attach-list">
-              <AttachChips names={nextTurn.attachments} />
+        {noChat && <p className="script-hint">💡 이 시나리오는 대화 없이 바로 결과를 확인해요</p>}
+
+        {/* 데모: 대본의 다음 문장을 입력창 위에 추천으로 띄운다 — 누르면 입력창에 채워진다 */}
+        {suggestion && (
+          <div className="chat-suggestion">
+            <p className="script-hint">💡 추천 문장을 누르면 입력창에 채워져요. ↑ 버튼으로 보내보세요</p>
+            <button className="chat-suggestion-btn scripted" onClick={applySuggestion}>
+              <span className="chat-suggestion-text">"{suggestion.text}"</span>
+              {suggestion.images.length > 0 && <span className="chat-suggestion-meta">📷 사진 {suggestion.images.length}장 함께</span>}
+            </button>
+          </div>
+        )}
+
+        {(sendError || error) && <p className="chat-error">{sendError || error}</p>}
+
+        {!reachedCap && !noChat && (
+          <>
+            {images.length > 0 && (
+              <ThumbStrip
+                images={images}
+                onOpen={(index) => setViewer({ items: images, index })}
+                onRemove={(index) => setImages((prev) => prev.filter((_, i) => i !== index))}
+              />
+            )}
+            <div className="chat-input-row">
+              <textarea
+                ref={textareaRef}
+                placeholder="상황을 편하게 말씀해주세요"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  // 한글 등 조합형 입력 중 조합을 확정하는 Enter까지 전송으로 처리하면
+                  // 마지막 글자가 끊긴 채로 보내진다 — 조합 중(isComposing)에는 무시한다.
+                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                rows={1}
+                maxLength={2000}
+              />
+              <button
+                className="chat-send-btn chat-attach-btn"
+                disabled={busy || images.length >= MAX_ATTACHMENTS}
+                title={`사진 첨부 (최대 ${MAX_ATTACHMENTS}장)`}
+                aria-label="사진 첨부"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                📷
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleFile} />
+              <button
+                className="chat-send-btn"
+                disabled={busy || (!input.trim() && images.length === 0)}
+                aria-label="보내기"
+                onClick={handleSend}
+              >
+                ↑
+              </button>
             </div>
-          )}
-          <button className="btn btn-outline" onClick={playNext}>
-            💬 "{nextTurn.user}"
-          </button>
-        </>
-      )}
+          </>
+        )}
 
-      {(noChat || done) && (
-        <button className="btn btn-primary" onClick={() => onDemoSubmit?.({ skipped: noChat })}>
-          결과 확인하기
-        </button>
+        {allowSkipLink && turn === 0 && !reachedCap && (
+          <button className="chat-skip-link" disabled={busy} onClick={onFinish}>
+            건너뛰고 바로 결과 볼게요
+          </button>
+        )}
+        {(turn > 0 || noChat) && (
+          <button className={`btn ${reachedCap || noChat ? "btn-primary" : "btn-outline"}`} disabled={busy} onClick={onFinish}>
+            결과 확인하기
+          </button>
+        )}
+        <SkipAnalysisButton onConfirm={onSkipAnalysis} disabled={busy} />
+      </div>
+
+      {viewer && (
+        <ImageLightbox
+          items={viewer.items}
+          index={viewer.index}
+          onIndex={(index) => setViewer({ ...viewer, index })}
+          onClose={() => setViewer(null)}
+        />
       )}
-      <SkipAnalysisButton onConfirm={onSkipAnalysis} disabled={!!pending || !!revealing} />
     </>
   );
 }
 
-function AttachChips({ names }: { names?: string[] }) {
+async function isReadableImage(file: File): Promise<boolean> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    bitmap.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 사진 썸네일 줄. 누르면 크게 보기, onRemove가 있으면 ✕로 빼기(보내기 전 입력창 위). */
+function ThumbStrip({
+  images,
+  align = "start",
+  onOpen,
+  onRemove,
+}: {
+  images: StagedImage[];
+  align?: "start" | "end";
+  onOpen: (index: number) => void;
+  onRemove?: (index: number) => void;
+}) {
   return (
-    <>
-      {names?.map((name, i) => (
-        <div key={`${name}-${i}`} className="chat-attach-chip">
-          📷 {name}
+    <div className={`chat-thumbs align-${align}`}>
+      {images.map((img, i) => (
+        <div key={`${img.name}-${i}`} className="chat-thumb">
+          <button className="chat-thumb-open" onClick={() => onOpen(i)} aria-label={`${img.name} 크게 보기`} title={img.name}>
+            <img src={img.url} alt={img.name} />
+            <span className="chat-thumb-zoom" aria-hidden>
+              🔍
+            </span>
+          </button>
+          {onRemove && (
+            <button className="chat-thumb-remove" onClick={() => onRemove(i)} aria-label={`${img.name} 첨부 취소`}>
+              ✕
+            </button>
+          )}
         </div>
       ))}
-    </>
+    </div>
   );
+}
+
+/** 대화(또는 하단 입력부)가 커질 때마다 화면을 맨 아래로 붙인다 — 새 말풍선, 한 글자씩 흘러나오는
+ * 답장, 마지막에 나타나는 "결과 확인하기"까지 항상 보이게. 사용자가 위로 올려 읽는 중이면 끌어내리지 않는다. */
+function useAutoScroll(threadRef: React.RefObject<HTMLDivElement | null>, footerRef: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const screen = threadRef.current?.closest(".screen") as HTMLElement | null;
+    if (!screen) return;
+    let stick = true;
+    const onScroll = () => {
+      stick = screen.scrollHeight - screen.scrollTop - screen.clientHeight < 80;
+    };
+    const toBottom = () => {
+      if (stick) screen.scrollTop = screen.scrollHeight;
+    };
+    const observer = new ResizeObserver(toBottom);
+    if (threadRef.current) observer.observe(threadRef.current);
+    if (footerRef.current) observer.observe(footerRef.current);
+    screen.addEventListener("scroll", onScroll, { passive: true });
+    toBottom();
+    return () => {
+      observer.disconnect();
+      screen.removeEventListener("scroll", onScroll);
+    };
+  }, [threadRef, footerRef]);
+}
+
+/** 입력한 만큼 입력창 높이를 늘린다(최대 MAX_INPUT_LINES줄). */
+function useAutoGrow(ref: React.RefObject<HTMLTextAreaElement | null>, value: string) {
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const style = getComputedStyle(el);
+    const line = parseFloat(style.lineHeight) || 21;
+    const padding = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const border = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+    // box-sizing: border-box라 높이 = 내용+패딩(scrollHeight) + 테두리.
+    const max = line * MAX_INPUT_LINES + padding + border;
+    el.style.height = "auto";
+    const wanted = el.scrollHeight + border;
+    el.style.height = `${Math.min(wanted, max)}px`;
+    el.style.overflowY = wanted > max + 1 ? "auto" : "hidden";
+  }, [ref, value]);
 }
 
 /** 채팅 맨 아래 "AI분석 무시하고 송금 진행하기". 송금을 막지 않는다는 원칙 그대로, 고객이 원하면
@@ -228,220 +477,6 @@ function SkipAnalysisButton({ onConfirm, disabled }: { onConfirm: () => void; di
           </div>
         </BottomSheet>
       )}
-    </>
-  );
-}
-
-/** local/remote 모드: 실제 AI 상담원과 2~3턴 정도 주고받는 채팅. 게시판에 글 올리고 결과만
- * 받아보는 방식 대신, 짧게라도 대화를 주고받은 뒤 결론 화면(M6)으로 넘어가게 한다. 대화가
- * 길어지면 안 되므로 턴 수는 백엔드가 하드 캡(MAX_CHAT_TURNS)으로 못박는다. */
-function LiveChat({ customerName, onSendTurn, onFinish, onSkipAnalysis, onHome, error }: Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: "ai", text: `${customerName}님, 편하게 상황을 말씀해주세요. 몇 가지만 확인하고 바로 알려드릴게요.` },
-  ]);
-  const [input, setInput] = useState("");
-  const [attachments, setAttachments] = useState<{ name: string; base64: string }[]>([]);
-  const [sending, setSending] = useState(false);
-  // 백엔드가 완성된 답을 한 번에 돌려주지만(멀티턴 tool-use 루프라 진짜 토큰 스트리밍은
-  // 배보다 배꼽), 도착 즉시 통째로 박아넣지 않고 여기 잠깐 담아뒀다가 화면에서 흘려보낸다.
-  const [pendingReply, setPendingReply] = useState<{ text: string; turn: number; maxTurns: number; fallback?: boolean } | null>(null);
-  const [sendError, setSendError] = useState<string | null>(null);
-  const [turn, setTurn] = useState(0);
-  const [maxTurns, setMaxTurns] = useState(3);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // 하단 고정 푸터가 음수 마진을 써서 sentinel이 실제 끝보다 위에 놓이므로, 화면 컨테이너를 직접 맨 아래로 내린다.
-    const screen = bottomRef.current?.closest(".screen");
-    screen?.scrollTo({ top: screen.scrollHeight });
-  }, [messages, sending, pendingReply]);
-
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const fileInput = e.target;
-    const picked = Array.from(fileInput.files ?? []);
-    // 같은 파일을 다시 골라도 change가 발생하도록 비워둔다(안 비우면 같은 파일 재선택이 무반응).
-    fileInput.value = "";
-    if (picked.length === 0) return;
-
-    const room = MAX_ATTACHMENTS - attachments.length;
-    const within = picked.slice(0, room);
-    const sized = within.filter((f) => f.size <= MAX_ATTACHMENT_BYTES);
-    const droppedForSize = within.length - sized.length;
-
-    if (picked.length > room) {
-      setSendError(`이미지는 최대 ${MAX_ATTACHMENTS}장까지 첨부할 수 있어요.`);
-    } else if (droppedForSize > 0) {
-      setSendError("이미지가 너무 커요. 7MB 이하로 올려주세요.");
-    } else {
-      setSendError(null);
-    }
-    if (sized.length === 0) return;
-
-    const encoded = await Promise.all(
-      sized.map(async (f) => ({ name: f.name, base64: await fileToBase64(f) })),
-    );
-    setAttachments((prev) => [...prev, ...encoded]);
-  }
-
-  function removeAttachment(index: number) {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  async function handleSend() {
-    const text = input.trim();
-    if ((!text && attachments.length === 0) || sending || pendingReply || !onSendTurn) return;
-
-    const staged = attachments;
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", text, attachments: staged.length > 0 ? staged.map((a) => a.name) : undefined },
-    ]);
-    setInput("");
-    setAttachments([]);
-    setSending(true);
-    setSendError(null);
-
-    try {
-      const res = await onSendTurn({ text, attachments: staged });
-      // 여기서 바로 messages에 넣지 않는다 — pendingReply로 넘겨 화면에서 흘려보낸 뒤,
-      // 다 나오면(onDone) 그때 확정해 넣는다. turn/maxTurns도 같이 미뤄서, 스트리밍
-      // 도중에 "결과 확인하기" 같은 버튼이 먼저 나타나는 걸 막는다.
-      setPendingReply({ text: res.reply, turn: res.turn, maxTurns: res.maxTurns, fallback: res.fallback });
-    } catch (e) {
-      // 실패해도 방금 쓴 말이 사라지면 안 되니 입력창에 되돌려 바로 재전송할 수 있게 한다.
-      setMessages((prev) => prev.slice(0, -1));
-      setInput(text);
-      setAttachments(staged);
-      // 서버가 이유를 알려준 경우(깨진 이미지 등)는 그 안내를, 아니면 일반 안내를 보여준다.
-      const userMessage = (e as { userMessage?: string }).userMessage;
-      setSendError(userMessage ?? "메시지 전송에 실패했어요. 다시 시도해주세요.");
-    } finally {
-      setSending(false);
-    }
-  }
-
-  const reachedCap = turn >= maxTurns;
-  const beforeFirstTurn = turn === 0;
-  const busy = sending || !!pendingReply;
-
-  return (
-    <>
-      <AppBar title="AI 안심 송금" onHome={onHome} />
-      <AiTag />
-
-      <div className="chat-thread">
-        {messages.map((m, i) => (
-          <div key={i} className={`chat-msg ${m.role === "user" ? "chat-msg-user" : "chat-msg-ai"}`}>
-            {m.attachments?.map((name, j) => (
-              <div key={`${name}-${j}`} className="chat-attach-chip">
-                📷 {name}
-              </div>
-            ))}
-            {m.text && <div className={m.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"}>{m.text}</div>}
-            {m.fallback && <p className="chat-fallback-note">AI 연결이 원활하지 않아 기본 안내로 답했어요</p>}
-          </div>
-        ))}
-        {sending && (
-          <div className="chat-typing">
-            <span />
-            <span />
-            <span />
-          </div>
-        )}
-        {pendingReply && (
-          <div className="chat-msg chat-msg-ai">
-            <div className="chat-bubble-ai">
-              <StreamingText
-                text={pendingReply.text}
-                onDone={() => {
-                  setMessages((prev) => [...prev, { role: "ai", text: pendingReply.text, fallback: pendingReply.fallback }]);
-                  setTurn(pendingReply.turn);
-                  setMaxTurns(pendingReply.maxTurns);
-                  setPendingReply(null);
-                }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="spacer" />
-
-      {/* 입력창·결과 버튼은 스크롤과 무관하게 화면 하단에 고정한다 — 대화가 쌓이면 폰에서
-          입력창과 "결과 확인하기"가 화면 밖으로 밀려나 매번 스크롤해야 했다. */}
-      <div className="chat-footer">
-        {turn > 0 && (
-          <p className="chat-turn-counter">
-            {reachedCap ? "대화를 충분히 확인했어요" : `${turn}/${maxTurns}번 확인했어요`}
-          </p>
-        )}
-
-        {(sendError || error) && <p style={{ color: "var(--danger)", fontSize: 13 }}>{sendError || error}</p>}
-
-        {!reachedCap && (
-          <>
-            {attachments.length > 0 && (
-              <div className="chat-attach-list">
-                {attachments.map((a, i) => (
-                  <div key={`${a.name}-${i}`} className="chat-attach-chip removable">
-                    📷 {a.name}
-                    <button type="button" aria-label={`${a.name} 첨부 취소`} onClick={() => removeAttachment(i)}>
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="chat-input-row">
-              <textarea
-                placeholder="상황을 편하게 말씀해주세요"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  // 한글 등 조합형 입력 중 조합을 확정하는 Enter까지 전송으로 처리하면
-                  // 마지막 글자가 끊긴 채로 보내진다 — 조합 중(isComposing)에는 무시한다.
-                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                rows={1}
-                maxLength={2000}
-              />
-              <button
-                className="chat-send-btn"
-                disabled={busy || attachments.length >= MAX_ATTACHMENTS}
-                title={`사진 첨부 (최대 ${MAX_ATTACHMENTS}장)`}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                📷
-              </button>
-              <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleFile} />
-              <button
-                className="chat-send-btn"
-                disabled={busy || (!input.trim() && attachments.length === 0)}
-                onClick={handleSend}
-              >
-                ↑
-              </button>
-            </div>
-          </>
-        )}
-
-        {beforeFirstTurn && !reachedCap && (
-          <button className="chat-skip-link" disabled={busy} onClick={onFinish}>
-            건너뛰고 바로 결과 볼게요
-          </button>
-        )}
-        {turn > 0 && (
-          <button className={`btn ${reachedCap ? "btn-primary" : "btn-outline"}`} disabled={busy} onClick={onFinish}>
-            결과 확인하기
-          </button>
-        )}
-        <SkipAnalysisButton onConfirm={onSkipAnalysis} disabled={busy} />
-      </div>
-      <div ref={bottomRef} />
     </>
   );
 }
