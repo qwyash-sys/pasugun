@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import AppBar, { AiTag } from "../components/AppBar";
 import BottomSheet from "../components/BottomSheet";
+import AnalyzingSteps from "../components/AnalyzingSteps";
 import StreamingText from "../components/StreamingText";
 import { fileToBase64 } from "../utils/file";
 
@@ -47,8 +48,7 @@ export default function M5Chat(props: Props) {
       {props.isDemo ? <DemoChat {...props} /> : <LiveChat {...props} />}
       {props.loading && (
         <div className="loading-overlay">
-          <div className="spinner" />
-          <p>AI가 확인 중이에요</p>
+          <AnalyzingSteps />
         </div>
       )}
     </>

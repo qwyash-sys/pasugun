@@ -213,35 +213,6 @@ p.subtitle {
   margin-bottom: 6px;
 }
 
-.amount-display {
-  font-size: 36px;
-  font-weight: 700;
-  text-align: right;
-  padding: 20px 4px;
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 24px;
-}
-
-.keypad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: auto;
-}
-
-.keypad button {
-  padding: 16px 0;
-  font-size: 20px;
-  border: none;
-  background: var(--bg);
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-.keypad button:active {
-  background: var(--nh-green-soft);
-}
-
 input[type="text"],
 input[type="number"] {
   width: 100%;
@@ -661,49 +632,6 @@ textarea {
   }
 }
 
-.verdict-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 999px;
-  margin-bottom: 10px;
-}
-
-.verdict-safe {
-  background: var(--safe-soft);
-  color: var(--nh-green-dark);
-}
-
-.verdict-warn {
-  background: var(--warn-soft);
-  color: #8a6412;
-}
-
-.verdict-danger {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
-.reason-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 13.5px;
-  color: var(--text-muted);
-}
-
-.reason-list li {
-  padding: 6px 0;
-  border-bottom: 1px dashed var(--border);
-}
-
-.reason-list li:last-child {
-  border-bottom: none;
-}
-
 .case-picker-list {
   display: flex;
   flex-direction: column;
@@ -724,10 +652,6 @@ textarea {
 
 .case-picker-item:hover {
   border-color: var(--nh-green);
-}
-
-.case-emoji {
-  font-size: 22px;
 }
 
 .case-title {
@@ -762,30 +686,6 @@ button.mode-pill {
 
 button.mode-pill:hover {
   background: rgba(0, 0, 0, 0.78);
-}
-
-.report-sheet {
-  background: white;
-  border-radius: 16px;
-  padding: 18px;
-}
-
-.report-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13.5px;
-}
-
-.report-row .label {
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.report-row .value {
-  text-align: right;
 }
 
 /* ---- 바텀시트 모달 (실제 올원뱅크 "한 번 더 확인해 주세요" 패턴) ---- */
@@ -1370,10 +1270,6 @@ button.mode-pill:hover {
   margin: 0 0 2px;
 }
 
-.role-item {
-  align-items: flex-start;
-}
-
 /* ---- 영업점 리포트 첨부자료 ---- */
 .attach-grid {
   display: grid;
@@ -1906,12 +1802,6 @@ button.mode-pill:hover {
   background: var(--nh-green-soft);
 }
 
-.booking-hero-icon.done {
-  background: var(--nh-green);
-  color: white;
-  font-weight: 800;
-}
-
 .booking-guide {
   color: var(--text-muted);
   font-size: 14px;
@@ -2039,39 +1929,635 @@ textarea:focus-visible {
   box-shadow: 0 6px 16px -10px rgba(0, 166, 81, 0.35);
 }
 
-/* 화면이 바뀔 때 내용이 살짝 떠오르며 등장 — 뚝 끊기는 전환을 부드럽게 */
+/* ================= 화면 전환 ================= */
+/* 앞으로 가면 오른쪽에서, 뒤로 가면 왼쪽에서 밀려 들어온다. 화면 요소가 위에서부터 차례로
+   (30ms 간격) 들어와 한 덩어리로 툭 바뀌는 느낌을 없앤다. fill-mode backwards — 끝난 뒤에는
+   transform이 남지 않아 바텀시트·라이트박스 같은 절대배치 요소의 기준 위치를 바꾸지 않는다. */
 .screen > * {
-  animation: screen-in 0.2s ease-out both;
+  animation: slide-in-forward 0.32s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
 }
 
-@keyframes screen-in {
+.screen[data-dir="back"] > * {
+  animation-name: slide-in-back;
+}
+
+.screen > *:nth-child(2) { animation-delay: 0.03s; }
+.screen > *:nth-child(3) { animation-delay: 0.06s; }
+.screen > *:nth-child(4) { animation-delay: 0.09s; }
+.screen > *:nth-child(5) { animation-delay: 0.12s; }
+.screen > *:nth-child(6) { animation-delay: 0.15s; }
+.screen > *:nth-child(n + 7) { animation-delay: 0.18s; }
+
+/* 덮개류는 미끄러지지 않고 제자리에서 나타난다 */
+.screen > .sheet-backdrop,
+.screen > .lightbox,
+.screen > .loading-overlay {
+  animation: fade-in 0.2s ease-out backwards;
+  animation-delay: 0s;
+}
+
+@keyframes slide-in-forward {
   from {
     opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+    transform: translateX(18px);
   }
 }
 
-/* 판정 카드는 한 박자 늦게 나와 시선이 모이게 */
+@keyframes slide-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* ================= 판정 결과 ================= */
 .verdict-hero,
 .report-hero {
-  animation: screen-in 0.28s ease-out 0.05s both;
+  animation: rise-in 0.42s cubic-bezier(0.22, 0.8, 0.3, 1) 0.08s backwards;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .screen > *,
-  .verdict-hero,
-  .report-hero,
-  .sheet {
-    animation: none;
+.verdict-hero-icon {
+  animation: pop-in 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) 0.25s backwards;
+}
+
+/* 위험일 때만 아이콘 둘레로 파동이 두 번 퍼져 경고를 강조한다 */
+.tone-danger .verdict-hero-icon {
+  position: relative;
+}
+
+.tone-danger .verdict-hero-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--danger);
+  opacity: 0;
+  animation: ripple 1.2s ease-out 0.7s 2;
+}
+
+@keyframes ripple {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
   }
-  .btn,
-  .case-picker-item,
-  .report-item,
-  .attach-thumb {
-    transition: none;
+  to {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+/* 1·2단계 막대는 0에서 자기 점수까지 차오르고, 게이지 마커는 왼쪽에서 제자리로 미끄러진다 */
+.bar-row-fill,
+.rag-candidate-fill {
+  transform-origin: left center;
+  animation: bar-grow 0.7s cubic-bezier(0.22, 0.8, 0.3, 1) 0.35s backwards;
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.level-gauge-marker {
+  animation: marker-in 0.8s cubic-bezier(0.22, 0.8, 0.3, 1) 0.5s backwards;
+}
+
+@keyframes marker-in {
+  from {
+    left: 0;
+    opacity: 0;
+  }
+}
+
+.verdict-matrix-cell.active {
+  animation: pop-in 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) 0.6s backwards;
+}
+
+/* ================= 채팅 ================= */
+.chat-msg {
+  animation: rise-in 0.26s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+}
+
+/* ================= 덮개(바텀시트·라이트박스) ================= */
+.sheet-backdrop {
+  animation: fade-in 0.2s ease-out backwards;
+}
+
+.lightbox-body {
+  animation: zoom-in 0.25s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+}
+
+@keyframes zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+/* ================= M4 질문: 진행 막대 + 다음 질문이 옆에서 밀려 들어옴 ================= */
+.question-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.question-progress span {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+.question-progress span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--nh-green);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.4s cubic-bezier(0.22, 0.8, 0.3, 1);
+}
+
+.question-progress span.done::after,
+.question-progress span.active::after {
+  transform: scaleX(1);
+}
+
+.question-progress span.active::after {
+  opacity: 0.55;
+}
+
+.question-body {
+  animation: slide-in-forward 0.3s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+}
+
+/* ================= M1 금액: 한국식 단위 보조 표기 + 바뀔 때 살짝 튀어 오름 ================= */
+.amount-korean {
+  display: block;
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--nh-green-dark);
+  font-weight: 600;
+}
+
+.amount-bump {
+  animation: bump 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+@keyframes bump {
+  from {
+    transform: scale(0.94);
+  }
+}
+
+/* ================= 역할 선택(첫 화면) ================= */
+.role-picker {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.role-hero {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.role-logo {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 14px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, var(--nh-green), var(--nh-green-dark));
+  box-shadow: 0 12px 28px -12px rgba(0, 135, 63, 0.7);
+  animation: pop-in 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) backwards, float 4s ease-in-out 0.8s infinite;
+}
+
+.role-logo svg {
+  width: 46px;
+  height: 46px;
+}
+
+.logo-shield {
+  fill: rgba(255, 255, 255, 0.18);
+  stroke: white;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.logo-check {
+  fill: none;
+  stroke: white;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  animation: draw-check 0.5s ease-out 0.45s backwards;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes draw-check {
+  from {
+    stroke-dashoffset: 40;
+  }
+}
+
+.role-brand {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.role-tagline {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  word-break: keep-all;
+}
+
+.role-question {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 0 0 10px 2px;
+}
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.role-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text);
+  transition: transform 0.08s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.role-card:hover {
+  border-color: var(--nh-green);
+  box-shadow: 0 8px 20px -12px rgba(0, 135, 63, 0.45);
+}
+
+.role-card:hover .role-chevron {
+  transform: translateX(3px);
+  color: var(--nh-green);
+}
+
+.role-card:active {
+  transform: scale(0.98);
+}
+
+.role-icon {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.role-icon-customer {
+  background: var(--nh-green-soft);
+}
+
+.role-icon-admin {
+  background: #eef1ff;
+}
+
+.role-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.role-text strong {
+  font-size: 15.5px;
+}
+
+.role-text span {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.role-chevron {
+  font-size: 22px;
+  color: #c3c6cb;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.role-footnote {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 22px 0 0;
+}
+
+/* 첫 화면 요소들도 위에서부터 차례로 */
+.role-hero,
+.role-question,
+.role-card,
+.role-footnote {
+  animation: rise-in 0.45s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+}
+
+.role-question { animation-delay: 0.12s; }
+.role-card:nth-child(1) { animation-delay: 0.18s; }
+.role-card:nth-child(2) { animation-delay: 0.24s; }
+.role-footnote { animation-delay: 0.32s; }
+
+/* ================= 시연 케이스 선택 ================= */
+.case-picker-item {
+  font-family: inherit;
+  color: var(--text);
+  animation: rise-in 0.4s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+}
+
+.case-picker-item:nth-child(2) { animation-delay: 0.04s; }
+.case-picker-item:nth-child(3) { animation-delay: 0.08s; }
+.case-picker-item:nth-child(4) { animation-delay: 0.12s; }
+.case-picker-item:nth-child(5) { animation-delay: 0.16s; }
+.case-picker-item:nth-child(6) { animation-delay: 0.2s; }
+
+.case-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 0 4px var(--tone-soft);
+}
+
+.case-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.case-verdict {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--tone-strong);
+  background: var(--tone-soft);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+/* ================= 분석 진행 표시 ================= */
+.analyzing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.analyzing-orb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 12px;
+}
+
+.analyzing-orb::before,
+.analyzing-orb::after,
+.analyzing-orb span {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.analyzing-orb::before {
+  border: 3px solid var(--nh-green-soft);
+}
+
+.analyzing-orb::after {
+  border: 3px solid transparent;
+  border-top-color: var(--nh-green);
+  animation: spin 0.9s linear infinite;
+}
+
+.analyzing-orb span {
+  inset: 16px;
+  background: var(--nh-green);
+  animation: breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+}
+
+.analyzing-title {
+  margin: 0 0 14px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.analyzing-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 210px;
+}
+
+.analyzing-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: #b0b4ba;
+  transition: color 0.3s ease;
+}
+
+.analyzing-steps li.active {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.analyzing-steps li.done {
+  color: var(--nh-green-dark);
+}
+
+.analyzing-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  background: var(--bg);
+  color: #b0b4ba;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.analyzing-steps li.active .analyzing-dot {
+  background: var(--nh-green-soft);
+  color: var(--nh-green-dark);
+  animation: breathe-soft 1.2s ease-in-out infinite;
+}
+
+.analyzing-steps li.done .analyzing-dot {
+  background: var(--nh-green);
+  color: white;
+}
+
+@keyframes breathe-soft {
+  50% {
+    box-shadow: 0 0 0 5px rgba(0, 166, 81, 0.12);
+  }
+}
+
+/* ================= 완료 화면 ================= */
+.complete-hero {
+  text-align: center;
+  margin: 18px 0 20px;
+}
+
+.status-mark {
+  width: 76px;
+  height: 76px;
+  display: block;
+  margin: 0 auto 14px;
+}
+
+.status-mark-ring {
+  fill: none;
+  stroke-width: 4;
+  stroke-dasharray: 202;
+  animation: draw-ring 0.55s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+}
+
+.status-mark-glyph {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 120;
+  animation: draw-glyph 0.45s ease-out 0.45s backwards;
+}
+
+.status-mark-done .status-mark-ring,
+.status-mark-done .status-mark-glyph {
+  stroke: var(--nh-green);
+}
+
+.status-mark-pending .status-mark-ring,
+.status-mark-pending .status-mark-glyph {
+  stroke: var(--warn);
+}
+
+.status-mark-pending .status-mark-glyph {
+  stroke-width: 3.5;
+}
+
+@keyframes draw-ring {
+  from {
+    stroke-dashoffset: 202;
+  }
+}
+
+@keyframes draw-glyph {
+  from {
+    stroke-dashoffset: 120;
+  }
+}
+
+.complete-title {
+  font-size: 21px;
+  margin: 0 0 6px;
+}
+
+.complete-to {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.complete-amount {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-top: 2px;
+}
+
+.info-list dd.warn {
+  color: #8a5d05;
+  font-weight: 700;
+}
+
+.complete-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 14px 4px 0;
+  word-break: keep-all;
+}
+
+/* 움직임 줄이기 설정: 모든 진입·강조 애니메이션을 끄고 완성된 상태로 바로 보여준다 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

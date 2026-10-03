@@ -5,7 +5,7 @@ interface Props {
   title: string;
   onBack?: () => void;
   /** 우측 상단 홈 아이콘 — 처음 화면으로 돌아간다(demo는 케이스 선택, local/remote는 이체 입력).
-   * 안 넘기면 예전처럼 눌러도 반응 없는 장식 아이콘으로 남는다. */
+   * 안 넘기면 아이콘 없이 자리만 비운다. */
   onHome?: () => void;
 }
 
@@ -29,13 +29,14 @@ export default function AppBar({ title, onBack, onHome }: Props) {
         <span style={{ width: 32 }} />
       )}
       <span className="appbar-title">{title}</span>
+      {/* 눌러도 아무 일 없는 장식 아이콘은 혼란만 주므로, 갈 곳이 없으면 자리만 비워둔다 */}
       <span className="appbar-icons">
         {onHome ? (
           <button className="appbar-home" onClick={onHome} aria-label="처음으로">
             <HomeIcon />
           </button>
         ) : (
-          <HomeIcon />
+          <span style={{ width: 32 }} />
         )}
       </span>
     </div>

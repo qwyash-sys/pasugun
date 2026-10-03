@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { koreanAmount } from "../utils/format";
 import AppBar from "../components/AppBar";
 import { CUSTOMER_OPTIONS } from "../demoData/customers";
 import type { DemoCase } from "../demoData/cases";
@@ -48,6 +49,7 @@ export default function M1Amount({ isDemo, demoCase, onNext, onHome }: Props) {
         <div className="amount-prompt">
           얼마를 보낼까요?
           <strong>{demoCase.input.amount.toLocaleString()}원</strong>
+          <span className="amount-korean">{koreanAmount(demoCase.input.amount)}</span>
         </div>
         <div className="spacer" />
         <button className="btn btn-primary" onClick={() => onNext({ customerId: "demo", amount: demoCase.input.amount })}>
@@ -87,7 +89,11 @@ export default function M1Amount({ isDemo, demoCase, onNext, onHome }: Props) {
 
       <div className="amount-prompt">
         얼마를 보낼까요?
-        <strong>{amount ? amount.toLocaleString() : 0}원</strong>
+        {/* key: 금액이 바뀔 때마다 숫자가 살짝 튀어 올라 입력이 반영됐음을 보여준다 */}
+        <strong key={amount} className="amount-bump">
+          {amount ? amount.toLocaleString() : 0}원
+        </strong>
+        {amount > 0 && <span className="amount-korean">{koreanAmount(amount)}</span>}
       </div>
 
       <div className="pill-row">

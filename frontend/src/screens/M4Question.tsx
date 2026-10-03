@@ -52,6 +52,13 @@ export default function M4Question({ payeeBank, payeeName, amount, questions, on
       </div>
 
       <BottomSheet>
+        <div className="question-progress" aria-label={`${questions.length}개 중 ${index + 1}번째 질문`}>
+          {questions.map((q, i) => (
+            <span key={q.question_id} className={i < index ? "done" : i === index ? "active" : ""} />
+          ))}
+        </div>
+        {/* key로 질문이 바뀔 때마다 새로 그려져 다음 질문이 옆에서 밀려 들어온다 */}
+        <div className="question-body" key={question.question_id}>
         <p className="subtitle" style={{ marginBottom: 4 }}>
           보이스피싱, 한 번 더 확인해 주세요 · {index + 1}/{questions.length}
         </p>
@@ -88,6 +95,7 @@ export default function M4Question({ payeeBank, payeeName, amount, questions, on
             ))}
           </div>
         )}
+        </div>
       </BottomSheet>
     </>
   );

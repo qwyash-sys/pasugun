@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AppBar from "../components/AppBar";
+import StatusMark from "../components/StatusMark";
 import { NEAREST_BRANCH, VISIT_PURPOSE, planBranchVisit, visitGuide } from "../utils/branchVisit";
 
 interface Props {
@@ -95,7 +96,7 @@ export default function BranchBooking({ customerName, onBack, onHome }: Props) {
       <AppBar title="예약 완료" onHome={onHome} />
       <div className="spacer" />
       <div className="booking-hero">
-        <div className="booking-hero-icon done">✓</div>
+        <StatusMark kind="done" />
         <h1 className="title">영업점 방문 예약이 완료되었어요</h1>
         <p className="booking-guide">예약 시간에 신분증을 가지고 방문해주세요. 송금은 상담 후 진행하시면 돼요.</p>
       </div>

@@ -1,4 +1,5 @@
 import AppBar from "../components/AppBar";
+import StatusMark from "../components/StatusMark";
 import type { Role } from "../roles";
 import type { FinalRisk } from "../types";
 
@@ -16,31 +17,46 @@ export default function M7Complete({ role, final, payeeName, amount, onRestart }
   return (
     <>
       <AppBar title={isDelayed ? "지연이체 접수" : "이체완료"} onHome={onRestart} />
-      <div className="spacer" />
-      <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 48, marginBottom: 12 }}>{isDelayed ? "⏳" : "✅"}</div>
-        <h1 className="title">{isDelayed ? "지연이체로 접수됐어요" : "송금 완료"}</h1>
-        <p className="subtitle">
-          {payeeName}님께 {amount.toLocaleString()}원{isDelayed ? "을 지연이체로 예약했어요." : "을 보냈어요."}
-        </p>
-        {isDelayed && (
-          <p style={{ fontSize: 13, color: "var(--text-muted)", padding: "0 8px" }}>
+
+      <div className={`complete-hero ${isDelayed ? "pending" : "done"}`}>
+        <StatusMark kind={isDelayed ? "pending" : "done"} />
+        <h1 className="complete-title">{isDelayed ? "지연이체로 접수됐어요" : "송금을 완료했어요"}</h1>
+        <p className="complete-to">{payeeName}님께</p>
+        <div className="complete-amount">{amount.toLocaleString()}원</div>
+      </div>
+
+      <dl className="info-list boxed">
+        <div>
+          <dt>받는 분</dt>
+          <dd>{payeeName}</dd>
+        </div>
+        <div>
+          <dt>처리 방식</dt>
+          <dd className={isDelayed ? "warn" : "em"}>{isDelayed ? "지연이체 · 일정 시간 후 처리" : "즉시 이체"}</dd>
+        </div>
+        {role === "admin" && (
+          <div>
+            <dt>판정 근거</dt>
+            <dd>
+              송금위험 {final.account_level} · AI분석 {final.context_level} · 최종 {final.final}
+            </dd>
+          </div>
+        )}
+      </dl>
+
+      {isDelayed && (
+        <>
+          <p className="complete-note">
             보이스피싱이 의심되는 거래라 안전을 위해 일정 시간 후 처리돼요. 그 사이 언제든 취소하거나
             영업점·112·1332로 확인할 수 있어요.
           </p>
-        )}
-        {isDelayed && (
           <p className="delayed-callback">📞 지연이체 진행 전 고객센터에서 최대한 빠르게 확인상담 연락을 드릴 거예요.</p>
-        )}
-        {role === "admin" && (
-          <p style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
-            판정 근거: 송금위험 {final.account_level} · AI분석 {final.context_level} · 최종 {final.final}
-          </p>
-        )}
-      </div>
+        </>
+      )}
+
       <div className="spacer" />
-      <button className="btn btn-secondary" onClick={onRestart}>
-        다시 시작
+      <button className="btn btn-primary" onClick={onRestart}>
+        확인
       </button>
     </>
   );

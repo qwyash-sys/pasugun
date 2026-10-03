@@ -36,6 +36,24 @@ type Screen =
   | "report-list";
 
 const isDemo = RESPONSE_SOURCE === "demo";
+const MIN_ANALYZING_MS = 1900;
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+// 화면 전환 방향(앞으로/뒤로)을 정하는 흐름상 순서. 뒤 화면으로 가면 오른쪽에서, 앞 화면으로
+// 돌아가면 왼쪽에서 밀려 들어온다.
+const SCREEN_ORDER: Screen[] = [
+  "role-picker",
+  "case-picker",
+  "m1",
+  "m2",
+  "m3a",
+  "m4",
+  "m5",
+  "m6",
+  "branch-booking",
+  "m7",
+  "report",
+  "report-list",
+];
 const flowStart: Screen = isDemo ? "case-picker" : "m1";
 
 export default function App() {
@@ -129,7 +147,9 @@ export default function App() {
   function finalizeToResult() {
     if (!client || !sessionId) return;
     runGuarded(async () => {
-      const res = await client.finalize(sessionId);
+      // 분석 진행 표시(1→2→3단계)가 끝까지 보이도록 최소 시간을 둔다 — 데모나 대화 없는 빠른
+      // 판정은 즉시 끝나 화면이 번쩍이고 지나가 버린다. 실제 계산이 더 오래 걸리면 그만큼 기다린다.
+      const [res] = await Promise.all([client.finalize(sessionId), wait(MIN_ANALYZING_MS)]);
       setResult(res);
       setScreen("m6");
     });
@@ -197,12 +217,15 @@ export default function App() {
     // 목록 페이지를 넘기면 새 화면처럼 맨 위로 스크롤돼야 해서 페이지 번호도 화면 키에 넣는다.
     <PhoneFrame
       screenKey={screen === "report-list" ? `${screen}-${listQuery.page}` : screen}
+      // 목록에서 연 리포트는 목록보다 한 단계 깊다(같은 리포트 화면이라도 결과에서 연 것과 구분) —
+      // 그래야 목록 → 리포트는 앞으로, 리포트 → 목록은 뒤로 미끄러진다.
+      screenIndex={screen === "report" && reportFrom === "list" ? SCREEN_ORDER.length : SCREEN_ORDER.indexOf(screen)}
       role={role}
       onChangeRole={changeRole}
     >
       {screen === "role-picker" && <RolePicker onSelect={chooseRole} />}
 
-      {screen === "case-picker" && <CasePicker onSelect={selectDemoCase} />}
+      {screen === "case-picker" && <CasePicker onSelect={selectDemoCase} onBack={changeRole} />}
 
       {screen === "m1" && (
         <M1Amount isDemo={isDemo} demoCase={demoCase} onNext={handleM1Next} onHome={resetFlow} />
@@ -232,7 +255,7 @@ export default function App() {
         />
       )}
       {screen === "m3a" && (busy || error) && (
-        <LoadingOrError busy={busy} error={error} onRetry={retry} onCancel={resetFlow} />
+        <LoadingOrError analyzing busy={busy} error={error} onRetry={retry} onCancel={resetFlow} />
       )}
 
       {screen === "m4" && quote && !busy && !error && (
