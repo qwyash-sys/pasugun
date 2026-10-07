@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from app.agent import llm_status
 from app.config import get_settings
 from app.providers.rag.factory import get_rag
-from app.routers import chat, reports, transfer
+from app.routers import admin, chat, reports, transfer
 
 logger = logging.getLogger("pasugun")
 settings = get_settings()
@@ -59,6 +59,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 app.include_router(transfer.router)
 app.include_router(chat.router)
 app.include_router(reports.router)
+app.include_router(admin.router)
 
 
 @app.get("/api/health")

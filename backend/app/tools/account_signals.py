@@ -17,109 +17,135 @@ from datetime import datetime
 
 from app.data_store import get_customer, get_payee
 from app.models import ContextOverrides, SignalResult
+from app.rule_config import RuleConfig, get_rule_config
+
+# 각 check_*는 "이번 거래에서 잰 값(value)"과 그 값으로 매긴 점수를 함께 돌려준다. 점수 기준(임계치·배점)은
+# 룰 설정(rule_config)에서 읽고, value는 나중에 임계치를 바꿔 과거 거래를 다시 채점(영향 미리보기)할 때 쓴다.
 
 
-def check_payee_fraud(payee_account: str) -> SignalResult:
+def check_payee_fraud(payee_account: str, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     payee = get_payee(payee_account)
     hit = bool(payee["is_fraud_reported"])
-    score = 40 if hit else 0
+    score = int(cfg.p("payee_fraud", "score")) if hit else 0
     count = payee.get("fraud_report_count", 0)
     detail = f"사기신고 {count}건" if hit else "사기신고 이력 없음"
-    return SignalResult(signal="payee_fraud", hit=hit, score=score, detail=detail)
+    return SignalResult(signal="payee_fraud", hit=hit, score=score, detail=detail, value=float(count if hit else 0))
 
 
-def check_amount_anomaly(customer_id: str, amount: int) -> SignalResult:
+def check_amount_anomaly(customer_id: str, amount: int, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     customer = get_customer(customer_id)
     avg = customer["baseline"]["avg_transfer_amount"]
 
+    def g(key: str) -> float:
+        return cfg.p("amount_anomaly", key)
+
     if avg <= 0:
         ratio = None
-        score = 25 if amount >= 1_000_000 else 0
+        score = int(g("score_high")) if amount >= 1_000_000 else 0
     else:
         ratio = amount / avg
-        if ratio >= 10:
-            score = 25
-        elif ratio >= 5:
-            score = 15
-        elif ratio >= 2:
-            score = 8
+        if ratio >= g("ratio_high"):
+            score = int(g("score_high"))
+        elif ratio >= g("ratio_mid"):
+            score = int(g("score_mid"))
+        elif ratio >= g("ratio_low"):
+            score = int(g("score_low"))
         else:
             score = 0
 
     hit = score > 0
     ratio_text = f"평소 대비 {ratio:.1f}배" if ratio is not None else "평소 이체 이력 없음"
-    return SignalResult(signal="amount_anomaly", hit=hit, score=score, detail=ratio_text)
+    return SignalResult(signal="amount_anomaly", hit=hit, score=score, detail=ratio_text, value=ratio)
 
 
-def check_fund_source(customer_id: str, overrides: ContextOverrides) -> SignalResult:
+def check_fund_source(customer_id: str, overrides: ContextOverrides, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     customer = get_customer(customer_id)
     hit = overrides.fund_source_recent or customer["recent_events"].get("fund_source") is not None
-    score = 25 if hit else 0
+    score = int(cfg.p("fund_source", "score")) if hit else 0
     detail = "예·적금 해지 등 자금이동 24시간 이내" if hit else "특이 자금이동 없음"
-    return SignalResult(signal="fund_source", hit=hit, score=score, detail=detail)
+    return SignalResult(signal="fund_source", hit=hit, score=score, detail=detail, value=1.0 if hit else 0.0)
 
 
-def check_payee_freshness(payee_account: str) -> SignalResult:
+def check_payee_freshness(payee_account: str, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     payee = get_payee(payee_account)
     age = payee.get("account_age_days")
+
+    def g(key: str) -> float:
+        return cfg.p("payee_freshness", key)
+
     if age is None:
         # 개설일을 확인할 수 없는 계좌는 신규 계좌와 같은 위험으로 본다.
-        return SignalResult(signal="payee_freshness", hit=True, score=20, detail="개설일 정보 없음(신규 계좌로 취급)")
-    if age <= 7:
-        score = 20
-    elif age <= 30:
-        score = 10
+        return SignalResult(signal="payee_freshness", hit=True, score=int(g("score_unknown")), detail="개설일 정보 없음(신규 계좌로 취급)", value=None)
+    if age <= g("days_new"):
+        score = int(g("score_new"))
+    elif age <= g("days_recent"):
+        score = int(g("score_recent"))
     else:
         score = 0
-    return SignalResult(signal="payee_freshness", hit=score > 0, score=score, detail=f"개설 {age}일")
+    return SignalResult(signal="payee_freshness", hit=score > 0, score=score, detail=f"개설 {age}일", value=float(age))
 
 
-def check_limit_change(customer_id: str, overrides: ContextOverrides) -> SignalResult:
+def check_limit_change(customer_id: str, overrides: ContextOverrides, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     customer = get_customer(customer_id)
     hit = overrides.limit_changed_recent or bool(customer["recent_events"].get("limit_changed"))
-    score = 20 if hit else 0
+    score = int(cfg.p("limit_change", "score")) if hit else 0
     detail = "24시간 내 이체한도 상향" if hit else "한도 변경 없음"
-    return SignalResult(signal="limit_change", hit=hit, score=score, detail=detail)
+    return SignalResult(signal="limit_change", hit=hit, score=score, detail=detail, value=1.0 if hit else 0.0)
 
 
-def check_velocity(customer_id: str, overrides: ContextOverrides) -> SignalResult:
+def check_velocity(customer_id: str, overrides: ContextOverrides, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     count = overrides.velocity_recent_count
-    if count >= 3:
-        score = 20
-    elif count == 2:
-        score = 10
+
+    def g(key: str) -> float:
+        return cfg.p("velocity", key)
+
+    if count >= g("count_high"):
+        score = int(g("score_high"))
+    elif count >= g("count_mid"):
+        score = int(g("score_mid"))
     else:
         score = 0
     hit = score > 0
     detail = f"10분 내 {count}건" if hit else "정상 빈도"
-    return SignalResult(signal="velocity", hit=hit, score=score, detail=detail)
+    return SignalResult(signal="velocity", hit=hit, score=score, detail=detail, value=float(count))
 
 
-def check_device(customer_id: str, overrides: ContextOverrides) -> SignalResult:
+def check_device(customer_id: str, overrides: ContextOverrides, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     customer = get_customer(customer_id)
     hit = overrides.device_new or bool(customer["recent_events"].get("device_new"))
-    score = 15 if hit else 0
+    score = int(cfg.p("device", "score")) if hit else 0
     detail = "신규 기기/환경" if hit else "기존 사용 기기"
-    return SignalResult(signal="device", hit=hit, score=score, detail=detail)
+    return SignalResult(signal="device", hit=hit, score=score, detail=detail, value=1.0 if hit else 0.0)
 
 
-def check_time_pattern(current_time: str, customer_id: str) -> SignalResult:
+def check_time_pattern(current_time: str, customer_id: str, cfg: RuleConfig | None = None) -> SignalResult:
+    cfg = cfg or get_rule_config()
     customer = get_customer(customer_id)
     start, end = customer["baseline"]["usual_hours"]
     hour = datetime.fromisoformat(current_time).hour
 
-    if 0 <= hour < 6:
-        score = 10
-        detail = "평소 없는 새벽 시간대(00~06시)"
+    def g(key: str) -> float:
+        return cfg.p("time_pattern", key)
+
+    if g("dawn_start") <= hour < g("dawn_end"):
+        score = int(g("score_dawn"))
+        detail = f"평소 없는 새벽 시간대({int(g('dawn_start')):02d}~{int(g('dawn_end')):02d}시)"
     elif not (start <= hour < end):
-        score = 5
+        score = int(g("score_off_hours"))
         detail = "평소 이용 시간대 밖"
     else:
         score = 0
         detail = "평소 이용 시간대"
 
     hit = score > 0
-    return SignalResult(signal="time_pattern", hit=hit, score=score, detail=detail)
+    return SignalResult(signal="time_pattern", hit=hit, score=score, detail=detail, value=float(hour))
 
 
 @dataclass(frozen=True)
@@ -131,6 +157,7 @@ class SignalInput:
     amount: int
     current_time: str
     overrides: ContextOverrides
+    config: RuleConfig
 
 
 @dataclass(frozen=True)
@@ -148,16 +175,25 @@ class AccountSignalSpec:
     condition: str = ""  # 조건(무엇을 보고 배점하는가)
     scoring: str = ""  # 이 시스템의 실제 배점 기준
 
+    def effective_max(self, cfg: RuleConfig) -> int:
+        """설정에 있는 룰은 설정의 배점 중 최대값(꺼져 있으면 0), 새로 등록한 룰은 spec의 max_score."""
+        return cfg.max_score(self.name) if cfg.has_rule(self.name) else self.max_score
+
     def evaluate(self, inp: SignalInput) -> SignalResult:
         result = self.check(inp)
         if result.signal != self.name:
             raise ValueError(f"신호 이름 불일치: spec={self.name} result={result.signal}")
-        if not 0 <= result.score <= self.max_score:
-            raise ValueError(f"{self.name} 점수 {result.score}가 만점 {self.max_score} 범위를 벗어남")
+        cfg = inp.config
+        max_score = self.effective_max(cfg)
+        if cfg.has_rule(self.name) and not cfg.enabled(self.name):
+            # 관리자가 끈 룰: 값은 재채점(영향 미리보기)에 쓰도록 남기고 점수만 0으로.
+            result = result.model_copy(update={"hit": False, "score": 0, "detail": "룰 사용 중지(관리자 설정)"})
+        if not 0 <= result.score <= max_score:
+            raise ValueError(f"{self.name} 점수 {result.score}가 만점 {max_score} 범위를 벗어남")
         return result.model_copy(
             update={
                 "label": self.label,
-                "max_score": self.max_score,
+                "max_score": max_score,
                 "rule_id": self.rule_id,
                 "definition": self.definition,
                 "condition": self.condition,
@@ -170,56 +206,56 @@ class AccountSignalSpec:
 # 룰ID·정의·조건은 업무 룰 목록(R01~R11) 기준 — R09~R11은 아직 구현 전이라 여기엔 없다.
 ACCOUNT_SIGNALS: list[AccountSignalSpec] = [
     AccountSignalSpec(
-        "payee_fraud", "수취계좌 사기이력", 40, lambda i: check_payee_fraud(i.payee_account),
+        "payee_fraud", "수취계좌 사기이력", 40, lambda i: check_payee_fraud(i.payee_account, i.config),
         rule_id="R01",
         definition="수취계좌의 사기신고 이력 여부",
         condition="신고 건수에 따라 점수 배점",
         scoring="사기신고 이력 있음 40점 · 없음 0점 (현재는 신고 건수와 무관하게 같은 점수)",
     ),
     AccountSignalSpec(
-        "amount_anomaly", "이체금액 이상치", 25, lambda i: check_amount_anomaly(i.customer_id, i.amount),
+        "amount_anomaly", "이체금액 이상치", 25, lambda i: check_amount_anomaly(i.customer_id, i.amount, i.config),
         rule_id="R02",
         definition="평소 이체금액 대비 이번 이체금액의 이상 정도",
         condition="평소 대비 배수 구간에 따라 점수 배점",
         scoring="평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점",
     ),
     AccountSignalSpec(
-        "fund_source", "최근 자금이동(해지 등)", 25, lambda i: check_fund_source(i.customer_id, i.overrides),
+        "fund_source", "최근 자금이동(해지 등)", 25, lambda i: check_fund_source(i.customer_id, i.overrides, i.config),
         rule_id="R03",
         definition="예·적금 해지 등 자금원천 이동 여부",
         condition="자금원천 이동 후 경과시간에 따라 점수 배점",
         scoring="24시간 이내 자금 이동 25점 · 없음 0점",
     ),
     AccountSignalSpec(
-        "payee_freshness", "수취계좌 개설 기간", 20, lambda i: check_payee_freshness(i.payee_account),
+        "payee_freshness", "수취계좌 개설 기간", 20, lambda i: check_payee_freshness(i.payee_account, i.config),
         rule_id="R04",
         definition="수취계좌 개설 후 경과일수",
         condition="개설 경과일 구간에 따라 점수 배점",
         scoring="개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)",
     ),
     AccountSignalSpec(
-        "limit_change", "이체한도 변경 이력", 20, lambda i: check_limit_change(i.customer_id, i.overrides),
+        "limit_change", "이체한도 변경 이력", 20, lambda i: check_limit_change(i.customer_id, i.overrides, i.config),
         rule_id="R05",
         definition="최근 이체한도 상향 이력",
         condition="최근 한도상향 이력 유무에 따라 점수 배점",
         scoring="24시간 이내 한도 상향 20점 · 없음 0점",
     ),
     AccountSignalSpec(
-        "velocity", "단기간 반복 이체", 20, lambda i: check_velocity(i.customer_id, i.overrides),
+        "velocity", "단기간 반복 이체", 20, lambda i: check_velocity(i.customer_id, i.overrides, i.config),
         rule_id="R06",
         definition="짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
         condition="단시간 내 이체(분할 포함) 건수에 따라 점수 배점",
         scoring="10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)",
     ),
     AccountSignalSpec(
-        "device", "신규 기기·환경", 15, lambda i: check_device(i.customer_id, i.overrides),
+        "device", "신규 기기·환경", 15, lambda i: check_device(i.customer_id, i.overrides, i.config),
         rule_id="R07",
         definition="기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
         condition="기기·위치 변경 이력 유무에 따라 점수 배점",
         scoring="신규 기기·환경 감지 15점 · 없음 0점",
     ),
     AccountSignalSpec(
-        "time_pattern", "이용 시간대", 10, lambda i: check_time_pattern(i.current_time, i.customer_id),
+        "time_pattern", "이용 시간대", 10, lambda i: check_time_pattern(i.current_time, i.customer_id, i.config),
         rule_id="R08",
         definition="평소와 다른 시간대 거래",
         condition="평소 거래시간대 이탈 여부에 따라 점수 배점",
@@ -245,5 +281,5 @@ def run_all_account_signals(
 ) -> list[SignalResult]:
     """1단계 등록된 신호를 항상 전량 호출한다 (SPEC 1장)."""
 
-    inp = SignalInput(customer_id, payee_account, amount, current_time, overrides)
+    inp = SignalInput(customer_id, payee_account, amount, current_time, overrides, get_rule_config())
     return [spec.evaluate(inp) for spec in ACCOUNT_SIGNALS]

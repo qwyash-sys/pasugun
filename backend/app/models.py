@@ -19,6 +19,8 @@ class SignalResult(BaseModel):
     # 화면 표시용 메타(신호 레지스트리가 채운다). 프론트가 모르는 신규 신호도 이 값으로 그릴 수 있다.
     label: str = ""
     max_score: int = 0
+    # 이번 거래에서 잰 원측값(비율·일수·건수·시각 등). 임계치를 바꿔 과거 거래를 다시 채점할 때 쓴다.
+    value: float | None = None
     # 관리자 화면 룰 설명(신호 레지스트리가 채운다). 이전에 저장된 리포트에는 없을 수 있다.
     rule_id: str = ""
     definition: str = ""
@@ -109,6 +111,8 @@ class FinalRisk(BaseModel):
     hard_override: bool
     reasons: list[str]
     action: str
+    # 이 판정을 낼 때 적용된 등급 경계(관리자 뷰 게이지·매트릭스가 현재 설정대로 그려지도록).
+    thresholds: dict[str, float] | None = None
 
 
 class AttachmentMeta(BaseModel):
@@ -124,6 +128,8 @@ class ReportPayload(BaseModel):
     customer_name: str
     customer_phone_masked: str
     customer_account_masked: str
+    customer_age_group: str = ""
+    customer_region: str = ""
     payee_bank: str
     payee_account: str
     payee_name: str

@@ -34,7 +34,11 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "케이스1(검찰사칭)·케이스3(메신저피싱)·케이스4(중고거래)에서 재사용. 케이스별 실제 이벤트 플래그는 요청의 context_overrides로 주입."
+    "note": "케이스1(검찰사칭)·케이스3(메신저피싱)·케이스4(중고거래)에서 재사용. 케이스별 실제 이벤트 플래그는 요청의 context_overrides로 주입.",
+    "profile": {
+      "age": 34,
+      "region": "서울 강남구"
+    }
   },
   {
     "customer_id": "C002",
@@ -71,7 +75,11 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "대출 갈아타기(케이스2, 대환대출) 시나리오용. 평소 이체 규모가 작아 500만원이 큰 이상치로 잡힘. 한도상향은 context_overrides.limit_changed_recent로 케이스2에서만 활성화."
+    "note": "대출 갈아타기(케이스2, 대환대출) 시나리오용. 평소 이체 규모가 작아 500만원이 큰 이상치로 잡힘. 한도상향은 context_overrides.limit_changed_recent로 케이스2에서만 활성화.",
+    "profile": {
+      "age": 29,
+      "region": "서울 마포구"
+    }
   },
   {
     "customer_id": "C003",
@@ -102,7 +110,11 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "SPEC 2-1 요약상 메신저피싱 상황용으로 배정된 프로필. 단, SPEC 5장 검산 완료 케이스3은 C001로 계산되어 있어 5케이스 데모는 C001을 사용한다. C003은 예비 프로필로 보유(확장 시나리오용)."
+    "note": "SPEC 2-1 요약상 메신저피싱 상황용으로 배정된 프로필. 단, SPEC 5장 검산 완료 케이스3은 C001로 계산되어 있어 5케이스 데모는 C001을 사용한다. C003은 예비 프로필로 보유(확장 시나리오용).",
+    "profile": {
+      "age": 26,
+      "region": "경기 성남시"
+    }
   },
   {
     "customer_id": "C004",
@@ -139,7 +151,11 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "평소에도 큰 거래를 하는 고객(부동산 잔금 정상 케이스5, 오탐 억제 데모). avg 대비로도 5천만원은 이상치로 잡히되(계좌 중), 맥락에서 정상 사유로 해소되어야 함."
+    "note": "평소에도 큰 거래를 하는 고객(부동산 잔금 정상 케이스5, 오탐 억제 데모). avg 대비로도 5천만원은 이상치로 잡히되(계좌 중), 맥락에서 정상 사유로 해소되어야 함.",
+    "profile": {
+      "age": 52,
+      "region": "서울 서초구"
+    }
   },
   {
     "customer_id": "C005",
@@ -163,7 +179,11 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다.",
+    "profile": {
+      "age": 61,
+      "region": "부산 해운대구"
+    }
   },
   {
     "customer_id": "C006",
@@ -187,7 +207,11 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다.",
+    "profile": {
+      "age": 45,
+      "region": "인천 연수구"
+    }
   },
   {
     "customer_id": "C007",
@@ -211,7 +235,11 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다.",
+    "profile": {
+      "age": 38,
+      "region": "대구 수성구"
+    }
   },
   {
     "customer_id": "C008",
@@ -235,6 +263,458 @@
       "fund_source": null,
       "device_new": false
     },
-    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다."
+    "note": "리포트 이력(관리자 리포트 목록) 목업 전용 가상 고객. 데모 5케이스·실제 모드 고객 선택 목록에는 쓰이지 않는다.",
+    "profile": {
+      "age": 23,
+      "region": "대전 유성구"
+    }
+  },
+  {
+    "customer_id": "C009",
+    "name": "노하윤",
+    "phone": "010-2091-0009",
+    "account": "351-0091-0009",
+    "balance": 6690000,
+    "baseline": {
+      "avg_transfer_amount": 120000,
+      "max_transfer_amount": 480000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 24,
+      "region": "광주 북구"
+    }
+  },
+  {
+    "customer_id": "C010",
+    "name": "문지후",
+    "phone": "010-2091-0010",
+    "account": "351-0091-0010",
+    "balance": 7100000,
+    "baseline": {
+      "avg_transfer_amount": 200000,
+      "max_transfer_amount": 800000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 27,
+      "region": "서울 관악구"
+    }
+  },
+  {
+    "customer_id": "C011",
+    "name": "배서아",
+    "phone": "010-2091-0011",
+    "account": "351-0091-0011",
+    "balance": 7510000,
+    "baseline": {
+      "avg_transfer_amount": 350000,
+      "max_transfer_amount": 1400000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 33,
+      "region": "경기 수원시"
+    }
+  },
+  {
+    "customer_id": "C012",
+    "name": "송도윤",
+    "phone": "010-2091-0012",
+    "account": "351-0091-0012",
+    "balance": 7920000,
+    "baseline": {
+      "avg_transfer_amount": 500000,
+      "max_transfer_amount": 2000000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 36,
+      "region": "경기 용인시"
+    }
+  },
+  {
+    "customer_id": "C013",
+    "name": "안예준",
+    "phone": "010-2091-0013",
+    "account": "351-0091-0013",
+    "balance": 8330000,
+    "baseline": {
+      "avg_transfer_amount": 700000,
+      "max_transfer_amount": 2800000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 42,
+      "region": "울산 남구"
+    }
+  },
+  {
+    "customer_id": "C014",
+    "name": "조은서",
+    "phone": "010-2091-0014",
+    "account": "351-0091-0014",
+    "balance": 8740000,
+    "baseline": {
+      "avg_transfer_amount": 900000,
+      "max_transfer_amount": 3600000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 47,
+      "region": "서울 송파구"
+    }
+  },
+  {
+    "customer_id": "C015",
+    "name": "허태윤",
+    "phone": "010-2091-0015",
+    "account": "351-0091-0015",
+    "balance": 9150000,
+    "baseline": {
+      "avg_transfer_amount": 450000,
+      "max_transfer_amount": 1800000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 55,
+      "region": "경북 포항시"
+    }
+  },
+  {
+    "customer_id": "C016",
+    "name": "류시온",
+    "phone": "010-2091-0016",
+    "account": "351-0091-0016",
+    "balance": 9560000,
+    "baseline": {
+      "avg_transfer_amount": 600000,
+      "max_transfer_amount": 2400000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 58,
+      "region": "충남 천안시"
+    }
+  },
+  {
+    "customer_id": "C017",
+    "name": "권나윤",
+    "phone": "010-2091-0017",
+    "account": "351-0091-0017",
+    "balance": 9970000,
+    "baseline": {
+      "avg_transfer_amount": 380000,
+      "max_transfer_amount": 1520000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 53,
+      "region": "경남 창원시"
+    }
+  },
+  {
+    "customer_id": "C018",
+    "name": "신우진",
+    "phone": "010-2091-0018",
+    "account": "351-0091-0018",
+    "balance": 10380000,
+    "baseline": {
+      "avg_transfer_amount": 300000,
+      "max_transfer_amount": 1200000,
+      "usual_hours": [
+        8,
+        20
+      ],
+      "transfer_limit": 3000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 64,
+      "region": "서울 노원구"
+    }
+  },
+  {
+    "customer_id": "C019",
+    "name": "홍다은",
+    "phone": "010-2091-0019",
+    "account": "351-0091-0019",
+    "balance": 10790000,
+    "baseline": {
+      "avg_transfer_amount": 220000,
+      "max_transfer_amount": 880000,
+      "usual_hours": [
+        8,
+        20
+      ],
+      "transfer_limit": 3000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 67,
+      "region": "전북 전주시"
+    }
+  },
+  {
+    "customer_id": "C020",
+    "name": "변도하",
+    "phone": "010-2091-0020",
+    "account": "351-0091-0020",
+    "balance": 11200000,
+    "baseline": {
+      "avg_transfer_amount": 260000,
+      "max_transfer_amount": 1040000,
+      "usual_hours": [
+        8,
+        20
+      ],
+      "transfer_limit": 3000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 69,
+      "region": "부산 사하구"
+    }
+  },
+  {
+    "customer_id": "C021",
+    "name": "마서진",
+    "phone": "010-2091-0021",
+    "account": "351-0091-0021",
+    "balance": 11610000,
+    "baseline": {
+      "avg_transfer_amount": 180000,
+      "max_transfer_amount": 720000,
+      "usual_hours": [
+        8,
+        20
+      ],
+      "transfer_limit": 3000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 72,
+      "region": "충북 청주시"
+    }
+  },
+  {
+    "customer_id": "C022",
+    "name": "곽민서",
+    "phone": "010-2091-0022",
+    "account": "351-0091-0022",
+    "balance": 12020000,
+    "baseline": {
+      "avg_transfer_amount": 150000,
+      "max_transfer_amount": 600000,
+      "usual_hours": [
+        8,
+        20
+      ],
+      "transfer_limit": 3000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 75,
+      "region": "강원 춘천시"
+    }
+  },
+  {
+    "customer_id": "C023",
+    "name": "도유진",
+    "phone": "010-2091-0023",
+    "account": "351-0091-0023",
+    "balance": 12430000,
+    "baseline": {
+      "avg_transfer_amount": 200000,
+      "max_transfer_amount": 800000,
+      "usual_hours": [
+        8,
+        20
+      ],
+      "transfer_limit": 3000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 78,
+      "region": "제주 제주시"
+    }
+  },
+  {
+    "customer_id": "C024",
+    "name": "서하람",
+    "phone": "010-2091-0024",
+    "account": "351-0091-0024",
+    "balance": 12840000,
+    "baseline": {
+      "avg_transfer_amount": 420000,
+      "max_transfer_amount": 1680000,
+      "usual_hours": [
+        9,
+        22
+      ],
+      "transfer_limit": 5000000
+    },
+    "recent_transactions": [],
+    "recent_events": {
+      "limit_changed": false,
+      "limit_changed_at": null,
+      "fund_source": null,
+      "device_new": false
+    },
+    "note": "리포트·통계 분석 이력 전용 가상 고객.",
+    "profile": {
+      "age": 31,
+      "region": "경기 고양시"
+    }
   }
 ]

@@ -2,6 +2,7 @@
 전부 이 모듈의 규칙으로만 결정한다 — 재현 가능하고 설명 가능해야 하기 때문."""
 
 from app.models import ContextAnswer, ContextAssessment, RagMatch, RiskLevel, SignalResult
+from app.rule_config import get_rule_config
 
 # 결정적 피싱징후: 이 중 하나라도 RAG 매칭에서 직접 hit 하면 즉시 맥락 高
 # (내부 필드명 hard_override는 그대로 유지 — API 계약이라 바꾸지 않는다)
@@ -9,19 +10,21 @@ HARD_OVERRIDE_RISK_SIGNALS = {"안전계좌", "원격제어앱", "화면유지�
 
 
 def account_level(total_score: int) -> RiskLevel:
-    if total_score >= 60:
+    cfg = get_rule_config()
+    if total_score >= cfg.g("account_high"):
         return "고"
-    if total_score >= 30:
+    if total_score >= cfg.g("account_mid"):
         return "중"
     return "저"
 
 
 def context_level(total_score: int, hard_override: bool) -> RiskLevel:
+    cfg = get_rule_config()
     if hard_override:
         return "고"
-    if total_score >= 50:
+    if total_score >= cfg.g("context_high"):
         return "고"
-    if total_score >= 25:
+    if total_score >= cfg.g("context_mid"):
         return "중"
     return "저"
 
@@ -29,10 +32,11 @@ def context_level(total_score: int, hard_override: bool) -> RiskLevel:
 def rag_score(similarity: float) -> int:
     """SPEC 4-2: 고위험 유형 매칭 + similarity>=0.80 -> 50 / 0.60~0.79 -> 30 / <0.60 -> 0."""
 
-    if similarity >= 0.80:
-        return 50
-    if similarity >= 0.60:
-        return 30
+    cfg = get_rule_config()
+    if similarity >= cfg.g("rag_high_sim"):
+        return int(cfg.g("rag_high_score"))
+    if similarity >= cfg.g("rag_mid_sim"):
+        return int(cfg.g("rag_mid_score"))
     return 0
 
 

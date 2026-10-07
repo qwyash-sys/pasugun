@@ -1,6 +1,7 @@
 """3단계 취합 함수 (SPEC 3-3, 4-3). 툴이 아니라 1·2단계 결과를 매트릭스로 합치는 순수 함수."""
 
 from app.models import ContextAssessment, FinalRisk, RiskLevel, SignalResult
+from app.rule_config import get_rule_config
 
 _MATRIX: dict[tuple[RiskLevel, RiskLevel], str] = {
     ("고", "고"): "위험", ("고", "중"): "위험", ("고", "저"): "주의",
@@ -44,7 +45,13 @@ def calculate_final_risk(
         hard_override=hard_override,
         reasons=reasons,
         action=_ACTIONS[final],
+        thresholds=_threshold_snapshot(),
     )
+
+
+def _threshold_snapshot() -> dict[str, float]:
+    cfg = get_rule_config()
+    return {k: cfg.g(k) for k in ("account_mid", "account_high", "context_mid", "context_high")}
 
 
 def intervention_intensity(account_score: int) -> str:
@@ -57,8 +64,9 @@ def intervention_intensity(account_score: int) -> str:
     원점수 25/60을 기준으로 삼아야 두 케이스가 SPEC이 의도한 대로 갈린다.
     """
 
-    if account_score < 25:
+    cfg = get_rule_config()
+    if account_score < cfg.g("intervene_question"):
         return "confirm_only"
-    if account_score >= 60:
+    if account_score >= cfg.g("intervene_safety"):
         return "empathy_question+safety_question"
     return "empathy_question"

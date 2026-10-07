@@ -51,7 +51,8 @@
     "is_fraud_reported": true,
     "fraud_report_count": 2,
     "account_age_days": 4,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_reported"
   },
   {
     "payee_account": "1002-331-448291",
@@ -60,7 +61,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 3,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_new"
   },
   {
     "payee_account": "123-456789-01-011",
@@ -69,7 +71,8 @@
     "is_fraud_reported": true,
     "fraud_report_count": 1,
     "account_age_days": 12,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_reported"
   },
   {
     "payee_account": "302-1188-4501-21",
@@ -78,7 +81,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 2,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_new"
   },
   {
     "payee_account": "110-588-203114",
@@ -87,7 +91,8 @@
     "is_fraud_reported": true,
     "fraud_report_count": 4,
     "account_age_days": 6,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_reported"
   },
   {
     "payee_account": "79421-43-12055",
@@ -96,7 +101,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 20,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_new"
   },
   {
     "payee_account": "100-032-775120",
@@ -105,7 +111,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 5,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_new"
   },
   {
     "payee_account": "3355-02-991234",
@@ -114,6 +121,247 @@
     "is_fraud_reported": true,
     "fraud_report_count": 1,
     "account_age_days": 1,
-    "note": "리포트 이력 목업 전용 가상 수취계좌."
+    "note": "리포트 이력 목업 전용 가상 수취계좌.",
+    "pool": "scam_reported"
+  },
+  {
+    "payee_account": "356-0412-8819-03",
+    "payee_bank": "NH농협은행",
+    "payee_name": "구태현",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 1450,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "821-910345-02-017",
+    "payee_bank": "국민은행",
+    "payee_name": "나은서",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 980,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "110-244-901377",
+    "payee_bank": "신한은행",
+    "payee_name": "도하린",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 2210,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "1002-455-120934",
+    "payee_bank": "우리은행",
+    "payee_name": "라시우",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 640,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "3333-04-7719025",
+    "payee_bank": "카카오뱅크",
+    "payee_name": "모예은",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 420,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "100-0412-77310",
+    "payee_bank": "토스뱅크",
+    "payee_name": "배건우",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 365,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "301-0192-6644-31",
+    "payee_bank": "NH농협은행",
+    "payee_name": "사하준",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 3100,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "585-21-009981",
+    "payee_bank": "하나은행",
+    "payee_name": "아윤서",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 1850,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "140-012-558201",
+    "payee_bank": "IBK기업은행",
+    "payee_name": "자예린",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 760,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "633-100422-04-005",
+    "payee_bank": "국민은행",
+    "payee_name": "차도윤",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 2600,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "1005-702-318845",
+    "payee_bank": "우리은행",
+    "payee_name": "(주)대성상사",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 4200,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "352-0330-1187-93",
+    "payee_bank": "NH농협은행",
+    "payee_name": "타이준",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 530,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "110-390-228114",
+    "payee_bank": "신한은행",
+    "payee_name": "파서윤",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 1210,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "3355-11-204470",
+    "payee_bank": "카카오뱅크",
+    "payee_name": "하은찬",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 300,
+    "pool": "normal",
+    "note": "분석용 가상 수취계좌(정상)"
+  },
+  {
+    "payee_account": "302-7741-0095-11",
+    "payee_bank": "NH농협은행",
+    "payee_name": "견우진",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 2,
+    "pool": "scam_new",
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+  },
+  {
+    "payee_account": "3333-27-1045582",
+    "payee_bank": "카카오뱅크",
+    "payee_name": "남궁서",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 4,
+    "pool": "scam_new",
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+  },
+  {
+    "payee_account": "100-0988-22145",
+    "payee_bank": "토스뱅크",
+    "payee_name": "도현우",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 6,
+    "pool": "scam_new",
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+  },
+  {
+    "payee_account": "621-102-558420",
+    "payee_bank": "하나은행",
+    "payee_name": "석지안",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 9,
+    "pool": "scam_new",
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+  },
+  {
+    "payee_account": "110-451-006892",
+    "payee_bank": "신한은행",
+    "payee_name": "가온유",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 11,
+    "pool": "scam_new",
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+  },
+  {
+    "payee_account": "1002-902-441170",
+    "payee_bank": "우리은행",
+    "payee_name": "방시우",
+    "is_fraud_reported": false,
+    "fraud_report_count": 0,
+    "account_age_days": 3,
+    "pool": "scam_new",
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+  },
+  {
+    "payee_account": "3355-08-117702",
+    "payee_bank": "카카오뱅크",
+    "payee_name": "탁서후",
+    "is_fraud_reported": true,
+    "fraud_report_count": 1,
+    "account_age_days": 14,
+    "pool": "scam_reported",
+    "note": "분석용 가상 수취계좌(신고된 사기)"
+  },
+  {
+    "payee_account": "356-0520-9931-47",
+    "payee_bank": "NH농협은행",
+    "payee_name": "빈채원",
+    "is_fraud_reported": true,
+    "fraud_report_count": 2,
+    "account_age_days": 19,
+    "pool": "scam_reported",
+    "note": "분석용 가상 수취계좌(신고된 사기)"
+  },
+  {
+    "payee_account": "100-1120-33098",
+    "payee_bank": "토스뱅크",
+    "payee_name": "옥하람",
+    "is_fraud_reported": true,
+    "fraud_report_count": 3,
+    "account_age_days": 35,
+    "pool": "scam_reported",
+    "note": "분석용 가상 수취계좌(신고된 사기)"
+  },
+  {
+    "payee_account": "824-910112-01-003",
+    "payee_bank": "국민은행",
+    "payee_name": "엄지호",
+    "is_fraud_reported": true,
+    "fraud_report_count": 4,
+    "account_age_days": 6,
+    "pool": "scam_reported",
+    "note": "분석용 가상 수취계좌(신고된 사기)"
   }
 ]

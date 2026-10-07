@@ -47,7 +47,7 @@ def test_new_signal_flows_through_quote_api_without_touching_other_code(isolated
     new = next(s for s in after["account"]["signals"] if s["signal"] == "overseas_ip")
     assert new == {
         "signal": "overseas_ip", "hit": True, "score": 15, "detail": "해외 IP 접속", "label": "해외 IP 접속", "max_score": 15,
-        "rule_id": "", "definition": "", "condition": "", "scoring": "",  # 설명을 안 채운 룰도 정상 동작
+        "rule_id": "", "definition": "", "condition": "", "scoring": "", "value": None,  # 설명·측정값을 안 채운 룰도 정상 동작
     }
     assert after["account"]["total_score"] == before["account"]["total_score"] + 15
     # 20점(확인 1탭) → 35점: 개입 강도가 질문 단계로 바뀐다 — 신규 신호가 흐름 분기까지 반영된다.

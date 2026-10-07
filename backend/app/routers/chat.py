@@ -17,7 +17,9 @@ from app.providers.llm.factory import get_llm
 from app.providers.ocr.factory import get_ocr
 from app.providers.rag.factory import get_rag
 from app.questions import SAFETY_QUESTION, empathy_question, questions_for
+from app.case_store import get_case_store
 from app.report_store import UploadedImage, get_report_store
+from app.transfer_log import build_log, get_log_store
 from app.reports import build_report
 from app.scoring import build_context_assessment
 from app.session_store import TransferSession, get_session
@@ -229,10 +231,10 @@ def _finalize_locked(session: TransferSession):
         except Exception:
             logger.exception("Conclusion generation failed")
 
+    customer = get_customer(session.customer_id)
+    payee = get_payee(session.payee_account)
     report = None
     if final.final == "위험":
-        customer = get_customer(session.customer_id)
-        payee = get_payee(session.payee_account)
         try:
             report = build_report(
                 agent=agent,
@@ -252,6 +254,33 @@ def _finalize_locked(session: TransferSession):
             logger.exception("Report generation failed")
             raise HTTPException(status_code=502, detail="리포트 생성 중 문제가 발생했어요.") from e
         report = get_report_store().add(report, session.uploads)
+        # 위험 건은 본부 모니터링 대기열에 올린다(고객이 아직 분기를 고르기 전이라 '고객 선택 대기').
+        try:
+            get_case_store().ensure_pending(report)
+        except Exception:
+            logger.exception("case creation failed")
+
+    # 안전·주의로 통과된 거래도 통계·룰 분석에 쓰도록 판정마다 로그를 남긴다. 로그 실패가 고객 흐름을 막으면 안 된다.
+    try:
+        get_log_store().add(
+            build_log(
+                log_id=get_log_store().next_id(),
+                at=session.current_time,
+                customer_id=session.customer_id,
+                customer=customer,
+                amount=session.amount,
+                payee_account=session.payee_account,
+                payee_bank=payee.get("payee_bank", "미상"),
+                signals=session.account_signals,
+                account_total=session.account_score,
+                account_level=session.account_level,
+                context=context,
+                final=final,
+                report_id=report.report_id if report else None,
+            )
+        )
+    except Exception:
+        logger.exception("transfer log failed")
 
     session.finalized = True
     session.final_response = {

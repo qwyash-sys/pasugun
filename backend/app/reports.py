@@ -6,6 +6,7 @@ from datetime import datetime
 from itertools import count
 
 from app.agent import PasugunAgent
+from app.transfer_log import age_group
 from app.models import KST, AccountAssessment, ContextAssessment, FinalRisk, RagMatch, ReportPayload
 
 _report_seq = count(1)
@@ -62,6 +63,8 @@ def build_report(
         customer_name=customer["name"],
         customer_phone_masked=_mask_phone(customer_phone),
         customer_account_masked=_mask_account(customer["account"]),
+        customer_age_group=age_group(customer["profile"]["age"]) if "age" in customer.get("profile", {}) else "",
+        customer_region=customer.get("profile", {}).get("region", ""),
         payee_bank=payee.get("payee_bank", "미상"),
         payee_account=payee["payee_account"],
         payee_name=payee.get("payee_name", "미상"),
