@@ -192,11 +192,12 @@ function ChatView({
     setImages((prev) => [...prev, ...encoded]);
   }
 
+  // 추천 문장은 입력창에 채우기만 한다. 포커스를 잡으면 휴대폰에서 키보드가 올라와 화면 높이가
+  // 줄고(아이폰은 화면 확대까지) 비율이 틀어지므로, 직접 입력하려 할 때만 포커스가 가게 둔다.
   function applySuggestion() {
     if (!suggestion) return;
     setInput(suggestion.text);
     setImages(suggestion.images);
-    textareaRef.current?.focus();
   }
 
   async function handleSend() {

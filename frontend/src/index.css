@@ -2746,3 +2746,16 @@ textarea:focus-visible {
   font-size: 12px;
   color: #5b3ec9;
 }
+
+/* 휴대폰: 입력창 글자가 16px보다 작으면 아이폰 Safari가 포커스 순간 화면을 자동 확대해
+   레이아웃 비율이 깨진다. 입력 요소는 16px 이상으로 둔다. */
+@media (max-width: 480px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea,
+  .chat-input-row textarea {
+    font-size: 16px;
+  }
+}
