@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Suspense, lazy, useMemo, useState } from "react";
 import PhoneFrame from "./components/PhoneFrame";
 import LoadingOrError from "./components/LoadingOrError";
 import { RESPONSE_SOURCE } from "./config";
@@ -19,6 +19,9 @@ import M7Complete from "./screens/M7Complete";
 import BranchBooking from "./screens/BranchBooking";
 import ReportView from "./screens/ReportView";
 import ReportList from "./screens/ReportList";
+
+// 관리자 페이지(PC)는 고객 화면과 쓰는 코드가 거의 달라서 필요할 때만 내려받는다.
+const AdminConsole = lazy(() => import("./admin/AdminConsole"));
 import type { AnswerSubmission, FinalizeResponse, QuoteResponse, ReportPayload, ReportQuery } from "./types";
 
 type Screen =
@@ -57,7 +60,8 @@ const SCREEN_ORDER: Screen[] = [
 const flowStart: Screen = isDemo ? "case-picker" : "m1";
 
 export default function App() {
-  const [role, setRole] = useState<Role | null>(null);
+  // 주소가 #/admin/… 이면 역할 선택을 건너뛰고 관리자 페이지로 바로 들어간다(PC에서 북마크용).
+  const [role, setRole] = useState<Role | null>(() => (location.hash.startsWith("#/admin") ? "staff" : null));
   const [screen, setScreen] = useState<Screen>("role-picker");
   const [demoCaseId, setDemoCaseId] = useState<string | null>(null);
   const [client, setClient] = useState<BackendClient | null>(isDemo ? null : createBackendClient());
@@ -100,13 +104,14 @@ export default function App() {
 
   function chooseRole(next: Role) {
     setRole(next);
-    setScreen(flowStart);
+    setScreen(next === "staff" ? "role-picker" : flowStart);
   }
 
   function changeRole() {
     resetFlow();
     setRole(null);
     setScreen("role-picker");
+    if (location.hash.startsWith("#/admin")) history.replaceState(null, "", location.pathname + location.search);
   }
 
   /** API 호출 1건을 감싸서 busy/error 상태를 일관되게 관리한다.
@@ -211,6 +216,14 @@ export default function App() {
   function backFromList() {
     if (result?.report) openCurrentReport();
     else setScreen("m6");
+  }
+
+  if (role === "staff") {
+    return (
+      <Suspense fallback={<div className="console-loading">관리자 페이지를 불러오는 중…</div>}>
+        <AdminConsole onExit={changeRole} />
+      </Suspense>
+    );
   }
 
   return (

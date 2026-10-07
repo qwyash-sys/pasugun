@@ -1,0 +1,352 @@
+/* 본부 관리자 페이지(PC 기준). 휴대폰 프레임용 index.css와 섞이지 않도록 .console 아래에서만 쓴다.
+   기본 스타일이 PC이고, 좁아질 때만 @media로 줄인다. */
+.console {
+  --c-bg: #f3f5f7;
+  --c-card: #ffffff;
+  --c-line: #e6e9ed;
+  --c-text: #1a1d21;
+  --c-muted: #6b7280;
+  --c-green: var(--nh-green);
+  --c-green-dark: var(--nh-green-dark);
+  --c-green-soft: var(--nh-green-soft);
+  --c-danger: #dc2f2f;
+  --c-danger-soft: #fdeded;
+  --c-warn: #c27d0a;
+  --c-warn-soft: #fff4de;
+  --c-blue: #2f6fed;
+  --c-blue-soft: #e9f0ff;
+  --c-purple: #7a4cf0;
+  --c-purple-soft: #f1ebff;
+  --c-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.console *,
+.console *::before,
+.console *::after {
+  box-sizing: border-box;
+}
+
+.console button,
+.console input,
+.console select,
+.console textarea {
+  font-family: inherit;
+}
+
+/* ---------- 좌측 메뉴 ---------- */
+.console-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 16px 18px;
+  background: var(--c-card);
+  border-right: 1px solid var(--c-line);
+  min-height: 0;
+}
+
+.console-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 2px 6px 10px;
+}
+
+.console-logo {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, var(--c-green), var(--c-green-dark));
+  box-shadow: 0 6px 14px -6px rgba(0, 135, 63, 0.7);
+}
+
+.console-logo svg {
+  width: 24px;
+  height: 24px;
+}
+
+.console-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.console-brand-text strong {
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.console-brand-text small {
+  font-size: 11.5px;
+  color: var(--c-muted);
+}
+
+.console-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.console-nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--c-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.console-nav button:hover {
+  background: var(--c-bg);
+}
+
+.console-nav button.on {
+  background: var(--c-green-soft);
+  color: var(--c-green-dark);
+}
+
+.console-nav-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  background: var(--c-bg);
+}
+
+.console-nav button.on .console-nav-icon {
+  background: #fff;
+}
+
+.console-nav-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.console-nav-text strong {
+  font-size: 14px;
+}
+
+.console-nav-text small {
+  font-size: 11.5px;
+  color: var(--c-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.console-side-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.console-mode {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--c-blue-soft);
+  color: var(--c-blue);
+}
+
+.console-mode.mode-local {
+  background: var(--c-green-soft);
+  color: var(--c-green-dark);
+}
+
+/* ---------- 본문 ---------- */
+.console-main {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.console-content {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 28px 36px 64px;
+}
+
+.c-title {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.c-sub {
+  margin: 4px 0 0;
+  color: var(--c-muted);
+}
+
+/* ---------- 버튼 ---------- */
+.c-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid var(--c-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--c-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+}
+
+.c-btn:hover:not(:disabled) {
+  border-color: #cfd4da;
+  background: #fafbfc;
+}
+
+.c-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.c-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.c-btn-primary {
+  background: var(--c-green);
+  border-color: var(--c-green);
+  color: #fff;
+}
+
+.c-btn-primary:hover:not(:disabled) {
+  background: var(--c-green-dark);
+  border-color: var(--c-green-dark);
+}
+
+.c-btn-danger {
+  background: var(--c-danger);
+  border-color: var(--c-danger);
+  color: #fff;
+}
+
+.c-btn-danger:hover:not(:disabled) {
+  background: #b92424;
+  border-color: #b92424;
+}
+
+.c-btn-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--c-muted);
+  justify-content: flex-start;
+}
+
+.c-btn-sm {
+  padding: 5px 11px;
+  font-size: 12.5px;
+  border-radius: 8px;
+}
+
+/* ---------- 폭이 줄어들 때 ---------- */
+@media (max-width: 1100px) {
+  .console {
+    grid-template-columns: 78px minmax(0, 1fr);
+  }
+
+  .console-brand-text,
+  .console-nav-text,
+  .console-side-foot .c-btn,
+  .console-mode {
+    display: none;
+  }
+
+  .console-brand,
+  .console-nav button {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .console-content {
+    padding: 22px 22px 56px;
+  }
+}
+
+@media (max-width: 720px) {
+  .console {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .console-side {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-right: none;
+    border-bottom: 1px solid var(--c-line);
+    overflow-x: auto;
+  }
+
+  .console-brand {
+    padding: 0;
+  }
+
+  .console-nav {
+    flex-direction: row;
+    gap: 2px;
+  }
+
+  .console-nav button {
+    width: auto;
+    padding: 6px 10px;
+  }
+
+  .console-nav-text {
+    display: flex;
+  }
+
+  .console-nav-text small,
+  .console-nav-icon {
+    display: none;
+  }
+
+  .console-side-foot {
+    margin: 0 0 0 auto;
+    flex-direction: row;
+  }
+
+  .console-side-foot .c-btn {
+    display: inline-flex;
+    padding: 6px 8px;
+  }
+
+  .console-content {
+    padding: 16px 14px 48px;
+  }
+}
