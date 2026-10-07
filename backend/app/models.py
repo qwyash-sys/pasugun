@@ -19,6 +19,11 @@ class SignalResult(BaseModel):
     # 화면 표시용 메타(신호 레지스트리가 채운다). 프론트가 모르는 신규 신호도 이 값으로 그릴 수 있다.
     label: str = ""
     max_score: int = 0
+    # 관리자 화면 룰 설명(신호 레지스트리가 채운다). 이전에 저장된 리포트에는 없을 수 있다.
+    rule_id: str = ""
+    definition: str = ""
+    condition: str = ""
+    scoring: str = ""
 
 
 class ContextOverrides(BaseModel):

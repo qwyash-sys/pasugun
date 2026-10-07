@@ -12,6 +12,11 @@ export interface SignalResult {
   /** 백엔드 신호 레지스트리가 채우는 표시명·만점 — 프론트가 모르는 신규 신호도 이걸로 그린다. */
   label?: string;
   max_score?: number;
+  /** 관리자 화면 룰 설명(백엔드 신호 레지스트리). 데모·예전 리포트에는 없어서 RULE_CATALOG로 보충한다. */
+  rule_id?: string;
+  definition?: string;
+  condition?: string;
+  scoring?: string;
 }
 
 export interface AccountAssessment {

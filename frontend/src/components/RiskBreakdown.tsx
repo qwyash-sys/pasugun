@@ -1,16 +1,20 @@
 import { Fragment, useState } from "react";
+import BottomSheet from "./BottomSheet";
 import {
   ACCOUNT_BANDS,
   CHOICE_LABELS,
   CONTEXT_BANDS,
   CONTEXT_MAX,
   HARD_OVERRIDE_RISK_SIGNALS,
+  RULE_CATALOG,
   SIGNAL_META,
   SIGNAL_ORDER,
   STAGE1_SCALE,
   STAGE2_SCALE,
   bandLabel,
+  ruleOf,
   type LevelBand,
+  type RuleInfo,
 } from "./signalMeta";
 import type { AccountAssessment, ContextAssessment, RagCandidate, RiskLevel } from "../types";
 
@@ -28,6 +32,7 @@ function BarRow({
   scale,
   hit,
   tooltip,
+  rule,
 }: {
   label: string;
   score: number;
@@ -35,10 +40,71 @@ function BarRow({
   scale: number;
   hit: boolean;
   tooltip: string;
+  /** 있으면 항목을 눌렀을 때 룰 설명(정의·조건·배점)이 아래로 펼쳐진다. */
+  rule?: Omit<RuleInfo, "signal"> | null;
 }) {
   const [open, setOpen] = useState(false);
   const cap = Math.max(max, score);
   const pct = (v: number) => `${Math.min(100, (v / scale) * 100)}%`;
+
+  if (rule) {
+    return (
+      <div className={`bar-item ${open ? "open" : ""}`}>
+        <div
+          className="bar-row bar-row-rule"
+          role="button"
+          tabIndex={0}
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setOpen((o) => !o);
+            }
+          }}
+        >
+          <span className="bar-row-label">
+            <span className="rule-chip">{rule.id}</span>
+            {label}
+          </span>
+          <div className="bar-row-track">
+            <div className="bar-row-cap" style={{ width: pct(cap) }} />
+            {score > 0 && <div className={`bar-row-fill ${hit ? "hit" : ""}`} style={{ width: pct(score) }} />}
+          </div>
+          <span className={`bar-row-score ${hit ? "hit" : ""}`}>
+            +{score}
+            <small>/{cap}</small>
+          </span>
+        </div>
+        {open && (
+          <div className="rule-panel">
+            <dl className="rule-panel-list">
+              <div>
+                <dt>정의</dt>
+                <dd>{rule.definition}</dd>
+              </div>
+              <div>
+                <dt>조건</dt>
+                <dd>{rule.condition}</dd>
+              </div>
+              {rule.scoring && (
+                <div>
+                  <dt>배점 기준</dt>
+                  <dd>{rule.scoring}</dd>
+                </div>
+              )}
+              <div className="rule-panel-result">
+                <dt>이번 거래</dt>
+                <dd className={hit ? "hit" : ""}>
+                  {tooltip} → +{score}/{cap}점
+                </dd>
+              </div>
+            </dl>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -255,7 +321,45 @@ function stage1Rows(signals: AccountAssessment["signals"]) {
     }));
 }
 
+/** 1단계 룰 전체 목록(R01~R11). 적용 중인 룰과 아직 점수에 반영하지 않는 준비 중 룰을 구분해 보여준다. */
+function RuleListSheet({ onClose }: { onClose: () => void }) {
+  const active = RULE_CATALOG.filter((r) => r.signal).length;
+  return (
+    <BottomSheet>
+      <h2 className="sheet-title">1단계 송금위험도 룰 목록 ({RULE_CATALOG.length}개)</h2>
+      <p className="rule-list-sub">
+        적용 중 {active}개 · 준비 중 {RULE_CATALOG.length - active}개
+      </p>
+      <ul className="rule-list">
+        {RULE_CATALOG.map((r) => (
+          <li key={r.id} className={r.signal ? "" : "pending"}>
+            <div className="rule-list-head">
+              <span className="rule-chip">{r.id}</span>
+              <strong>{r.name}</strong>
+              <span className={`rule-status ${r.signal ? "on" : ""}`}>{r.signal ? "적용 중" : "준비 중"}</span>
+            </div>
+            <dl className="rule-panel-list">
+              <div>
+                <dt>정의</dt>
+                <dd>{r.definition}</dd>
+              </div>
+              <div>
+                <dt>조건</dt>
+                <dd>{r.condition}</dd>
+              </div>
+            </dl>
+          </li>
+        ))}
+      </ul>
+      <button className="btn btn-primary" onClick={onClose}>
+        닫기
+      </button>
+    </BottomSheet>
+  );
+}
+
 export default function RiskBreakdown({ account, context }: Props) {
+  const [ruleListOpen, setRuleListOpen] = useState(false);
   const rows = stage1Rows(account.signals);
   const stage1Scale = Math.max(STAGE1_SCALE, ...rows.map((r) => r.max));
   return (
@@ -267,7 +371,7 @@ export default function RiskBreakdown({ account, context }: Props) {
             {account.total_score}점 · {account.level}
           </span>
         </div>
-        <p className="risk-stage-legend">막대 축 공통 {stage1Scale}점 · 옅은 구간 = 항목 최대점</p>
+        <p className="risk-stage-legend">막대 축 공통 {stage1Scale}점 · 옅은 구간 = 항목 최대점 · 항목을 누르면 룰 설명</p>
         {rows.map((s) => (
           <BarRow
             key={s.signal}
@@ -277,8 +381,13 @@ export default function RiskBreakdown({ account, context }: Props) {
             scale={stage1Scale}
             hit={s.hit}
             tooltip={s.detail}
+            rule={ruleOf(s)}
           />
         ))}
+        <button className="rule-list-btn" onClick={() => setRuleListOpen(true)}>
+          📋 1단계 룰 목록 보기 ({RULE_CATALOG.length}개)
+        </button>
+        {ruleListOpen && <RuleListSheet onClose={() => setRuleListOpen(false)} />}
       </div>
 
       <div className="risk-stage">

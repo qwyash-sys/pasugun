@@ -45,7 +45,10 @@ def test_new_signal_flows_through_quote_api_without_touching_other_code(isolated
     after = client.post("/api/transfer/quote", json=BASE_QUOTE).json()
 
     new = next(s for s in after["account"]["signals"] if s["signal"] == "overseas_ip")
-    assert new == {"signal": "overseas_ip", "hit": True, "score": 15, "detail": "해외 IP 접속", "label": "해외 IP 접속", "max_score": 15}
+    assert new == {
+        "signal": "overseas_ip", "hit": True, "score": 15, "detail": "해외 IP 접속", "label": "해외 IP 접속", "max_score": 15,
+        "rule_id": "", "definition": "", "condition": "", "scoring": "",  # 설명을 안 채운 룰도 정상 동작
+    }
     assert after["account"]["total_score"] == before["account"]["total_score"] + 15
     # 20점(확인 1탭) → 35점: 개입 강도가 질문 단계로 바뀐다 — 신규 신호가 흐름 분기까지 반영된다.
     assert before["intervention"] == "confirm_only" and after["intervention"] == "empathy_question"
@@ -165,3 +168,18 @@ def test_report_filter_rag_types_follow_the_corpus(monkeypatch):
     assert types == list(dict.fromkeys(s["유형"] for s in scenarios()))
     monkeypatch.setattr(reports_router, "scenarios", lambda: [*scenarios(), {"유형": "투자사기"}])
     assert client.get("/api/reports/rag-types").json()[-1] == "투자사기"
+
+
+def test_builtin_rules_carry_documentation_r01_to_r08():
+    quote = _quote_api()
+    rules = {s["signal"]: s for s in quote["account"]["signals"]}
+    ids = [rules[spec.name]["rule_id"] for spec in signals_mod.ACCOUNT_SIGNALS]
+    assert ids == [f"R0{i}" for i in range(1, 9)]
+    for r in rules.values():
+        assert r["definition"] and r["condition"] and r["scoring"], r["signal"]
+    assert rules["payee_fraud"]["definition"] == "수취계좌의 사기신고 이력 여부"
+    assert rules["time_pattern"]["condition"] == "평소 거래시간대 이탈 여부에 따라 점수 배점"
+
+
+def _quote_api() -> dict:
+    return client.post("/api/transfer/quote", json=BASE_QUOTE).json()
