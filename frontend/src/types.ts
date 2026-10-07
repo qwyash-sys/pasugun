@@ -17,6 +17,8 @@ export interface SignalResult {
   definition?: string;
   condition?: string;
   scoring?: string;
+  /** 판정에 쓴 원시 측정값(신고 건수·금액 비율·개설 경과일·시각 등). 룰 조정 모의 계산에 쓴다. */
+  value?: number | null;
 }
 
 export interface AccountAssessment {
@@ -75,6 +77,8 @@ export interface FinalRisk {
   hard_override: boolean;
   reasons: string[];
   action: string;
+  /** 판정 당시 적용된 임계값 스냅샷(관리자가 룰을 바꿔도 과거 리포트는 그때 기준으로 보인다). */
+  thresholds?: Record<string, number>;
 }
 
 export interface ContextAnswerOut {
@@ -119,6 +123,8 @@ export interface ReportPayload {
   account: AccountAssessment;
   context: ContextAssessment | null;
   attachments: AttachmentMeta[];
+  customer_age_group?: string;
+  customer_region?: string;
 }
 
 /** 관리자 리포트 목록 한 줄(backend ReportSummary와 대응). */

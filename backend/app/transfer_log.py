@@ -113,7 +113,8 @@ def build_log(
         input_used=bool(context and context.used_input_or_attachment),
         rag_id=rag.matched_id if rag else None,
         rag_type=rag.matched_type if rag else None,
-        rag_similarity=rag.similarity if rag else None,
+        # 등급 경계를 바꿔 다시 채점해도 어긋나지 않게 소수 3자리까지 남긴다(RagMatch.similarity는 2자리 반올림).
+        rag_similarity=(rag.candidates[0].similarity if rag.candidates else rag.similarity) if rag else None,
         context_total=context.total_score if context else None,
         context_level=final.context_level,
         hard_override=final.hard_override,

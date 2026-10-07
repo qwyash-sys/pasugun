@@ -7,11 +7,13 @@ interface Props {
   customerName: string;
   onBack: () => void;
   onHome: () => void;
+  /** 고객이 예약 내용을 확인하고 예약을 마친 순간(본부 모니터링에 알리는 용도). */
+  onBooked?: (info: { branch: string; reservedAt: string }) => void;
 }
 
 // 위험 판정 후 "영업점 상담 예약": 가까운 영업점을 안내 → 올원뱅크 영업점 방문예약 화면으로
 // 넘어가 확인만 누르면 → 예약 완료. 실제 예약 연동 없이 흐름만 재현한다(데모·실제 모드 동일).
-export default function BranchBooking({ customerName, onBack, onHome }: Props) {
+export default function BranchBooking({ customerName, onBack, onHome, onBooked }: Props) {
   // 화면에 들어온 순간 기준으로 한 번만 계산한다(머무는 동안 시간이 바뀌어도 예약 시간이 흔들리지 않게).
   const [plan] = useState(() => planBranchVisit());
   const [step, setStep] = useState<"guide" | "allone" | "done">("guide");
@@ -84,7 +86,13 @@ export default function BranchBooking({ customerName, onBack, onHome }: Props) {
         </dl>
 
         <div className="spacer" />
-        <button className="btn btn-primary" onClick={() => setStep("done")}>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            onBooked?.({ branch: NEAREST_BRANCH.name, reservedAt: plan.reservedAt });
+            setStep("done");
+          }}
+        >
           확인
         </button>
       </>

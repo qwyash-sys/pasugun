@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useState } from "react";
+import { Suspense, lazy, useMemo, useRef, useState } from "react";
 import PhoneFrame from "./components/PhoneFrame";
 import LoadingOrError from "./components/LoadingOrError";
 import { RESPONSE_SOURCE } from "./config";
@@ -15,6 +15,7 @@ import M3Confirm from "./screens/M3Confirm";
 import M4Question from "./screens/M4Question";
 import M5Chat from "./screens/M5Chat";
 import M6Result from "./screens/M6Result";
+import { recordCustomerChoice, type CustomerChoice } from "./api/customerChoice";
 import M7Complete from "./screens/M7Complete";
 import BranchBooking from "./screens/BranchBooking";
 import ReportView from "./screens/ReportView";
@@ -78,6 +79,8 @@ export default function App() {
   const [viewedReport, setViewedReport] = useState<ReportPayload | null>(null);
   const [reportFrom, setReportFrom] = useState<"m6" | "list">("m6");
   const [listQuery, setListQuery] = useState<ReportQuery>(EMPTY_REPORT_QUERY);
+  // 위험 판정 뒤 고객이 처음 고른 분기(내방 예약/지연송금/중단)는 한 번만 본부 모니터링에 알린다.
+  const choiceSent = useRef(false);
 
   const demoCase: DemoCase | undefined = useMemo(
     () => (demoCaseId ? findDemoCase(demoCaseId) : undefined),
@@ -99,6 +102,7 @@ export default function App() {
     setRetry(null);
     setViewedReport(null);
     setListQuery(EMPTY_REPORT_QUERY);
+    choiceSent.current = false;
     setScreen(role ? flowStart : "role-picker");
   }
 
@@ -149,6 +153,13 @@ export default function App() {
     setScreen(q.intervention === "confirm_only" ? "m3a" : "m4");
   }
 
+  /** 위험 판정 건에서 고객이 고른 분기를 모니터링에 알린다(첫 선택만). 알리기 실패는 흐름에 영향이 없다. */
+  function notifyChoice(res: FinalizeResponse | null, choice: CustomerChoice, extra?: { branch?: string; reservedAt?: string }) {
+    if (choiceSent.current || !res || res.final.final !== "위험") return;
+    choiceSent.current = true;
+    void recordCustomerChoice({ sessionId, report: res.report, choice, ...extra });
+  }
+
   function finalizeToResult() {
     if (!client || !sessionId) return;
     runGuarded(async () => {
@@ -167,6 +178,7 @@ export default function App() {
     runGuarded(async () => {
       const res = await client.finalize(sessionId);
       setResult(res);
+      notifyChoice(res, "delayed");
       setScreen("m7");
     });
   }
@@ -317,8 +329,14 @@ export default function App() {
           agentReply={result.agent_reply}
           payeeName={quote.payee_name}
           amount={amount}
-          onProceed={() => setScreen("m7")}
-          onCancel={resetFlow}
+          onProceed={() => {
+            notifyChoice(result, "delayed");
+            setScreen("m7");
+          }}
+          onCancel={() => {
+            notifyChoice(result, "abandoned");
+            resetFlow();
+          }}
           onBookBranch={() => setScreen("branch-booking")}
           onViewReport={openCurrentReport}
           onHome={resetFlow}
@@ -330,10 +348,10 @@ export default function App() {
       )}
 
       {screen === "branch-booking" && quote && (
-        <BranchBooking customerName={quote.customer_name} onBack={() => setScreen("m6")} onHome={resetFlow} />
+        <BranchBooking customerName={quote.customer_name} onBack={() => setScreen("m6")} onHome={resetFlow} onBooked={(b) => notifyChoice(result, "visit", b)} />
       )}
 
-      {/* 리포트·리포트 목록은 내부직원(관리자) 전용 화면이다. */}
+      {/* 리포트·리포트 목록은 고객(사용자) - 관리자 뷰 전용 화면이다. */}
       {screen === "report" && isAdmin && viewedReport && !busy && !error && (
         <ReportView
           report={viewedReport}

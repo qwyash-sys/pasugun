@@ -1,4 +1,4 @@
-"""관리자(내부직원) 전용 영업점 연계 리포트 목록·상세·첨부 조회."""
+"""관리자 뷰(고객 흐름의 뒷단)에서 쓰는 영업점 연계 리포트 목록·상세·첨부 조회."""
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import Response

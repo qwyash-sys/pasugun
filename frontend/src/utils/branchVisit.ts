@@ -75,6 +75,12 @@ export interface VisitPlan {
   closedReason: "holiday" | "afterHours" | "tooLate" | null;
   dateLabel: string; // "9월 28일(월)"
   time: string; // "15:00"
+  /** 예약 시각(한국 시간 ISO, 예: 2026-09-28T15:00:00+09:00) — 본부 모니터링에 넘기는 값. */
+  reservedAt: string;
+}
+
+function iso(t: KstMoment, minutes: number): string {
+  return `${isoDay(t)}T${hhmm(minutes)}:00+09:00`;
 }
 
 function label(t: KstMoment): string {
@@ -84,12 +90,12 @@ function label(t: KstMoment): string {
 export function planBranchVisit(now: Date = new Date()): VisitPlan {
   const t = toKst(now);
   if (isBusinessDay(t) && t.minutes < BRANCH_OPEN) {
-    return { kind: "beforeOpen", nextDayIsTomorrow: false, closedReason: null, dateLabel: label(t), time: hhmm(BRANCH_OPEN) };
+    return { kind: "beforeOpen", nextDayIsTomorrow: false, closedReason: null, dateLabel: label(t), time: hhmm(BRANCH_OPEN), reservedAt: iso(t, BRANCH_OPEN) };
   }
   if (isBusinessDay(t) && t.minutes < BRANCH_CLOSE) {
     // 20분 뒤를 30분 단위로 올림(13:10 → 13:30, 13:40 → 14:00, 15:05 → 15:30).
     const slot = Math.ceil((t.minutes + LEAD_MINUTES) / 30) * 30;
-    if (slot <= LAST_SLOT) return { kind: "today", nextDayIsTomorrow: false, closedReason: null, dateLabel: label(t), time: hhmm(slot) };
+    if (slot <= LAST_SLOT) return { kind: "today", nextDayIsTomorrow: false, closedReason: null, dateLabel: label(t), time: hhmm(slot), reservedAt: iso(t, slot) };
   }
   let day = addDays(t, 1);
   while (!isBusinessDay(day)) day = addDays(day, 1);
@@ -99,6 +105,7 @@ export function planBranchVisit(now: Date = new Date()): VisitPlan {
     closedReason: !isBusinessDay(t) ? "holiday" : t.minutes < BRANCH_CLOSE ? "tooLate" : "afterHours",
     dateLabel: label(day),
     time: hhmm(BRANCH_OPEN),
+    reservedAt: iso(day, BRANCH_OPEN),
   };
 }
 

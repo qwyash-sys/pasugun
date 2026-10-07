@@ -1,5 +1,6 @@
 import "./console.css";
-import { useEffect, useState } from "react";
+import "./ui.css";
+import { useEffect, useRef, useState } from "react";
 import { RESPONSE_SOURCE } from "../config";
 import MonitoringPage from "./pages/MonitoringPage";
 import RulesPage from "./pages/RulesPage";
@@ -25,6 +26,12 @@ function pageFromHash(): ConsolePage {
  * 메뉴가 아이콘 → 상단 탭으로 줄어든다. 화면 전환은 주소의 #/admin/… 로 해서 새로고침·뒤로가기가 된다. */
 export default function AdminConsole({ onExit }: { onExit: () => void }) {
   const [page, setPage] = useState<ConsolePage>(pageFromHash);
+  const mainRef = useRef<HTMLElement>(null);
+
+  // 메뉴를 옮기면 새 화면은 항상 맨 위부터 보이게 한다.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [page]);
 
   useEffect(() => {
     if (!location.hash.startsWith(HASH_PREFIX)) location.hash = `${HASH_PREFIX}${page}`;
@@ -75,7 +82,7 @@ export default function AdminConsole({ onExit }: { onExit: () => void }) {
         </div>
       </aside>
 
-      <main className="console-main">
+      <main className="console-main" ref={mainRef}>
         {page === "rules" && <RulesPage />}
         {page === "monitoring" && <MonitoringPage />}
         {page === "stats" && <StatsPage />}

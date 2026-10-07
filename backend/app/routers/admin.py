@@ -50,6 +50,8 @@ def _rules_state() -> dict[str, Any]:
         "defaults": DEFAULT_CONFIG,
         "global_params": schema["global"],
         "rules": rules,
+        # 입력 즉시 검증용(범위 + 값 사이 순서 제약). 화면이 서버와 같은 규칙으로 미리 검사한다.
+        "schema": schema,
     }
 
 

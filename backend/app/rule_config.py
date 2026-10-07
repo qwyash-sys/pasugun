@@ -320,4 +320,9 @@ def param_schema() -> dict[str, Any]:
     return {
         "rules": {name: [asdict(p) for p in params] for name, params in RULE_PARAMS.items()},
         "global": [asdict(p) for p in GLOBAL_PARAMS],
+        # 값 사이의 순서 제약 [작은 쪽, 큰 쪽, 같아도 되는지] — 화면이 입력 즉시 같은 규칙으로 검사한다.
+        "order": {
+            "rules": {name: [list(o) for o in orders] for name, orders in _ORDER_RULES.items()},
+            "global": [list(o) for o in _GLOBAL_ORDER],
+        },
     }

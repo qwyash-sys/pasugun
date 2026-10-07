@@ -115,6 +115,15 @@ def test_no_change_does_not_create_a_history_entry():
 
 
 # ---------------------------------------------------------------- 룰 API
+def test_rules_state_carries_the_schema_the_screen_validates_against():
+    """화면이 입력 즉시 순서 제약까지 검사하려면 스키마가 응답에 들어 있어야 한다(없으면 AI 제안이 잘못된 값을 낼 수 있다)."""
+    state = client.get("/api/admin/rules").json()
+    order = state["schema"]["order"]
+    assert ["account_mid", "account_high", False] in order["global"]
+    assert order["rules"]["amount_anomaly"]
+    assert set(state["schema"]["rules"]) == {r["name"] for r in state["rules"]}
+
+
 def test_rules_api_roundtrip_and_effect_on_quote():
     state = client.get("/api/admin/rules").json()
     assert [r["rule_id"] for r in state["rules"]] == [f"R0{i}" for i in range(1, 9)]

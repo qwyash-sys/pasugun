@@ -32,7 +32,7 @@ export const EMPTY_REPORT_QUERY: ReportQuery = {
 
 let demoReports: ReportPayload[] | null = null;
 
-function allDemoReports(): ReportPayload[] {
+export function allDemoReports(): ReportPayload[] {
   if (!demoReports) {
     const fromCases = DEMO_CASES.flatMap((c) => (c.report ? [c.report] : []));
     const fromHistory = (history as unknown as HistoryEntry[]).map((h) => ({
@@ -44,7 +44,7 @@ function allDemoReports(): ReportPayload[] {
   return demoReports;
 }
 
-function toSummary(r: ReportPayload): ReportSummary {
+export function toSummary(r: ReportPayload): ReportSummary {
   const ragHit = !!(r.rag && r.rag.hit);
   return {
     report_id: r.report_id,

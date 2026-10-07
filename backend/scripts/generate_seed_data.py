@@ -41,6 +41,7 @@ from app.payee_activity import analyze_activity, make_activity  # noqa: E402
 from app.providers.rag.faiss_provider import FaissLocalRagProvider  # noqa: E402
 from app.questions import SAFETY_QUESTION, empathy_question  # noqa: E402
 from app.reports import build_report  # noqa: E402
+from app.routers.admin import _rules_state  # noqa: E402
 from app.scoring import build_account_assessment, build_context_assessment  # noqa: E402
 from app.tools.account_signals import run_all_account_signals  # noqa: E402
 from app.transfer_log import build_log  # noqa: E402
@@ -513,7 +514,7 @@ def main() -> None:
     dump(FRONT / "demoData" / "reportHistory.json", entries, indent=1)
     dump(FRONT / "demoData" / "admin" / "transferLogs.json", log_rows)
     dump(FRONT / "demoData" / "admin" / "cases.json", case_rows)
-    dump(FRONT / "demoData" / "admin" / "ruleSchema.json", {"schema": rule_config.param_schema(), "defaults": rule_config.DEFAULT_CONFIG})
+    dump(FRONT / "demoData" / "admin" / "ruleSchema.json", {**_rules_state(), "schema": rule_config.param_schema()})
     dump(FRONT / "demoData" / "admin" / "scenarios.json", scenarios())
     dump(FRONT / "demoData" / "admin" / "branches.json", branches())
     dump(FRONT / "admin" / "__golden__" / "rescore.json", golden)
