@@ -41,7 +41,9 @@ def _score(key: str, label: str, default: int, help: str = "") -> ParamSpec:
 # 룰별 조정 가능한 파라미터. 키 이름은 신호(룰) 이름(account_signals의 AccountSignalSpec.name)과 같다.
 RULE_PARAMS: dict[str, list[ParamSpec]] = {
     "payee_fraud": [
-        _score("score", "사기신고 이력 있을 때 배점", 40, "신고 이력이 하나라도 있으면 이 점수를 줘요."),
+        _score("score", "사기신고 1건 이상 배점", 40, "신고 이력이 하나라도 있으면 이 점수를 줘요."),
+        ParamSpec("count_multi", "다건 신고 기준(이상)", 3, 2, 20, 1, "건", help="신고가 이 건수 이상이면 '다건 신고 배점'을 줘요."),
+        _score("score_multi", "다건 신고 배점", 40, "기본값은 1건 이상 배점과 같아요(건수와 무관하게 같은 점수 = SPEC)."),
     ],
     "amount_anomaly": [
         ParamSpec("ratio_high", "고위험 배수(이상)", 10, 1.5, 100, 0.5, "배", help="평소 평균 이체액의 몇 배부터 고위험으로 볼지"),
@@ -98,6 +100,7 @@ GLOBAL_PARAMS: list[ParamSpec] = [
 # 값 사이의 순서 제약: (왼쪽 키) < (오른쪽 키) — 어기면 등급·구간이 뒤집혀 의미가 사라진다.
 _ORDER_RULES: dict[str, list[tuple[str, str, bool]]] = {
     # (작은 쪽, 큰 쪽, 같아도 되는지)
+    "payee_fraud": [("score", "score_multi", True)],
     "amount_anomaly": [("ratio_low", "ratio_mid", False), ("ratio_mid", "ratio_high", False), ("score_low", "score_mid", True), ("score_mid", "score_high", True)],
     "payee_freshness": [("days_new", "days_recent", False), ("score_recent", "score_new", True)],
     "velocity": [("count_mid", "count_high", False), ("score_mid", "score_high", True)],

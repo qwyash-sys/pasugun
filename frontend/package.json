@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:golden": "npx -y tsx scripts/golden-check.mts"
   },
   "dependencies": {
     "react": "^19.2.8",

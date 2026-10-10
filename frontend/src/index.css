@@ -3053,3 +3053,45 @@ textarea:focus-visible {
   --tone-soft: #eef0f3;
   --tone-strong: #5b6169;
 }
+
+.customer-guide-title {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.customer-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.customer-steps li {
+  counter-increment: step;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.customer-steps li::before {
+  content: counter(step);
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--nh-green-soft);
+  color: var(--nh-green-dark);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

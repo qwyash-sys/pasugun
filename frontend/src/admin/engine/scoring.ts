@@ -18,8 +18,12 @@ type Params = Record<string, number>;
 /** 룰 하나의 점수. 원측값이 없는 룰(새로 등록한 룰, 값 미기록 로그)은 저장된 점수를 그대로 쓴다. */
 export function scoreRule(rule: string, s: LogSignal, p: Params, usualHours: number[]): number {
   switch (rule) {
-    case "payee_fraud":
-      return s.value != null && s.value > 0 ? p.score : s.hit ? p.score : 0;
+    case "payee_fraud": {
+      // 신고 건수(value)가 다건 기준 이상이면 다건 배점(backend check_payee_fraud와 같다).
+      const hit = (s.value != null && s.value > 0) || s.hit;
+      if (!hit) return 0;
+      return s.value != null && p.count_multi != null && s.value >= p.count_multi ? p.score_multi : p.score;
+    }
     case "fund_source":
     case "limit_change":
     case "device":

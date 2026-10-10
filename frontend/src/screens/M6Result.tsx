@@ -42,6 +42,12 @@ const CUSTOMER_GUIDE = {
   위험: "보이스피싱 사례와 비슷한 점이 여러 가지 확인됐어요. 잠시 멈추고 아래 방법으로 먼저 확인해보세요.",
 } as const;
 
+/** 판정별 '이렇게 확인해보세요' — 점수·근거 대신 고객이 바로 할 수 있는 행동만. */
+const CUSTOMER_STEPS: Record<"주의" | "위험", string[]> = {
+  주의: ["받는 분의 신원을 공식 대표번호로 직접 확인해요", "'지금 바로' 보내라고 재촉하면 일단 멈춰요"],
+  위험: ["통화를 끊고, 상대가 말한 기관의 공식 번호로 직접 확인해요", "가까운 영업점에서 직원과 함께 확인해요", "이미 돈을 보냈거나 압박을 받고 있다면 112에 신고해요"],
+};
+
 export default function M6Result({
   role,
   final,
@@ -84,7 +90,20 @@ export default function M6Result({
       {isAdmin ? (
         <RiskBreakdown account={account} context={context} thresholds={final.thresholds} />
       ) : (
-        <div className="card customer-guide">{CUSTOMER_GUIDE[final.final]}</div>
+        <div className="card customer-guide">
+          {final.final === "안전" ? (
+            CUSTOMER_GUIDE.안전
+          ) : (
+            <>
+              <strong className="customer-guide-title">이렇게 확인해보세요</strong>
+              <ol className="customer-steps">
+                {CUSTOMER_STEPS[final.final].map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ol>
+            </>
+          )}
+        </div>
       )}
 
       <div className="spacer" />

@@ -3,7 +3,24 @@
 // 데모도 결과 화면에 들어오는 순간 '지금' 기준의 새 번호를 붙이고 같은 번호를 끝까지 쓴다.
 import type { ReportPayload } from "../types";
 
-const KEY = "pasugun.demo.reports.v1";
+const KEY = "pasugun.demo.reports.v2";
+const ALL_KEYS = ["reports", "cases", "logs", "rules"].map((k) => `pasugun.demo.${k}.v2`);
+
+// 시드 데이터가 바뀐 이전 버전(v1)의 시연 기록은 새 데이터와 섞이면 안 되므로 지운다.
+try {
+  for (const k of ["reports", "cases", "logs", "rules"]) localStorage.removeItem(`pasugun.demo.${k}.v1`);
+} catch {
+  /* 저장소 접근 불가 */
+}
+
+/** 시연 중에 쌓인 데모 기록(새 리포트·사례 처리·거래 로그·룰 변경)을 모두 지우고 처음 상태로. */
+export function resetDemoData(): void {
+  try {
+    for (const k of ALL_KEYS) localStorage.removeItem(k);
+  } catch {
+    /* 저장소 접근 불가 */
+  }
+}
 const MAX_KEEP = 30; // 첨부 미리보기가 data URL이라 너무 많이 쌓이지 않게 한다
 
 const KST_OFFSET_MS = 9 * 3600_000;

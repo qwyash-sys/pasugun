@@ -76,7 +76,7 @@ export interface RuleInfo {
 }
 
 export const RULE_CATALOG: RuleInfo[] = [
-  { id: "R01", signal: "payee_fraud", name: "수취계좌 사기이력", definition: "수취계좌의 사기신고 이력 여부", condition: "신고 건수에 따라 점수 배점", scoring: "사기신고 이력 있음 40점 · 없음 0점 (현재는 신고 건수와 무관하게 같은 점수)" },
+  { id: "R01", signal: "payee_fraud", name: "수취계좌 사기이력", definition: "수취계좌의 사기신고 이력 여부", condition: "신고 건수에 따라 점수 배점", scoring: "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수" },
   { id: "R02", signal: "amount_anomaly", name: "이체금액 이상치", definition: "평소 이체금액 대비 이번 이체금액의 이상 정도", condition: "평소 대비 배수 구간에 따라 점수 배점", scoring: "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점" },
   { id: "R03", signal: "fund_source", name: "최근 자금이동", definition: "예·적금 해지 등 자금원천 이동 여부", condition: "자금원천 이동 후 경과시간에 따라 점수 배점", scoring: "24시간 이내 자금 이동 25점 · 없음 0점" },
   { id: "R04", signal: "payee_freshness", name: "수취계좌 개설경과", definition: "수취계좌 개설 후 경과일수", condition: "개설 경과일 구간에 따라 점수 배점", scoring: "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)" },

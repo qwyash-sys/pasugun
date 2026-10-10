@@ -3,6 +3,7 @@ import "./ui.css";
 import { useEffect, useRef, useState } from "react";
 import { RESPONSE_SOURCE } from "../config";
 import { ChartIcon, RadarIcon, SlidersIcon } from "../components/Icons";
+import { resetDemoData } from "../api/demoStore";
 import type { ReactNode } from "react";
 import MonitoringPage from "./pages/MonitoringPage";
 import RulesPage from "./pages/RulesPage";
@@ -78,6 +79,20 @@ export default function AdminConsole({ onExit }: { onExit: () => void }) {
 
         <div className="console-side-foot">
           <span className={`console-mode mode-${RESPONSE_SOURCE}`}>{RESPONSE_SOURCE === "demo" ? "DEMO 데이터" : "LOCAL 실데이터"}</span>
+          {RESPONSE_SOURCE === "demo" && (
+            <button
+              className="c-btn c-btn-ghost"
+              title="시연 중에 바꾼 룰·처리한 사례·새로 들어온 거래를 지우고 처음 샘플 데이터로 되돌려요"
+              onClick={() => {
+                if (window.confirm("시연 중에 바꾼 룰, 처리한 사례, 새로 들어온 거래를 모두 지우고 처음 샘플 데이터로 되돌릴까요?")) {
+                  resetDemoData();
+                  window.location.reload();
+                }
+              }}
+            >
+              ↺ 시연 데이터 초기화
+            </button>
+          )}
           <button className="c-btn c-btn-ghost" onClick={onExit}>
             ⇄ 역할 다시 선택
           </button>

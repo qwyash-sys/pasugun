@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAdminApi } from "../api";
 import type { CaseDoc, CaseItem } from "../api/types";
-import { applyAction, availableActions, CHOICE_LABEL, needsHq, OUTCOME_LABEL, POSTCHECK_STATUSES, urgency, type ActionPayload, type CaseAction } from "../engine/cases";
+import { applyAction, availableActions, CHOICE_LABEL, dueInfo, needsHq, OUTCOME_LABEL, POSTCHECK_STATUSES, urgency, type ActionPayload, type CaseAction } from "../engine/cases";
 import { fmtShort, kstIso, wonShort } from "../format";
 import { Badge, Card, Empty, ErrorBox, Kpi, Loading, PageHeader, Segmented, useLoad, useToast } from "../components/ui";
 import CaseDrawer from "./monitoring/CaseDrawer";
@@ -32,6 +32,33 @@ export default function MonitoringPage() {
   const [fresh, setFresh] = useState<string | null>(null);
   const { show, node } = useToast();
   const { reload } = list;
+  const now = updatedAt;
+  const known = useRef<Set<string> | null>(null);
+
+  // 새로 들어온 위험 거래를 알린다(첫 로딩은 제외). 실제 모드는 15초 주기 갱신, 데모는 다른 탭의 고객 화면에서 생긴 건.
+  useEffect(() => {
+    if (!list.data) return;
+    const ids = new Set(list.data.map((i) => i.case.case_id));
+    const prev = known.current;
+    known.current = ids;
+    if (!prev) return;
+    const arrived = [...ids].filter((id) => !prev.has(id));
+    if (!arrived.length) return;
+    show(`신규 위험 거래 ${arrived.length}건이 들어왔어요 — ${arrived[0]}`);
+    setFresh(arrived[0]);
+    const t = window.setTimeout(() => setFresh(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [list.data, show]);
+
+  // 데모: 같은 브라우저의 다른 탭(고객 화면)에서 사례가 생기거나 바뀌면 바로 반영한다.
+  useEffect(() => {
+    if (api.mode !== "demo") return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key?.startsWith("pasugun.demo.")) void reload(true).then(() => setUpdatedAt(new Date()));
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [api.mode, reload]);
 
   // 서버 모드는 고객 화면에서 들어오는 새 건을 위해 주기적으로 새로 읽는다.
   useEffect(() => {
@@ -98,12 +125,9 @@ export default function MonitoringPage() {
 
   const simulate = async () => {
     if (!api.simulateIncoming) return;
-    const doc = await api.simulateIncoming();
-    await list.reload(true);
-    setQueue("hq");
-    setFresh(doc.case_id);
-    show(`신규 위험 거래가 들어왔어요 — ${doc.case_id}`);
-    window.setTimeout(() => setFresh(null), 4000);
+    await api.simulateIncoming();
+    setQueue("all");
+    await list.reload(true); // 알림·강조는 위의 '신규 건 감지'가 처리한다
   };
 
   if (list.loading && !list.data) return <div className="console-content"><Loading /></div>;
@@ -214,7 +238,13 @@ export default function MonitoringPage() {
                         </div>
                         {c.outcome && <div className="c-muted c-small">{OUTCOME_LABEL[c.outcome]}</div>}
                       </td>
-                      <td className="c-small">{needsHq(c) && next ? <b className="c-next-step">{next.label} ›</b> : isOpenCase(c) ? <span className="c-muted">{WAITING_ON[c.status] ?? "상대 응답 대기"}</span> : <span className="c-muted">처리 완료</span>}</td>
+                      <td className="c-small">
+                        {needsHq(c) && next ? <b className="c-next-step">{next.label} ›</b> : isOpenCase(c) ? <span className="c-muted">{WAITING_ON[c.status] ?? "상대 응답 대기"}</span> : <span className="c-muted">처리 완료</span>}
+                        {(() => {
+                          const due = dueInfo(c, now);
+                          return due && <div className={`c-due tone-${due.tone}`}>{due.text}</div>;
+                        })()}
+                      </td>
                     </tr>
                   );
                 })}
@@ -224,7 +254,24 @@ export default function MonitoringPage() {
         )}
       </Card>
 
-      {selected && <CaseDrawer key={selected} caseId={selected} rev={rev} onClose={() => setSelected(null)} onAct={onAct} />}
+      {selected && (
+        <CaseDrawer
+          key={selected}
+          caseId={selected}
+          rev={rev}
+          onClose={() => setSelected(null)}
+          onAct={onAct}
+          position={(() => {
+            const index = rows.findIndex((r) => r.case.case_id === selected);
+            return index >= 0 ? { index, total: rows.length } : undefined;
+          })()}
+          onMove={(d) => {
+            const index = rows.findIndex((r) => r.case.case_id === selected);
+            const next = rows[index + d];
+            if (next) setSelected(next.case.case_id);
+          }}
+        />
+      )}
       {node}
     </div>
   );

@@ -45,10 +45,11 @@ from app.routers.admin import _rules_state  # noqa: E402
 from app.scoring import build_account_assessment, build_context_assessment  # noqa: E402
 from app.tools.account_signals import run_all_account_signals  # noqa: E402
 from app.transfer_log import build_log  # noqa: E402
+from app.kr_calendar import next_business_day  # noqa: E402
 
 SEED = 20261007
 TARGET_LOGS = 400
-START_DAY = datetime(2026, 8, 15)
+START_DAY = datetime(2026, 8, 31)  # 41일 → 2026-10-10까지(시연 시점 기준 최근 6주)
 SPAN_DAYS = 41
 FRONT = BACKEND.parent / "frontend" / "src"
 
@@ -272,15 +273,16 @@ def _iso(dt: datetime) -> str:
 
 
 def _next_business_day(dt: datetime) -> datetime:
-    d = dt + timedelta(days=1)
-    while d.weekday() >= 5:
-        d += timedelta(days=1)
-    return d
+    return next_business_day(dt)  # 주말 + 은행 휴무일(추석 등) 제외
 
 
-def open_probability(rank: float) -> float:
-    """최근 건일수록 아직 처리 중일 확률이 높다(rank 0=가장 최근, 1=가장 오래됨)."""
-    return 0.80 if rank < 0.12 else 0.45 if rank < 0.30 else 0.12 if rank < 0.55 else 0.03
+END_DAY = START_DAY + timedelta(days=SPAN_DAYS)
+
+
+def open_probability(created: datetime) -> float:
+    """최근 건일수록 아직 처리 중일 확률이 높다. 11일 넘은 건은 모두 처리가 끝난 상태로 둔다(한 달 묵은 미처리 건은 비현실적)."""
+    age = (END_DAY.replace(tzinfo=created.tzinfo) - created).total_seconds() / 86400
+    return 0.95 if age < 3 else 0.75 if age < 7 else 0.4 if age < 11 else 0.0
 
 
 def build_case(report, truth: str, customer: dict, rank: float, rng: random.Random) -> CaseDoc:
@@ -296,10 +298,17 @@ def build_case(report, truth: str, customer: dict, rank: float, rng: random.Rand
 
     weights = {"초고위험": [("delayed", 48), ("visit", 28), ("abandoned", 14), ("pending", 10)], "고위험": [("visit", 38), ("delayed", 30), ("abandoned", 22), ("pending", 10)]}[severity]
     choice = rng.choices([c for c, _ in weights], weights=[w for _, w in weights])[0]
-    is_open = rng.random() < open_probability(rank)
+    is_open = rng.random() < open_probability(created)
     t_choice = created + timedelta(minutes=rng.randint(1, 6))
 
     if choice == "pending":
+        if not is_open:  # 오래된 '선택 없음' 건은 본부가 고객에게 연락하고 종결한 상태
+            staff = rng.choice(HQ_STAFF)
+            at = created + timedelta(hours=rng.randint(3, 20))
+            doc.status = "종결"
+            doc.outcome, doc.outcome_at = "unresolved", _iso(at)
+            doc.assignee = staff
+            log(at, f"본부 담당자({staff.name})", "contact", "고객에게 안내 연락을 했어요. 선택 없이 종결해요.")
         return doc
     doc.choice = choice
 
@@ -406,6 +415,7 @@ GOLDEN_CONFIGS = {
     "g2": {"global": {"account_mid": 25, "context_mid": 20, "rag_mid_sim": 0.55}},
     "g3": {"rules": {"device": {"enabled": False}, "time_pattern": {"enabled": False}, "velocity": {"params": {"count_high": 4, "score_high": 25}}}},
     "g4": {"global": {"rag_high_sim": 0.70, "rag_high_score": 45, "account_high": 70}, "rules": {"payee_fraud": {"params": {"score": 30}}}},
+    "g5": {"rules": {"payee_fraud": {"params": {"count_multi": 2, "score_multi": 50}}}},
 }
 
 

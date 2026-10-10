@@ -13,7 +13,7 @@ import { cloneConfig, diffConfig, summarize } from "../engine/configDiff";
 import { analyzeActivity, makeActivity, seededRandom } from "../engine/postcheck";
 import { validateConfig } from "../engine/validate";
 
-const KEY = { rules: "pasugun.demo.rules.v1", cases: "pasugun.demo.cases.v1", logs: "pasugun.demo.logs.v1" };
+const KEY = { rules: "pasugun.demo.rules.v2", cases: "pasugun.demo.cases.v2", logs: "pasugun.demo.logs.v2" };
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -142,6 +142,7 @@ export class DemoAdminApi implements AdminApi {
   }
 
   async listCases(): Promise<CaseItem[]> {
+    caseOverrides = null; // 다른 탭(고객 화면)에서 바뀐 내용까지 읽도록 매번 저장소에서 다시 읽는다
     const items: CaseItem[] = [];
     for (const c of await allCases()) {
       const report = findReport(c.report_id);
@@ -151,6 +152,7 @@ export class DemoAdminApi implements AdminApi {
   }
 
   async getCase(id: string) {
+    caseOverrides = null;
     const c = (await allCases()).find((x) => x.case_id === id);
     const report = c && findReport(c.report_id);
     if (!c || !report) throw new Error("사례를 찾을 수 없어요.");

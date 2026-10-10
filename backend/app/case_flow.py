@@ -11,16 +11,14 @@ from datetime import datetime, timedelta
 from app.case_store import (
     CaseDoc, CaseStore, DelayedInfo, MailInfo, Person, TimelineEvent, VisitInfo, branches, find_branch, now_iso,
 )
+from app.kr_calendar import next_business_day
 from app.models import KST, ReportPayload
 
 DEFAULT_BRANCH = "양재남지점"
 
 
 def _next_business_morning(now: datetime) -> datetime:
-    d = now + timedelta(days=1)
-    while d.weekday() >= 5:
-        d += timedelta(days=1)
-    return d.replace(hour=9, minute=30, second=0, microsecond=0)
+    return next_business_day(now).replace(hour=9, minute=30, second=0, microsecond=0)
 
 
 def _log(case: CaseDoc, actor: str, kind: str, text: str, at: str) -> None:

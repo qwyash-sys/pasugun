@@ -69,9 +69,14 @@ export default function CaseDrawer({
   rev,
   onClose,
   onAct,
+  position,
+  onMove,
 }: {
   caseId: string;
   rev: number;
+  /** 지금 목록(필터 적용)에서 이 사례의 위치 — 이전/다음 사례로 바로 넘어갈 때 쓴다. */
+  position?: { index: number; total: number };
+  onMove?: (delta: -1 | 1) => void;
   onClose: () => void;
   onAct: (doc: CaseDoc, action: CaseAction["id"], payload: ActionPayload) => Promise<void>;
 }) {
@@ -111,6 +116,21 @@ export default function CaseDrawer({
       }
       sub={doc && report ? `${report.customer_name} → ${report.payee_name} · ${won(report.amount)}` : undefined}
       onClose={onClose}
+      footer={
+        position && onMove ? (
+          <div className="c-pager">
+            <button className="c-btn c-btn-sm" onClick={() => onMove(-1)} disabled={position.index <= 0}>
+              ‹ 이전 사례
+            </button>
+            <span className="c-muted c-small">
+              목록의 {position.index + 1} / {position.total}
+            </span>
+            <button className="c-btn c-btn-sm" onClick={() => onMove(1)} disabled={position.index >= position.total - 1}>
+              다음 사례 ›
+            </button>
+          </div>
+        ) : undefined
+      }
     >
       {detail.loading && !doc && <Loading />}
       {detail.error && <ErrorBox message={detail.error} onRetry={() => void detail.reload()} />}

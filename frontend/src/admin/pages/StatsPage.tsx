@@ -10,6 +10,27 @@ import { Badge, BarRows, Card, Empty, ErrorBox, Kpi, Legend, Loading, PageHeader
 
 type Period = "all" | "28" | "14";
 
+/** 선택 기간의 판정 로그를 CSV로(엑셀이 한글을 깨뜨리지 않게 BOM을 붙인다). */
+function downloadCsv(rows: Row[], filename: string) {
+  const head = ["거래ID", "시각", "고객ID", "연령대", "지역", "금액", "수취은행", "송금위험도 점수", "송금위험도 등급", "AI분석 점수", "AI분석 등급", "유사 사기유형", "유사도", "결정적 피싱징후", "최종 판정", "실제(확정)", "사기 유형", "리포트"];
+  const cell = (v: unknown) => {
+    const t = v == null ? "" : String(v);
+    return /[",\r\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+  };
+  const lines = rows.map(({ log: l, truth }) =>
+    [l.log_id, l.at, l.customer_id, l.customer_age_group, l.customer_region, l.amount, l.payee_bank, l.account_total, l.account_level, l.context_total, l.context_level, l.rag_type, l.rag_similarity, l.hard_override ? "Y" : "", l.final, truth === "fraud" ? "사기" : truth === "normal" ? "정상" : "", l.scenario, l.report_id]
+      .map(cell)
+      .join(","),
+  );
+  const blob = new Blob(["﻿" + [head.join(","), ...lines].join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 const riskRows = (groups: Group[], max?: number): { rows: BarRow[]; max: number } => {
   const top = max ?? Math.max(1, ...groups.map((g) => g.total));
   return {
@@ -138,16 +159,21 @@ export default function StatsPage() {
         title="통계 분석"
         sub={`${dayOf(first)} ~ ${dayOf(last)} 거래 ${ov.total}건의 판정 로그를 모아 어디가 위험하고 무엇이 부족한지 살펴봐요.`}
         actions={
-          <Segmented
-            label="기간"
-            value={period}
-            onChange={setPeriod}
-            options={[
-              { id: "all", label: "전체" },
-              { id: "28", label: "최근 4주" },
-              { id: "14", label: "최근 2주" },
-            ]}
-          />
+          <>
+            <Segmented
+              label="기간"
+              value={period}
+              onChange={setPeriod}
+              options={[
+                { id: "all", label: "전체" },
+                { id: "28", label: "최근 4주" },
+                { id: "14", label: "최근 2주" },
+              ]}
+            />
+            <button className="c-btn" onClick={() => downloadCsv(rows, `파수꾼_거래로그_${dayOf(first)}_${dayOf(last)}.csv`)} title="선택한 기간의 거래 판정 로그를 엑셀에서 열 수 있는 CSV로 내려받아요">
+              CSV 내보내기
+            </button>
+          </>
         }
       />
 

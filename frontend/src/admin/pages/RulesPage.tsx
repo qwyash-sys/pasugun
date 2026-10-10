@@ -4,7 +4,8 @@ import { getAdminApi } from "../api";
 import type { ConfigHistoryEntry, RuleInfo, RulesState } from "../api/types";
 import { loadAnalysisData } from "../data";
 import { ruleStats } from "../engine/stats";
-import { showValue } from "../engine/configDiff";
+import { getByPath, setByPath, showValue } from "../engine/configDiff";
+import { ConfigError } from "../api";
 import { fmtNum } from "../engine/validate";
 import { fmtShort } from "../format";
 import { Badge, Card, ErrorBox, Kpi, Loading, Modal, PageHeader, Segmented, useLoad, useToast } from "../components/ui";
@@ -34,6 +35,7 @@ export default function RulesPage() {
   const [confirmReset, setConfirmReset] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [tab, setTab] = useState<"rules" | "ai" | "history">("rules");
+  const [revert, setRevert] = useState<ConfigHistoryEntry | null>(null);
   const { show, node } = useToast();
 
   const state = override ?? rules.data;
@@ -55,6 +57,28 @@ export default function RulesPage() {
       show(e instanceof Error ? e.message : "복원하지 못했어요.", "danger");
     }
     setConfirmReset(false);
+  };
+
+  /** 이력 한 건을 되돌린다: 그 변경의 '바뀐 값'이 지금도 그대로인 항목만 '이전 값'으로 돌린다(이후에 또 바뀐 항목은 건드리지 않음). */
+  const revertPlan = (h: ConfigHistoryEntry) => {
+    const apply = h.changes.filter((c) => getByPath(state.config, c.path) === c.to);
+    const skipped = h.changes.length - apply.length;
+    let cfg = state.config;
+    for (const c of apply) cfg = setByPath(cfg, c.path, c.from);
+    return { apply, skipped, cfg };
+  };
+
+  const doRevert = async () => {
+    if (!revert) return;
+    const plan = revertPlan(revert);
+    try {
+      const res = await getAdminApi().putRules(plan.cfg, `${revert.id} 되돌리기`);
+      applied(res.state);
+      show(`${revert.id} 변경을 되돌렸어요 (${res.changes.length}개 항목).`);
+    } catch (e) {
+      show(e instanceof ConfigError ? e.errors[0] : e instanceof Error ? e.message : "되돌리지 못했어요.", "danger");
+    }
+    setRevert(null);
   };
 
   const planned = RULE_CATALOG.filter((r) => !r.signal);
@@ -188,6 +212,11 @@ export default function RulesPage() {
                     <span className="c-muted c-small">
                       {fmtShort(h.at)} · {h.actor}
                     </span>
+                    {revertPlan(h).apply.length > 0 && (
+                      <button className="c-btn c-btn-sm" onClick={() => setRevert(h)}>
+                        이 변경 되돌리기
+                      </button>
+                    )}
                   </div>
                   <p>{h.summary}</p>
                   {h.note && <p className="c-muted c-small">사유: {h.note}</p>}
@@ -215,6 +244,39 @@ export default function RulesPage() {
       {target && (
         <RuleEditor key={target.kind === "rule" ? target.rule.name : "global"} target={target} state={state} data={data.data} onClose={() => setTarget(null)} onSaved={applied} notify={show} />
       )}
+
+      <Modal
+        open={!!revert}
+        title={revert ? `${revert.id} 변경을 되돌릴까요?` : ""}
+        onClose={() => setRevert(null)}
+        footer={
+          <>
+            <button className="c-btn" onClick={() => setRevert(null)}>
+              취소
+            </button>
+            <button className="c-btn c-btn-primary" onClick={() => void doRevert()}>
+              되돌리기
+            </button>
+          </>
+        }
+      >
+        {revert && (
+          <>
+            <ul className="c-change-list">
+              {revertPlan(revert).apply.map((c) => (
+                <li key={c.path}>
+                  <span>{c.label}</span>
+                  <b>
+                    {showValue(c.to)} → {showValue(c.from)}
+                  </b>
+                </li>
+              ))}
+            </ul>
+            {revertPlan(revert).skipped > 0 && <p className="c-muted c-small">그 뒤에 다시 바뀐 {revertPlan(revert).skipped}개 항목은 그대로 둬요.</p>}
+            <p className="c-muted c-small">되돌리기도 새 변경 이력으로 남아요.</p>
+          </>
+        )}
+      </Modal>
 
       <Modal
         open={confirmReset}

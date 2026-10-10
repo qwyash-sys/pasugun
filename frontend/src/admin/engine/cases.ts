@@ -15,7 +15,7 @@ export const CHOICE_LABEL: Record<CaseDoc["choice"], string> = {
   visit: "영업점 내방 예약",
   delayed: "지연송금(강행)",
   abandoned: "송금 중단",
-  pending: "선택 대기",
+  pending: "선택 없음",
 };
 
 export const OUTCOME_LABEL: Record<Outcome, string> = {
@@ -300,4 +300,46 @@ export function createCase(report: Pick<ReportPayload, "report_id" | "final">, c
     log("고객", "choice", "위험 안내를 보고 송금을 중단했어요. 조치가 필요 없는 건이에요.");
   }
   return doc;
+}
+
+export interface DueInfo {
+  text: string;
+  tone: "danger" | "warn" | "muted";
+}
+
+const mins = (a: string, now: Date): number => Math.round((new Date(a).getTime() - now.getTime()) / 60_000);
+function span(m: number): string {
+  const a = Math.abs(m);
+  if (a < 60) return `${a}분`;
+  if (a < 48 * 60) return `${Math.round(a / 60)}시간`;
+  return `${Math.round(a / 1440)}일`;
+}
+
+/** 진행 중인 사례의 기한·경과 표시(목록의 '다음 할 일' 아래 한 줄). 기한이 지났으면 빨강, 임박하면 주황. */
+export function dueInfo(c: CaseDoc, now: Date = new Date()): DueInfo | null {
+  if (!isOpen(c)) return null;
+  const last = c.timeline[c.timeline.length - 1]?.at ?? c.updated_at;
+  switch (c.status) {
+    case "본부 검토 대기":
+    case "재확인 완료": {
+      if (!c.delayed) return null;
+      const m = mins(c.delayed.delay_until, now);
+      return m < 0 ? { text: `지연 해제 시각 ${span(m)} 지남`, tone: "danger" } : { text: `지연 해제까지 ${span(m)}`, tone: m <= 30 ? "warn" : "muted" };
+    }
+    case "면담 대기": {
+      if (!c.visit) return null;
+      const m = mins(c.visit.reserved_at, now);
+      return m < -120 ? { text: `예약 후 ${span(m)} · 결과 미입력`, tone: "danger" } : m < 0 ? { text: "면담 진행 중", tone: "warn" } : { text: `내방 예약까지 ${span(m)}`, tone: "muted" };
+    }
+    case "고객 재확인 중":
+    case "면담 결과 확인 대기":
+    case "사후확인 대기":
+    case "사후확인 결과 확인 대기":
+    case "고객 선택 대기": {
+      const m = -mins(last, now);
+      return { text: `${span(m)}째 대기`, tone: m > 24 * 60 ? "danger" : m > 4 * 60 ? "warn" : "muted" };
+    }
+    default:
+      return null;
+  }
 }

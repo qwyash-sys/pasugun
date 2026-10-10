@@ -44,6 +44,18 @@ def test_default_config_matches_spec():
     assert rag_score(0.59) == 0 and rag_score(0.60) == 30 and rag_score(0.80) == 50
 
 
+def test_r01_scores_by_report_count_when_the_multi_score_is_raised():
+    base = _signals()["payee_fraud"]
+    assert base.score == 40 and base.value >= 1  # 기본값: 건수와 무관하게 40점(SPEC)
+    count = int(base.value)
+    ok, _, _ = get_rule_config_store().update(_patch({"rules": {"payee_fraud": {"params": {"count_multi": max(2, count), "score_multi": 55}}}}))
+    assert ok
+    s = _signals()["payee_fraud"]
+    assert s.score == (55 if count >= 2 else 40) and s.max_score == 55
+    ok, errors, _ = get_rule_config_store().update(_patch({"rules": {"payee_fraud": {"params": {"score": 60, "score_multi": 50}}}}))
+    assert not ok and errors  # 다건 배점이 1건 배점보다 작으면 거절
+
+
 def test_changing_a_threshold_changes_the_score_and_the_max():
     ok, errors, changes = get_rule_config_store().update(_patch({"rules": {"amount_anomaly": {"params": {"score_high": 30, "ratio_high": 100}}}}))
     assert ok and not errors and len(changes) == 2

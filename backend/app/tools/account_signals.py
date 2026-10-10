@@ -27,8 +27,11 @@ def check_payee_fraud(payee_account: str, cfg: RuleConfig | None = None) -> Sign
     cfg = cfg or get_rule_config()
     payee = get_payee(payee_account)
     hit = bool(payee["is_fraud_reported"])
-    score = int(cfg.p("payee_fraud", "score")) if hit else 0
     count = payee.get("fraud_report_count", 0)
+    # 신고 건수에 따라 배점: 다건 기준 이상이면 다건 배점, 1건 이상이면 기본 배점(기본값은 둘 다 40 = SPEC).
+    score = 0
+    if hit:
+        score = int(cfg.p("payee_fraud", "score_multi") if count >= cfg.p("payee_fraud", "count_multi") else cfg.p("payee_fraud", "score"))
     detail = f"사기신고 {count}건" if hit else "사기신고 이력 없음"
     return SignalResult(signal="payee_fraud", hit=hit, score=score, detail=detail, value=float(count if hit else 0))
 
@@ -210,7 +213,7 @@ ACCOUNT_SIGNALS: list[AccountSignalSpec] = [
         rule_id="R01",
         definition="수취계좌의 사기신고 이력 여부",
         condition="신고 건수에 따라 점수 배점",
-        scoring="사기신고 이력 있음 40점 · 없음 0점 (현재는 신고 건수와 무관하게 같은 점수)",
+        scoring="사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수",
     ),
     AccountSignalSpec(
         "amount_anomaly", "이체금액 이상치", 25, lambda i: check_amount_anomaly(i.customer_id, i.amount, i.config),
