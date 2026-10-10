@@ -226,6 +226,18 @@ def test_customer_choice_delayed_and_abandoned(live):
     assert client.get(f"/api/admin/cases/{rid2}").json()["case"]["status"] == "종결"
 
 
+def test_customer_can_cancel_a_delayed_transfer_before_it_runs(live):
+    sid = _risky_session()
+    rid = client.post(f"/api/transfer/{sid}/finalize").json()["report"]["report_id"]
+    client.post(f"/api/transfer/{sid}/choice", json={"choice": "cancel_delayed"})  # 지연송금 전엔 아무 일 없음
+    assert client.get(f"/api/admin/cases/{rid}").json()["case"]["status"] == "고객 선택 대기"
+    client.post(f"/api/transfer/{sid}/choice", json={"choice": "delayed"})
+    client.post(f"/api/transfer/{sid}/choice", json={"choice": "cancel_delayed"})
+    case = client.get(f"/api/admin/cases/{rid}").json()["case"]
+    assert case["status"] == "종결" and case["timeline"][-1]["kind"] == "cancel"
+    assert case["delayed"]["executed_at"] is None
+
+
 def test_choice_on_a_non_risky_session_is_a_noop(live):
     q = client.post("/api/transfer/quote", json={"customer_id": "C001", "payee_account": "552-102-993917", "amount": 150_000, "current_time": "2026-08-13T18:00:00+09:00"}).json()
     client.post(f"/api/transfer/{q['session_id']}/finalize")

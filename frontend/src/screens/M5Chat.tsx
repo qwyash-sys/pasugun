@@ -69,6 +69,23 @@ const MAX_INPUT_CHARS = 2000;
  * 만드는 방식만 다르다 — 데모는 대본, 실제 모드는 백엔드 AI. 데모에서는 대본의 다음 문장을
  * "추천 문장"으로 입력창 위에 띄워, 누르면 입력창에 채워지고 직접 ↑로 보내게 한다(버튼 한 번에
  * 대화가 저절로 넘어가면 사용자가 직접 채팅하는 화면이라는 게 드러나지 않는다). */
+/** data URL(SVG 등) 이미지를 PNG base64로. 실패하면 빈 문자열(서버가 거절하고 화면이 다시 보내게 안내). */
+async function toPngBase64(url: string): Promise<string> {
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth || 600;
+    canvas.height = img.naturalHeight || 800;
+    canvas.getContext("2d")?.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const png = canvas.toDataURL("image/png");
+    return png.slice(png.indexOf(",") + 1);
+  } catch {
+    return "";
+  }
+}
+
 export default function M5Chat(props: Props) {
   const { isDemo, chatTurns, hint, customerName, demoAttachments, onSendTurn } = props;
   const turns = useMemo(() => chatTurns ?? [], [chatTurns]);
@@ -76,7 +93,10 @@ export default function M5Chat(props: Props) {
   // 데모 대본 첨부 파일명 → 미리보기 이미지(리포트에 같은 이름의 첨부가 있으면 그것, 없으면 기본 캡처).
   const demoImage = useMemo(() => {
     const byName = new Map((demoAttachments ?? []).map((a) => [a.name, a.url]));
-    return (name: string): StagedImage => ({ name, url: byName.get(name) ?? captureDataUrl([name]) });
+    return (name: string): StagedImage => {
+      const url = byName.get(name) ?? captureDataUrl([name]);
+      return { name, url };
+    };
   }, [demoAttachments]);
 
   const sendTurn = async (payload: { text: string; images: StagedImage[]; turnIndex: number }): Promise<ChatTurnResult> => {
@@ -86,15 +106,15 @@ export default function M5Chat(props: Props) {
       return { reply: scripted?.ai ?? "", turn: payload.turnIndex + 1, maxTurns: turns.length };
     }
     if (!onSendTurn) throw new Error("대화를 보낼 수 없어요");
-    return onSendTurn({
-      text: payload.text,
-      attachments: payload.images.map((i) => ({ name: i.name, base64: i.base64 ?? "" })),
-    });
+    // 추천 문장의 캡처(벡터 이미지)는 실제 모드에서 PNG로 바꿔 보낸다 — 서버 OCR이 같은 글자를 읽는다.
+    const attachments = await Promise.all(payload.images.map(async (i) => ({ name: i.name, base64: i.base64 ?? (await toPngBase64(i.url)) })));
+    return onSendTurn({ text: payload.text, attachments });
   };
 
-  const greeting = isDemo
-    ? `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황을 편하게 말씀해주세요."}`
-    : `${customerName}님, 편하게 상황을 말씀해주세요. 몇 가지만 확인하고 바로 알려드릴게요.`;
+  // 데모·실제 모드가 같은 첫 인사로 시작한다(케이스를 고르지 않은 실제 모드만 이름을 불러 시작).
+  const greeting = chatTurns !== undefined
+    ? `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황 설명이나 안내문자 캡처를 올려주세요."}`
+    : `${customerName}님, 현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. 상황 설명이나 안내문자 캡처를 올려주세요.`;
 
   return (
     <>
@@ -103,9 +123,11 @@ export default function M5Chat(props: Props) {
         greeting={greeting}
         sendTurn={sendTurn}
         initialMaxTurns={isDemo ? turns.length : 3}
-        suggestionFor={isDemo ? (i) => (turns[i] ? { text: turns[i].user, images: (turns[i].attachments ?? []).map(demoImage) } : null) : undefined}
-        noChat={isDemo && turns.length === 0}
-        allowSkipLink={!isDemo}
+        // 시연 케이스의 다음 문장을 추천으로 띄운다(데모·실제 모드 공통 — 실제 모드는 보낸 내용을 진짜 AI가 분석).
+        suggestionFor={turns.length ? (i) => (turns[i] ? { text: turns[i].user, images: (turns[i].attachments ?? []).map(demoImage) } : null) : undefined}
+        // 대화 없이 끝나는 시연 케이스(케이스를 골랐는데 대본이 비어 있음) — 데모·실제 모드 공통
+        noChat={chatTurns !== undefined && turns.length === 0}
+        allowSkipLink
       />
       {/* 결과 확정 중에는 대화 화면을 내리지 말고 위에 덮기만 한다 — 언마운트하면 확정이 실패했을 때
           대화 내용·턴 수가 전부 초기화된 빈 채팅으로 되돌아온다. */}
@@ -348,7 +370,7 @@ function ChatView({
           </>
         )}
 
-        {allowSkipLink && turn === 0 && !reachedCap && (
+        {allowSkipLink && !noChat && turn === 0 && !reachedCap && (
           <button className="chat-skip-link" disabled={busy} onClick={onFinish}>
             건너뛰고 바로 결과 볼게요
           </button>

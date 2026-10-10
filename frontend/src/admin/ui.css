@@ -127,7 +127,7 @@
 .c-kv dt { color: var(--c-muted); font-weight: 600; }
 .c-kv dd { margin: 0; word-break: keep-all; overflow-wrap: anywhere; }
 
-@media (max-width: 1300px) {
+@media (max-width: 960px) {
   .c-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .c-kpis.c-kpis-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -193,8 +193,13 @@
 /* ---------- 모니터링 ---------- */
 .c-filters { display: flex; gap: 8px; flex-wrap: wrap; }
 .c-filters select { width: auto; }
-.c-filters input { width: 230px; }
-.c-queue { margin-bottom: 14px; overflow-x: auto; }
+.console .c-filters input { width: 210px; }
+.console .c-filters select { width: auto; }
+.c-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.c-queue { overflow-x: auto; min-width: 0; }
+.c-badges { display: flex; flex-wrap: wrap; gap: 4px; }
+.c-next-step { color: var(--c-green-dark); white-space: nowrap; }
+.c-cases td { padding-top: 10px; padding-bottom: 10px; }
 .c-fresh { animation: c-fresh 3.5s ease; }
 @keyframes c-fresh { 0%, 60% { background: #fff6d6; } 100% { background: transparent; } }
 .c-status-line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -223,7 +228,8 @@
 .c-tl-time { color: var(--c-muted); font-size: 12.5px; font-variant-numeric: tabular-nums; padding-top: 1px; }
 .c-timeline p { margin: 1px 0 0; line-height: 1.55; }
 @media (max-width: 720px) {
-  .c-filters input { width: 100%; }
+  .console .c-filters input { width: 100%; }
+  .c-filters { width: 100%; }
   .c-actions li .c-btn { min-width: 0; width: 100%; }
 }
 
@@ -240,3 +246,6 @@
 .c-cell-bad { background: var(--c-danger-soft); color: var(--c-danger); }
 .c-cell-warn { background: var(--c-warn-soft); color: var(--c-warn); }
 .console a { color: var(--c-blue); font-weight: 600; }
+.c-tabs { margin: 2px 0 16px; overflow-x: auto; }
+.c-stack[hidden] { display: none; }
+.console .c-btn { white-space: nowrap; flex-shrink: 0; }

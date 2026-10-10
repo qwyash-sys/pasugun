@@ -350,3 +350,13 @@
     padding: 16px 14px 48px;
   }
 }
+
+.console-nav-icon svg {
+  width: 19px;
+  height: 19px;
+  color: var(--c-muted);
+}
+
+.console-nav button.on .console-nav-icon svg {
+  color: var(--c-green-dark);
+}

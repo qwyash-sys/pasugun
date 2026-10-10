@@ -1,18 +1,19 @@
 // 서버 없이(Vercel 데모·오프라인) 관리자 페이지를 쓰는 구현. 샘플 데이터는 실제 엔진으로 만든 시드이고,
 // 사용자가 바꾼 설정·사례 처리 내용은 이 브라우저(localStorage)에만 저장된다 — 새로고침해도 유지되고 다른 사람과는 공유되지 않는다.
 import { allDemoReports, toSummary } from "../../api/reports";
+import { freshDemoReport, saveDemoReport } from "../../api/demoStore";
 import type { AdminApi, NarrativeResult, ReanalyzeResult } from "./adminApi";
 import { ConfigError } from "./adminApi";
 import type {
   Branch, CaseChoice, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RuleInfo, RulesState, Scenario, TransferLog,
 } from "./types";
-import { CURRENT_STAFF, createCase } from "../engine/cases";
+import { CURRENT_STAFF, cancelDelayed, createCase } from "../engine/cases";
 import { kstIso } from "../format";
 import { cloneConfig, diffConfig, summarize } from "../engine/configDiff";
 import { analyzeActivity, makeActivity, seededRandom } from "../engine/postcheck";
 import { validateConfig } from "../engine/validate";
 
-const KEY = { rules: "pasugun.demo.rules.v1", cases: "pasugun.demo.cases.v1", reports: "pasugun.demo.reports.v1" };
+const KEY = { rules: "pasugun.demo.rules.v1", cases: "pasugun.demo.cases.v1", logs: "pasugun.demo.logs.v1" };
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -48,7 +49,6 @@ const branchList = (): Promise<Branch[]> => (branchesP ??= import("../../demoDat
 
 let ruleStore: RuleStore | null = null;
 let caseOverrides: Record<string, CaseDoc> | null = null;
-let extraReports: ReportPayload[] | null = null;
 
 async function rules(): Promise<RuleStore> {
   if (!ruleStore) {
@@ -77,10 +77,9 @@ async function rulesState(): Promise<RulesState> {
 }
 
 const overrides = (): Record<string, CaseDoc> => (caseOverrides ??= load<Record<string, CaseDoc>>(KEY.cases, {}));
-const extras = (): ReportPayload[] => (extraReports ??= load<ReportPayload[]>(KEY.reports, []));
 
 function findReport(id: string): ReportPayload | undefined {
-  return extras().find((r) => r.report_id === id) ?? allDemoReports().find((r) => r.report_id === id);
+  return allDemoReports().find((r) => r.report_id === id);
 }
 
 async function allCases(): Promise<CaseDoc[]> {
@@ -133,7 +132,8 @@ export class DemoAdminApi implements AdminApi {
 
   async getLogs() {
     const m = await import("../../demoData/admin/transferLogs.json");
-    return m.default as unknown as TransferLog[];
+    // 시드 로그 + 이 브라우저에서 시연한 거래(실제 모드에서 서버가 모든 판정을 로그로 남기는 것과 같다)
+    return [...(m.default as unknown as TransferLog[]), ...load<TransferLog[]>(KEY.logs, [])];
   }
 
   async getScenarios() {
@@ -182,27 +182,101 @@ export class DemoAdminApi implements AdminApi {
   }
 
   async simulateIncoming(): Promise<CaseDoc> {
-    const pool = allDemoReports().filter((r) => r.final.final === "위험");
-    const seed = pool[Math.floor(Math.random() * pool.length)];
-    const created = await recordDemoChoice(seed, (["visit", "delayed", "delayed", "pending"] as CaseChoice[])[Math.floor(Math.random() * 4)], {});
-    return created;
+    const pool = allDemoReports().filter((r) => r.final.final === "위험" && !/-9\d\d$/.test(r.report_id));
+    const report = freshDemoReport(pool[Math.floor(Math.random() * pool.length)]);
+    await openDemoCase(report);
+    const choice = (["visit", "delayed", "delayed", "pending"] as CaseChoice[])[Math.floor(Math.random() * 4)];
+    return choice === "pending" ? (await this.getCase(report.report_id)).case : recordDemoChoice(report, choice, {});
   }
 }
 
-/** 고객 화면(데모)에서 위험 결과 뒤 고객이 고른 분기를 본부 모니터링에 새 사례로 남긴다. 같은 데모를 다시 돌려도
- * 새 건으로 쌓이도록 리포트를 복제해 새 번호·현재 시각을 붙인다. */
-export async function recordDemoChoice(source: ReportPayload, choice: CaseChoice, opts: { branch?: string; reservedAt?: string }): Promise<CaseDoc> {
-  const list = extras();
+// 시연 케이스 고객의 프로필(backend/mock_data/customers.json과 같은 값) — 통계의 연령대·지역에 쓴다.
+const DEMO_CUSTOMERS: Record<string, { id: string; age: string; region: string; hours: number[] }> = {
+  남용준: { id: "C001", age: "30대", region: "서울 강남구", hours: [9, 22] },
+  김도현: { id: "C002", age: "20대", region: "서울 마포구", hours: [8, 21] },
+  이서인: { id: "C003", age: "20대", region: "경기 성남시", hours: [9, 23] },
+  박지원: { id: "C004", age: "50대", region: "서울 서초구", hours: [9, 20] },
+};
+
+/** 데모 결과 화면에 들어온 순간 판정 1건을 거래 로그로 남긴다(서버 finalize의 transfer_log와 같은 모양). */
+export function logDemoDecision(args: {
+  customerName: string;
+  amount: number;
+  payeeAccount: string;
+  payeeBank: string;
+  final: ReportPayload["final"];
+  account: ReportPayload["account"];
+  context: ReportPayload["context"];
+  reportId: string | null;
+}): void {
+  const who = DEMO_CUSTOMERS[args.customerName] ?? { id: "C000", age: "", region: "", hours: [9, 22] };
   const now = new Date();
-  const kst = new Date(now.getTime() + 9 * 3600_000);
-  const day = kst.toISOString().slice(0, 10).replaceAll("-", "");
-  const serial = list.filter((r) => r.report_id.startsWith(`RPT-${day}-9`)).length + 1;
-  const iso = kstIso(now);
-  const report: ReportPayload = { ...structuredClone(source), report_id: `RPT-${day}-9${String(serial).padStart(2, "0")}`, generated_at: iso, attempted_at: iso };
-  list.push(report);
-  save(KEY.reports, list);
-  const doc = createCase(report, choice, now, await branchList(), opts);
+  const list = load<TransferLog[]>(KEY.logs, []);
+  const ctx = args.context;
+  const by = (q: string) => ctx?.answers.find((a) => a.question_id === q);
+  const rag = ctx?.rag ?? null;
+  const day = kstIso(now).slice(0, 10).replaceAll("-", "");
+  list.push({
+    log_id: `TXN-${day}-D${String(list.length + 1).padStart(3, "0")}`,
+    at: kstIso(now),
+    customer_id: who.id,
+    customer_age_group: who.age,
+    customer_region: who.region,
+    amount: args.amount,
+    payee_account: args.payeeAccount,
+    payee_bank: args.payeeBank,
+    usual_hours: who.hours,
+    signals: args.account.signals.map((x) => ({ signal: x.signal, value: x.value ?? null, score: x.score, hit: x.hit })),
+    account_total: args.account.total_score,
+    account_level: args.account.level,
+    asked: !!ctx && (ctx.answers.length > 0 || ctx.used_input_or_attachment),
+    answers_empathy: by("empathy")?.choice_weight ?? null,
+    answers_safety: by("safety")?.choice_weight ?? null,
+    answer_hard: !!ctx?.answers.some((a) => a.hard_override),
+    input_used: !!ctx?.used_input_or_attachment,
+    rag_id: rag?.hit ? rag.matched_id : null,
+    rag_type: rag?.hit ? rag.matched_type : null,
+    rag_similarity: rag ? rag.similarity : null,
+    context_total: ctx ? ctx.total_score : null,
+    context_level: args.final.context_level,
+    hard_override: args.final.hard_override,
+    final: args.final.final,
+    report_id: args.reportId,
+    truth: null,
+    scenario: null,
+  });
+  save(KEY.logs, list.slice(-200));
+}
+
+/** 데모 결과 화면에 '위험' 리포트가 나온 순간(서버의 finalize와 같은 시점): 리포트를 저장하고 '고객 선택 대기' 사례를 연다. */
+export async function openDemoCase(report: ReportPayload): Promise<CaseDoc> {
+  saveDemoReport(report);
+  const existing = overrides()[report.report_id];
+  if (existing) return existing;
+  const doc = createCase(report, "pending", new Date(), await branchList());
   overrides()[doc.case_id] = doc;
   save(KEY.cases, overrides());
   return doc;
+}
+
+/** 고객이 위험 결과 뒤 고른 분기를 사례에 반영한다. 처음 고른 것만 인정한다(서버의 apply_customer_choice와 같다). */
+export async function recordDemoChoice(report: ReportPayload, choice: CaseChoice, opts: { branch?: string; reservedAt?: string }): Promise<CaseDoc> {
+  const opened = await openDemoCase(report);
+  if (opened.choice !== "pending") return opened;
+  const doc = createCase(report, choice, new Date(), await branchList(), opts);
+  doc.created_at = opened.created_at;
+  doc.timeline = [...opened.timeline, ...doc.timeline.slice(1)];
+  overrides()[doc.case_id] = doc;
+  save(KEY.cases, overrides());
+  return doc;
+}
+
+/** 지연이체로 접수한 고객이 실행 전에 직접 취소한 경우. */
+export async function cancelDemoDelayed(reportId: string): Promise<CaseDoc | null> {
+  const doc = overrides()[reportId];
+  if (!doc || doc.choice !== "delayed" || doc.delayed?.executed_at || doc.status === "종결") return doc ?? null;
+  const next = cancelDelayed(doc, kstIso(new Date()));
+  overrides()[next.case_id] = next;
+  save(KEY.cases, overrides());
+  return next;
 }

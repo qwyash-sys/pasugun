@@ -3,7 +3,7 @@ import { koreanAmount } from "../utils/format";
 import AppBar from "../components/AppBar";
 import { CUSTOMER_OPTIONS } from "../demoData/customers";
 import type { DemoCase } from "../demoData/cases";
-import { TEST_SCENARIOS, type TestScenario } from "../demoData/testScenarios";
+import type { TestScenario } from "../demoData/testScenarios";
 
 export interface M1Result {
   customerId: string;
@@ -15,6 +15,8 @@ export interface M1Result {
 interface Props {
   isDemo: boolean;
   demoCase?: DemoCase;
+  /** 실제 모드에서 시연 케이스를 골라 들어온 경우 그 케이스 이름(값이 미리 채워졌다는 안내용). */
+  caseTitle?: string;
   /** 수취계좌 화면에서 뒤로 돌아왔을 때 앞서 입력한 값을 그대로 보여준다. */
   initial?: M1Result;
   onNext: (data: M1Result) => void;
@@ -31,17 +33,11 @@ function maskAccount(account: string): string {
   return [parts[0], ...parts.slice(1, -1).map((p) => "*".repeat(p.length)), parts.at(-1)].join("-");
 }
 
-export default function M1Amount({ isDemo, demoCase, initial, onNext, onHome }: Props) {
+export default function M1Amount({ isDemo, demoCase, caseTitle, initial, onNext, onHome }: Props) {
   const [customerId, setCustomerId] = useState(initial?.customerId || CUSTOMER_OPTIONS[0].customer_id);
   const [amount, setAmount] = useState(initial?.amount ?? 0);
-  const [scenario, setScenario] = useState<TestScenario | undefined>(initial?.scenario);
+  const [scenario] = useState<TestScenario | undefined>(initial?.scenario);
   const tooMuch = amount > MAX_AMOUNT;
-
-  function applyScenario(s: TestScenario) {
-    setScenario(s);
-    setCustomerId(s.customerId);
-    setAmount(s.amount);
-  }
 
   if (isDemo && demoCase) {
     return (
@@ -67,21 +63,7 @@ export default function M1Amount({ isDemo, demoCase, initial, onNext, onHome }: 
   return (
     <>
       <AppBar title="이체" onHome={onHome} />
-      <div className="test-scenarios">
-        <div className="test-scenarios-title">🧪 개발용 테스트 시나리오 — 누르면 아래 값이 채워져요</div>
-        <div className="test-scenarios-list">
-          {TEST_SCENARIOS.map((s) => (
-            <button
-              key={s.label}
-              className={`test-scenario-btn ${scenario === s ? "active" : ""}`}
-              onClick={() => applyScenario(s)}
-            >
-              {s.label}
-              <span>{s.hint}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {caseTitle && <p className="case-prefill-note">💡 ‘{caseTitle}’ 케이스 값이 채워져 있어요. 바꿔서 해봐도 돼요.</p>}
 
       <div className="field-label">출금계좌(본인)</div>
       <select value={customerId} onChange={(e) => setCustomerId(e.target.value)}>

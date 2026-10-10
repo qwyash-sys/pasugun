@@ -5,7 +5,7 @@ import { applyAction, availableActions, CHOICE_LABEL, needsHq, OUTCOME_LABEL, PO
 import { fmtShort, kstIso, wonShort } from "../format";
 import { Badge, Card, Empty, ErrorBox, Kpi, Loading, PageHeader, Segmented, useLoad, useToast } from "../components/ui";
 import CaseDrawer from "./monitoring/CaseDrawer";
-import { CHOICE_TONE, statusTone } from "./monitoring/labels";
+import { CHOICE_TONE, statusTone, WAITING_ON } from "./monitoring/labels";
 
 type Queue = "all" | "hq" | "visit" | "delayed" | "post" | "pending" | "done";
 
@@ -141,10 +141,27 @@ export default function MonitoringPage() {
         <Kpi label="보이스피싱 확정" value={stats.fraud} sub={`피해 시도액 ${wonShort(stats.fraudAmount)}`} tone="default" onClick={() => setQueue("done")} active={false} />
       </div>
 
-      <Card
-        title="위험 리포트 목록"
-        sub="최종 판정이 ‘위험’으로 저장된 모든 리포트예요. 행을 누르면 근거·조치·이력을 볼 수 있어요."
-        actions={
+      <Card title="위험 리포트 목록" sub="최종 판정이 ‘위험’으로 저장된 모든 리포트예요. 행을 누르면 근거·조치·이력을 볼 수 있어요.">
+        <div className="c-toolbar">
+          <div className="c-queue">
+            <Segmented
+              label="처리 단계"
+              value={queue}
+              onChange={(v) => {
+                setQueue(v);
+                if (v !== "all") setSeverity("");
+              }}
+              options={[
+                { id: "hq", label: "본부 조치 필요", count: counts.hq },
+                { id: "visit", label: "영업점 내방", count: counts.visit },
+                { id: "delayed", label: "지연송금", count: counts.delayed },
+                { id: "post", label: "사후 확인", count: counts.post },
+                { id: "pending", label: "고객 선택 대기", count: counts.pending },
+                { id: "done", label: "종결", count: counts.done },
+                { id: "all", label: "전체", count: counts.all },
+              ]}
+            />
+          </div>
           <div className="c-filters">
             <select value={severity} onChange={(e) => setSeverity(e.target.value as typeof severity)} aria-label="위험 등급">
               <option value="">전체 등급</option>
@@ -153,42 +170,20 @@ export default function MonitoringPage() {
             </select>
             <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="고객명·수취인·리포트번호" aria-label="검색" />
           </div>
-        }
-      >
-        <div className="c-queue">
-          <Segmented
-            label="처리 단계"
-            value={queue}
-            onChange={(v) => {
-              setQueue(v);
-              if (v !== "all") setSeverity("");
-            }}
-            options={[
-              { id: "hq", label: "본부 조치 필요", count: counts.hq },
-              { id: "visit", label: "영업점 내방", count: counts.visit },
-              { id: "delayed", label: "지연송금", count: counts.delayed },
-              { id: "post", label: "사후 확인", count: counts.post },
-              { id: "pending", label: "고객 선택 대기", count: counts.pending },
-              { id: "done", label: "종결", count: counts.done },
-              { id: "all", label: "전체", count: counts.all },
-            ]}
-          />
         </div>
 
         {rows.length === 0 ? (
           <Empty>{queue === "hq" && !query && !severity ? "지금 조치가 필요한 사례가 없어요. 👍" : "조건에 맞는 사례가 없어요."}</Empty>
         ) : (
           <div className="c-table-wrap">
-            <table className="c-table">
+            <table className="c-table c-cases">
               <thead>
                 <tr>
                   <th>등급</th>
-                  <th>리포트</th>
-                  <th>시도 일시</th>
+                  <th>리포트 · 시도 일시</th>
                   <th>고객 → 수취인</th>
                   <th className="num">금액</th>
-                  <th>고객 선택</th>
-                  <th>진행 상태</th>
+                  <th>고객 선택 · 진행 상태</th>
                   <th>다음 할 일</th>
                 </tr>
               </thead>
@@ -202,22 +197,24 @@ export default function MonitoringPage() {
                       </td>
                       <td className="nowrap">
                         <b>{c.case_id}</b>
-                        {r.rag_type && <div className="c-muted c-small">{r.rag_type}</div>}
+                        <div className="c-muted c-small">
+                          {fmtShort(r.attempted_at)}
+                          {r.rag_type && ` · ${r.rag_type}`}
+                        </div>
                       </td>
-                      <td className="nowrap">{fmtShort(r.attempted_at)}</td>
                       <td className="nowrap">
                         {r.customer_name} → {r.payee_name}
                         <div className="c-muted c-small">{r.payee_bank}</div>
                       </td>
                       <td className="num">{wonShort(r.amount)}</td>
                       <td>
-                        <Badge tone={CHOICE_TONE[c.choice]}>{CHOICE_LABEL[c.choice]}</Badge>
-                      </td>
-                      <td>
-                        <Badge tone={statusTone(c)}>{c.status}</Badge>
+                        <div className="c-badges">
+                          <Badge tone={CHOICE_TONE[c.choice]}>{CHOICE_LABEL[c.choice]}</Badge>
+                          <Badge tone={statusTone(c)}>{c.status}</Badge>
+                        </div>
                         {c.outcome && <div className="c-muted c-small">{OUTCOME_LABEL[c.outcome]}</div>}
                       </td>
-                      <td className="c-small">{needsHq(c) && next ? <b>{next.label}</b> : isOpenCase(c) ? <span className="c-muted">상대 응답 대기</span> : <span className="c-muted">-</span>}</td>
+                      <td className="c-small">{needsHq(c) && next ? <b className="c-next-step">{next.label} ›</b> : isOpenCase(c) ? <span className="c-muted">{WAITING_ON[c.status] ?? "상대 응답 대기"}</span> : <span className="c-muted">처리 완료</span>}</td>
                     </tr>
                   );
                 })}

@@ -63,7 +63,7 @@ def create_quote(payload: TransferRequest):
 
 
 class ChoiceRequest(BaseModel):
-    choice: Literal["visit", "delayed", "abandoned"]
+    choice: Literal["visit", "delayed", "abandoned", "cancel_delayed"]
     branch: str | None = Field(default=None, max_length=40)
     reserved_at: str | None = Field(default=None, max_length=40)
 

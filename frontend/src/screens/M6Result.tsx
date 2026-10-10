@@ -82,7 +82,7 @@ export default function M6Result({
       {agentReply && <div className="chat-bubble">{agentReply}</div>}
 
       {isAdmin ? (
-        <RiskBreakdown account={account} context={context} />
+        <RiskBreakdown account={account} context={context} thresholds={final.thresholds} />
       ) : (
         <div className="card customer-guide">{CUSTOMER_GUIDE[final.final]}</div>
       )}
@@ -109,7 +109,7 @@ export default function M6Result({
         </>
       )}
 
-      {final.final === "위험" && !confirmingProceed && (
+      {final.final === "위험" && (
         <div className="result-actions">
           <p className="subtitle">송금을 막지는 않아요. 다만 안전을 위해 먼저 확인해보시길 권해요.</p>
           {isAdmin && (
@@ -131,19 +131,19 @@ export default function M6Result({
               1332 상담
             </button>
           </div>
+          <button className="text-btn" onClick={onCancel}>
+            이번 송금 취소하기
+          </button>
         </div>
       )}
 
       {final.final === "위험" && confirmingProceed && (
-        <div className="card" style={{ borderColor: "var(--danger)" }}>
-          <p style={{ fontWeight: 700, marginBottom: 8 }}>정말 진행하시겠어요?</p>
-          <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16, lineHeight: 1.6 }}>
-            보이스피싱 정황이 있는 거래예요. 지금 진행하면 안전을 위해 지연이체로 접수되고, 접수 후에도
-            일정 시간 동안은 취소할 수 있어요.
+        <BottomSheet>
+          <h2 className="sheet-title">정말 송금하시겠어요?</h2>
+          <p className="sheet-body">
+            보이스피싱 정황이 있는 거래예요. 진행하면 안전을 위해 지연이체로 접수되고, 처리되기 전까지는 언제든 취소할 수 있어요.
             <br />
-            <strong style={{ color: "var(--text)" }}>
-              지연이체 진행 전 고객센터에서 최대한 빠르게 확인상담 연락을 드릴 거예요.
-            </strong>
+            <strong>지연이체 진행 전 고객센터에서 최대한 빠르게 확인상담 연락을 드릴 거예요.</strong>
           </p>
           <div className="btn-row">
             <button className="btn btn-secondary" onClick={() => setConfirmingProceed(false)}>
@@ -153,7 +153,7 @@ export default function M6Result({
               지연이체로 진행
             </button>
           </div>
-        </div>
+        </BottomSheet>
       )}
       {hotline && (
         <BottomSheet>

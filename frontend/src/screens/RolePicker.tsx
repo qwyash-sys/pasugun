@@ -1,3 +1,4 @@
+import { BuildingIcon, InspectIcon, UserIcon } from "../components/Icons";
 import type { Role } from "../roles";
 
 function ShieldLogo() {
@@ -28,10 +29,10 @@ export default function RolePicker({ onSelect }: { onSelect: (role: Role) => voi
       <div className="role-list">
         <button className="role-card" onClick={() => onSelect("customer")}>
           <span className="role-icon role-icon-customer" aria-hidden>
-            👤
+            <UserIcon />
           </span>
           <span className="role-text">
-            <strong>고객 (사용자)</strong>
+            <strong>고객(사용자)</strong>
             <span>송금하는 고객 화면 — 분석 결과와 다음 행동만 간단히 안내해요</span>
           </span>
           <span className="role-chevron" aria-hidden>
@@ -40,7 +41,7 @@ export default function RolePicker({ onSelect }: { onSelect: (role: Role) => voi
         </button>
         <button className="role-card" onClick={() => onSelect("admin")}>
           <span className="role-icon role-icon-admin" aria-hidden>
-            🔎
+            <InspectIcon />
           </span>
           <span className="role-text">
             <strong>고객(사용자) – 관리자 뷰</strong>
@@ -57,10 +58,10 @@ export default function RolePicker({ onSelect }: { onSelect: (role: Role) => voi
 
         <button className="role-card role-card-staff" onClick={() => onSelect("staff")}>
           <span className="role-icon role-icon-staff" aria-hidden>
-            🏦
+            <BuildingIcon />
           </span>
           <span className="role-text">
-            <strong>내부직원 (관리자 페이지)</strong>
+            <strong>내부직원(관리자 페이지)</strong>
             <span>룰 관리 · 고위험 거래 모니터링 · 통계 분석 — PC 화면 기준으로 설계됐어요</span>
           </span>
           <span className="role-chevron" aria-hidden>

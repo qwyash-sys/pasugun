@@ -1,11 +1,12 @@
-import { Suspense, lazy, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import PhoneFrame from "./components/PhoneFrame";
 import LoadingOrError from "./components/LoadingOrError";
 import { RESPONSE_SOURCE } from "./config";
 import { createBackendClient, type BackendClient } from "./api/client";
 import { EMPTY_REPORT_QUERY, getReport } from "./api/reports";
 import { findDemoCase, type DemoCase } from "./demoData/cases";
-import CasePicker from "./screens/CasePicker";
+import CasePicker, { MANUAL_CASE } from "./screens/CasePicker";
+import { scenarioForCase } from "./demoData/testScenarios";
 import RolePicker from "./screens/RolePicker";
 import type { Role } from "./roles";
 import M1Amount, { type M1Result } from "./screens/M1Amount";
@@ -58,7 +59,8 @@ const SCREEN_ORDER: Screen[] = [
   "report",
   "report-list",
 ];
-const flowStart: Screen = isDemo ? "case-picker" : "m1";
+// 데모·실제 모드 모두 시연 케이스 선택에서 시작한다(실제 모드는 고른 케이스의 입력값을 채운 뒤 진짜로 판정).
+const flowStart: Screen = "case-picker";
 
 export default function App() {
   // 주소가 #/admin/… 이면 역할 선택을 건너뛰고 관리자 페이지로 바로 들어간다(PC에서 북마크용).
@@ -81,12 +83,23 @@ export default function App() {
   const [listQuery, setListQuery] = useState<ReportQuery>(EMPTY_REPORT_QUERY);
   // 위험 판정 뒤 고객이 처음 고른 분기(내방 예약/지연송금/중단)는 한 번만 본부 모니터링에 알린다.
   const choiceSent = useRef(false);
+  // 결과 화면에서 고객이 송금을 취소했는지(완료 화면을 '취소됨'으로 보여준다).
+  const [cancelled, setCancelled] = useState(false);
 
   const demoCase: DemoCase | undefined = useMemo(
     () => (demoCaseId ? findDemoCase(demoCaseId) : undefined),
     [demoCaseId],
   );
   const isAdmin = role === "admin";
+
+  // 주소창에 #/admin/… 을 직접 입력하거나 북마크로 들어오면 어느 화면에서든 관리자 페이지로 연다.
+  useEffect(() => {
+    const onHash = () => {
+      if (location.hash.startsWith("#/admin")) setRole("staff");
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   /** 이체 흐름만 처음으로 되돌린다 — 고른 역할은 그대로 유지. */
   function resetFlow() {
@@ -103,6 +116,7 @@ export default function App() {
     setViewedReport(null);
     setListQuery(EMPTY_REPORT_QUERY);
     choiceSent.current = false;
+    setCancelled(false);
     setScreen(role ? flowStart : "role-picker");
   }
 
@@ -135,8 +149,19 @@ export default function App() {
   }
 
   function selectDemoCase(caseId: string) {
-    setDemoCaseId(caseId);
-    setClient(createBackendClient(caseId));
+    if (isDemo) {
+      setDemoCaseId(caseId);
+      setClient(createBackendClient(caseId));
+      setScreen("m1");
+      return;
+    }
+    // 실제 모드: 같은 케이스의 입력값을 채우고(바꿔도 됨) 질문·대화 추천 문장도 데모와 같게 보여준다.
+    const picked = caseId === MANUAL_CASE ? undefined : findDemoCase(caseId);
+    const s = picked ? scenarioForCase(picked.title) : undefined;
+    setDemoCaseId(picked ? caseId : null);
+    setScenario(s);
+    setCustomerId(s?.customerId ?? "");
+    setAmount(s?.amount ?? 0);
     setScreen("m1");
   }
 
@@ -250,12 +275,13 @@ export default function App() {
     >
       {screen === "role-picker" && <RolePicker onSelect={chooseRole} />}
 
-      {screen === "case-picker" && <CasePicker onSelect={selectDemoCase} onBack={changeRole} />}
+      {screen === "case-picker" && <CasePicker live={!isDemo} onSelect={selectDemoCase} onBack={changeRole} />}
 
       {screen === "m1" && (
         <M1Amount
           isDemo={isDemo}
-          demoCase={demoCase}
+          demoCase={isDemo ? demoCase : undefined}
+          caseTitle={!isDemo ? demoCase?.title : undefined}
           initial={amount ? { customerId, amount, scenario } : undefined}
           onNext={handleM1Next}
           onHome={resetFlow}
@@ -264,7 +290,7 @@ export default function App() {
 
       {screen === "m2" && client && (
         <M2Payee
-          demoCase={demoCase}
+          demoCase={isDemo ? demoCase : undefined}
           scenario={scenario}
           customerId={customerId}
           amount={amount}
@@ -335,7 +361,8 @@ export default function App() {
           }}
           onCancel={() => {
             notifyChoice(result, "abandoned");
-            resetFlow();
+            setCancelled(true);
+            setScreen("m7");
           }}
           onBookBranch={() => setScreen("branch-booking")}
           onViewReport={openCurrentReport}
@@ -344,7 +371,15 @@ export default function App() {
       )}
 
       {screen === "m7" && result && quote && role && (
-        <M7Complete role={role} final={result.final} payeeName={quote.payee_name} amount={amount} onRestart={resetFlow} />
+        <M7Complete
+          role={role}
+          final={result.final}
+          payeeName={quote.payee_name}
+          amount={amount}
+          cancelled={cancelled}
+          onCancelDelayed={() => void recordCustomerChoice({ sessionId, report: result.report, choice: "cancel_delayed" })}
+          onRestart={resetFlow}
+        />
       )}
 
       {screen === "branch-booking" && quote && (

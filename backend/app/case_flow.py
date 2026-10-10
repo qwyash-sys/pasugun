@@ -27,6 +27,18 @@ def _log(case: CaseDoc, actor: str, kind: str, text: str, at: str) -> None:
     case.timeline.append(TimelineEvent(at=at, actor=actor, kind=kind, text=text))
 
 
+def cancel_delayed(store: CaseStore, case: CaseDoc) -> CaseDoc:
+    """지연이체가 실행되기 전에 고객이 취소하면 송금 없이 종결한다(이미 실행·종결된 건은 그대로)."""
+    if case.choice != "delayed" or case.status == "종결" or (case.delayed and case.delayed.executed_at):
+        return case
+    at = now_iso()
+    case.status = "종결"
+    case.outcome = case.outcome or "unresolved"
+    case.outcome_at = at
+    _log(case, "고객", "cancel", "고객이 지연이체를 직접 취소했어요. 송금은 실행되지 않았어요.", at)
+    return store.put(case)
+
+
 def apply_customer_choice(
     store: CaseStore,
     report: ReportPayload,
@@ -34,8 +46,12 @@ def apply_customer_choice(
     branch_name: str | None = None,
     reserved_at: str | None = None,
 ) -> CaseDoc:
-    """처음 고른 선택만 인정한다(이미 정해진 사례는 그대로 돌려준다 — 같은 요청이 두 번 와도 안전)."""
+    """처음 고른 선택만 인정한다(이미 정해진 사례는 그대로 돌려준다 — 같은 요청이 두 번 와도 안전).
+
+    예외는 cancel_delayed: 지연이체로 접수한 고객이 실행 전에 직접 취소한 경우다."""
     case = store.ensure_pending(report)
+    if choice == "cancel_delayed":
+        return cancel_delayed(store, case)
     if case.choice != "pending":
         return case
 

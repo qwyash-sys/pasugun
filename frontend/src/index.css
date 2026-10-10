@@ -2954,3 +2954,102 @@ textarea:focus-visible {
   color: #6b7280;
   z-index: 100;
 }
+
+/* ---- 2026-10-10 점검 보완 ---- */
+/* 상단바는 화면을 스크롤해도 맨 위에 붙어 있게(대화 화면에서 상단바가 모드 표시 뒤로 밀려 올라가던 문제) */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--card);
+  margin-left: -20px;
+  margin-right: -20px;
+  padding: 0 20px;
+}
+
+/* 한국어 제목·본문이 단어 중간에서 끊기지 않게 */
+.title,
+.subtitle,
+.sheet-title,
+.verdict-hero-title,
+.complete-title,
+.customer-guide,
+.chat-bubble,
+.question-title,
+.booking-guide {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 보조 동작(송금 취소 등): 버튼보다 한 단계 낮은 텍스트 링크 */
+.text-btn {
+  display: block;
+  margin: 4px auto 0;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.text-btn:hover {
+  color: var(--text);
+}
+
+.btn-gap {
+  margin-bottom: 10px;
+}
+
+.complete-amount.struck {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.status-mark-cancel .status-mark-ring,
+.status-mark-cancel .status-mark-glyph {
+  stroke: #9aa0a8;
+}
+
+.sheet-body strong {
+  color: var(--text);
+}
+
+.role-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.role-icon-customer {
+  color: var(--nh-green-dark);
+}
+
+.role-icon-admin {
+  color: #4a5fd6;
+}
+
+.role-icon-staff {
+  color: #c4621a;
+}
+
+.case-prefill-note {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f1ecff;
+  color: #4b3aa6;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.case-picker-item.tone-manual {
+  --tone: #9aa0a8;
+  --tone-soft: #eef0f3;
+  --tone-strong: #5b6169;
+}

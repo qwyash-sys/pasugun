@@ -7,6 +7,7 @@ import history from "../demoData/reportHistory.json";
 import type { ReportListResponse, ReportPayload, ReportQuery, ReportSummary } from "../types";
 import { captureDataUrl } from "../utils/capturePreview";
 import { RAG_TYPES } from "../components/signalMeta";
+import { loadDemoReports } from "./demoStore";
 
 interface HistoryEntry {
   report: Omit<ReportPayload, "attachments">;
@@ -41,7 +42,8 @@ export function allDemoReports(): ReportPayload[] {
     }));
     demoReports = [...fromCases, ...fromHistory];
   }
-  return demoReports;
+  // 이번 시연 중 결과 화면에서 새로 만들어진 리포트(데모의 '서버 저장'에 해당)를 함께 보여준다.
+  return [...loadDemoReports(), ...demoReports];
 }
 
 export function toSummary(r: ReportPayload): ReportSummary {

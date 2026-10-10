@@ -109,7 +109,7 @@ export default function ReportView({ report, backLabel, onBack, onOpenList, onRe
       </Section>
 
       <Section title="AI파수꾼 위험 판정 근거" aside="1단계 · 2단계 · 3단계">
-        <RiskBreakdown account={report.account} context={report.context} />
+        <RiskBreakdown account={report.account} context={report.context} thresholds={report.final.thresholds} />
       </Section>
 
       <p className="report-generated">리포트 생성 {formatDateTime(report.generated_at)}</p>

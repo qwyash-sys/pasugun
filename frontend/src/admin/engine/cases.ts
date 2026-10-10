@@ -240,6 +240,16 @@ function nextBusinessMorning(from: Date): Date {
   return d;
 }
 
+/** 지연이체로 접수한 고객이 실행 전에 직접 취소(서버 case_flow.cancel_delayed와 같다). */
+export function cancelDelayed(src: CaseDoc, now: string): CaseDoc {
+  const c: CaseDoc = structuredClone(src);
+  c.status = "종결";
+  c.outcome = c.outcome ?? "unresolved";
+  c.outcome_at = now;
+  logEvent(c, now, "고객", "cancel", "고객이 지연이체를 직접 취소했어요. 송금은 실행되지 않았어요.");
+  return c;
+}
+
 /** 고객이 위험 결과 화면에서 선택한 순간의 사례 문서(서버의 case_flow.apply_customer_choice와 같은 결과). */
 export function createCase(report: Pick<ReportPayload, "report_id" | "final">, choice: CaseChoice, now: Date, branches: Branch[], opts: { branch?: string; reservedAt?: string } = {}): CaseDoc {
   const at = kstIso(now);

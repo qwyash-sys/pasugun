@@ -21,7 +21,43 @@ import type { AccountAssessment, ContextAssessment, RagCandidate, RiskLevel } fr
 interface Props {
   account: AccountAssessment;
   context: ContextAssessment | null;
+  /** 판정 당시 적용된 기준값(관리자 페이지에서 조정 가능). 없으면(예전 리포트·데모) SPEC 기본값. */
+  thresholds?: Record<string, number>;
 }
+
+/** 등급 경계·RAG 기준을 한곳에서 정한다 — 화면의 구간 표시가 실제 판정 기준과 어긋나지 않게. */
+interface Cutoffs {
+  accountBands: LevelBand[];
+  contextBands: LevelBand[];
+  ragMidSim: number;
+  ragHighSim: number;
+  ragMidScore: number;
+  ragHighScore: number;
+}
+
+function bands(mid: number, high: number): LevelBand[] {
+  return [
+    { level: "저", from: 0, to: mid - 1 },
+    { level: "중", from: mid, to: high - 1 },
+    { level: "고", from: high, to: null },
+  ];
+}
+
+function cutoffsOf(t?: Record<string, number>): Cutoffs {
+  const g = (k: string, d: number) => (t && typeof t[k] === "number" ? t[k] : d);
+  const accountMid = g("account_mid", ACCOUNT_BANDS[1].from);
+  const contextMid = g("context_mid", CONTEXT_BANDS[1].from);
+  return {
+    accountBands: bands(accountMid, g("account_high", ACCOUNT_BANDS[2].from)),
+    contextBands: bands(contextMid, g("context_high", CONTEXT_BANDS[2].from)),
+    ragMidSim: g("rag_mid_sim", 0.6),
+    ragHighSim: g("rag_high_sim", 0.8),
+    ragMidScore: g("rag_mid_score", 30),
+    ragHighScore: g("rag_high_score", CONTEXT_MAX.rag),
+  };
+}
+
+const sim = (v: number) => v.toFixed(2);
 
 /** 막대 하나. 옅은 구간 = 이 항목이 받을 수 있는 최대점, 진한 구간 = 실제 점수.
  * 한 단계 안의 모든 막대는 같은 축(scale)을 쓰므로 40점과 25점의 길이가 실제로 다르다. */
@@ -133,7 +169,7 @@ function BarRow({
   );
 }
 
-function RagCandidateChart({ candidates, matchedId }: { candidates: RagCandidate[]; matchedId: string | null }) {
+function RagCandidateChart({ candidates, matchedId, cut }: { candidates: RagCandidate[]; matchedId: string | null; cut: Cutoffs }) {
   const [openId, setOpenId] = useState<string | null>(null);
   if (candidates.length === 0) return null;
   const sorted = [...candidates].sort((a, b) => b.similarity - a.similarity);
@@ -156,8 +192,8 @@ function RagCandidateChart({ candidates, matchedId }: { candidates: RagCandidate
               {c.scenario_id} · {c.matched_type}
             </span>
             <div className="rag-candidate-track">
-              <div className="rag-threshold-mark" style={{ left: "60%" }} />
-              <div className="rag-threshold-mark" style={{ left: "80%" }} />
+              <div className="rag-threshold-mark" style={{ left: `${cut.ragMidSim * 100}%` }} />
+              <div className="rag-threshold-mark" style={{ left: `${cut.ragHighSim * 100}%` }} />
               <div
                 className={`rag-candidate-fill ${isWinner ? "winner" : ""}`}
                 style={{ width: `${Math.max(1, c.similarity * 100)}%` }}
@@ -167,8 +203,8 @@ function RagCandidateChart({ candidates, matchedId }: { candidates: RagCandidate
             {openId === c.scenario_id && (
               <div className="bar-row-tooltip">
                 {isWinner
-                  ? "이 사례가 가장 유사해서 선택됨(임계값: 0.60 이상 30점, 0.80 이상 50점)"
-                  : "1등이 아니거나 임계값(0.60)에 못 미쳐 선택되지 않음"}
+                  ? `이 사례가 가장 유사해서 선택됨(임계값: ${sim(cut.ragMidSim)} 이상 ${cut.ragMidScore}점, ${sim(cut.ragHighSim)} 이상 ${cut.ragHighScore}점)`
+                  : `1등이 아니거나 임계값(${sim(cut.ragMidSim)})에 못 미쳐 선택되지 않음`}
               </div>
             )}
           </div>
@@ -191,21 +227,21 @@ function band(bands: LevelBand[], level: RiskLevel) {
   return bands.find((b) => b.level === level)!;
 }
 
-function VerdictMatrix({ accountLevel, contextLevel }: { accountLevel: RiskLevel; contextLevel: RiskLevel }) {
+function VerdictMatrix({ accountLevel, contextLevel, cut }: { accountLevel: RiskLevel; contextLevel: RiskLevel; cut: Cutoffs }) {
   return (
     <div className="verdict-matrix">
       <div className="verdict-matrix-corner" />
       {MATRIX_ORDER.map((c) => (
         <div key={`h-${c}`} className={`verdict-matrix-head ${c === accountLevel ? "on" : ""}`}>
           송금위험 {c}
-          <small>{bandLabel(band(ACCOUNT_BANDS, c))}</small>
+          <small>{bandLabel(band(cut.accountBands, c))}</small>
         </div>
       ))}
       {MATRIX_ORDER.map((r) => (
         <Fragment key={`row-${r}`}>
           <div className={`verdict-matrix-head ${r === contextLevel ? "on" : ""}`}>
             AI분석 {r}
-            <small>{bandLabel(band(CONTEXT_BANDS, r))}</small>
+            <small>{bandLabel(band(cut.contextBands, r))}</small>
           </div>
           {MATRIX_ORDER.map((c) => {
             const active = r === contextLevel && c === accountLevel;
@@ -272,19 +308,19 @@ function hardOverrideCauses(context: ContextAssessment): string[] {
   return causes;
 }
 
-function VerdictBasis({ account, context }: Props) {
+function VerdictBasis({ account, context, cut }: Props & { cut: Cutoffs }) {
   const contextLevel: RiskLevel = context?.level ?? "저";
   const matrixMark = MATRIX_RESULT[account.level][contextLevel];
   const hardOverride = !!context?.hard_override;
   const scoreBasedContext = context
-    ? (CONTEXT_BANDS.slice().reverse().find((b) => context.total_score >= b.from)?.level ?? "저")
+    ? (cut.contextBands.slice().reverse().find((b) => context.total_score >= b.from)?.level ?? "저")
     : "저";
 
   return (
     <div className="verdict-basis">
-      <LevelGauge title="1단계 송금위험도 점수" score={account.total_score} level={account.level} bands={ACCOUNT_BANDS} />
+      <LevelGauge title="1단계 송금위험도 점수" score={account.total_score} level={account.level} bands={cut.accountBands} />
       {context ? (
-        <LevelGauge title="2단계 AI분석 점수" score={context.total_score} level={scoreBasedContext} bands={CONTEXT_BANDS} />
+        <LevelGauge title="2단계 AI분석 점수" score={context.total_score} level={scoreBasedContext} bands={cut.contextBands} />
       ) : (
         <p className="verdict-basis-note">2단계 미실행(확인 1탭 경로) → AI분석 저로 계산</p>
       )}
@@ -358,8 +394,9 @@ function RuleListSheet({ onClose }: { onClose: () => void }) {
   );
 }
 
-export default function RiskBreakdown({ account, context }: Props) {
+export default function RiskBreakdown({ account, context, thresholds }: Props) {
   const [ruleListOpen, setRuleListOpen] = useState(false);
+  const cut = cutoffsOf(thresholds);
   const rows = stage1Rows(account.signals);
   const stage1Scale = Math.max(STAGE1_SCALE, ...rows.map((r) => r.max));
   return (
@@ -431,18 +468,18 @@ export default function RiskBreakdown({ account, context }: Props) {
         {context?.rag && (
           <>
             <BarRow
-              label={`RAG 매칭: ${context.rag.hit ? context.rag.matched_type : "매칭없음"}`}
+              label={context.rag.hit ? "유사 사기사례(RAG)" : "유사 사기사례 없음"}
               score={context.rag.score}
-              max={CONTEXT_MAX.rag}
+              max={Math.max(cut.ragHighScore, context.rag.score)}
               scale={STAGE2_SCALE}
               hit={context.rag.hit}
               tooltip={
                 context.rag.hit
                   ? `유사도 ${context.rag.similarity.toFixed(2)} · ${context.rag.source} · 위험신호: ${context.rag.risk_signals.join(", ")}`
-                  : `최고 유사도 ${context.rag.similarity.toFixed(2)} (임계값 0.60 미만이라 매칭 처리 안 됨)`
+                  : `최고 유사도 ${context.rag.similarity.toFixed(2)} (임계값 ${sim(cut.ragMidSim)} 미만이라 매칭 처리 안 됨)`
               }
             />
-            <RagCandidateChart candidates={context.rag.candidates} matchedId={context.rag.matched_id} />
+            <RagCandidateChart candidates={context.rag.candidates} matchedId={context.rag.matched_id} cut={cut} />
           </>
         )}
       </div>
@@ -451,8 +488,8 @@ export default function RiskBreakdown({ account, context }: Props) {
         <div className="risk-stage-header">
           <span>3단계 · 최종 판정 매트릭스</span>
         </div>
-        <VerdictMatrix accountLevel={account.level} contextLevel={context?.level ?? "저"} />
-        <VerdictBasis account={account} context={context} />
+        <VerdictMatrix accountLevel={account.level} contextLevel={context?.level ?? "저"} cut={cut} />
+        <VerdictBasis account={account} context={context} cut={cut} />
       </div>
     </div>
   );

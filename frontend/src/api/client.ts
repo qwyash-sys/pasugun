@@ -1,3 +1,5 @@
+import { freshDemoReport } from "./demoStore";
+import { recordDemoFinalize } from "./customerChoice";
 import { API_BASE_URL, RESPONSE_SOURCE } from "../config";
 import { findDemoCase } from "../demoData/cases";
 import type {
@@ -98,7 +100,22 @@ class DemoBackendClient implements BackendClient {
 
   async finalize(): Promise<FinalizeResponse> {
     const c = findDemoCase(this.caseId);
-    return { final: c.final, agent_reply: c.agentReply, report: c.report, account: c.account, context: c.context };
+    // 실제 모드와 같게: 위험이면 '지금' 기준 새 리포트 번호로 저장하고 모니터링에 '고객 선택 대기' 사례를 연다.
+    const report = c.report ? freshDemoReport(c.report) : null;
+    await recordDemoFinalize(
+      {
+        customerName: c.input.customerName,
+        amount: c.input.amount,
+        payeeAccount: c.input.payeeAccount,
+        payeeBank: c.input.payeeBank,
+        final: c.final,
+        account: c.account,
+        context: c.context,
+        reportId: report?.report_id ?? null,
+      },
+      report,
+    );
+    return { final: c.final, agent_reply: c.agentReply, report, account: c.account, context: c.context };
   }
 }
 

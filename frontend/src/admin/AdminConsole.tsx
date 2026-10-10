@@ -2,16 +2,18 @@ import "./console.css";
 import "./ui.css";
 import { useEffect, useRef, useState } from "react";
 import { RESPONSE_SOURCE } from "../config";
+import { ChartIcon, RadarIcon, SlidersIcon } from "../components/Icons";
+import type { ReactNode } from "react";
 import MonitoringPage from "./pages/MonitoringPage";
 import RulesPage from "./pages/RulesPage";
 import StatsPage from "./pages/StatsPage";
 
 export type ConsolePage = "rules" | "monitoring" | "stats";
 
-const NAV: { id: ConsolePage; icon: string; label: string; hint: string }[] = [
-  { id: "rules", icon: "⚙️", label: "룰 관리", hint: "룰·임계치 조정, AI 룰 분석" },
-  { id: "monitoring", icon: "🛰️", label: "모니터링", hint: "고위험 거래 조치" },
-  { id: "stats", icon: "📊", label: "통계 분석", hint: "로그 분석·개선 제안" },
+const NAV: { id: ConsolePage; icon: ReactNode; label: string; hint: string }[] = [
+  { id: "rules", icon: <SlidersIcon />, label: "룰 관리", hint: "룰·임계치 조정, AI 룰 분석" },
+  { id: "monitoring", icon: <RadarIcon />, label: "모니터링", hint: "고위험 거래 조치" },
+  { id: "stats", icon: <ChartIcon />, label: "통계 분석", hint: "로그 분석·개선 제안" },
 ];
 
 const HASH_PREFIX = "#/admin/";

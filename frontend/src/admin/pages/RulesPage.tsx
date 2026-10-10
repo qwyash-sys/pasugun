@@ -7,7 +7,7 @@ import { ruleStats } from "../engine/stats";
 import { showValue } from "../engine/configDiff";
 import { fmtNum } from "../engine/validate";
 import { fmtShort } from "../format";
-import { Badge, Card, ErrorBox, Kpi, Loading, Modal, PageHeader, useLoad, useToast } from "../components/ui";
+import { Badge, Card, ErrorBox, Kpi, Loading, Modal, PageHeader, Segmented, useLoad, useToast } from "../components/ui";
 import AiAnalysis from "./rules/AiAnalysis";
 import RuleEditor, { type EditTarget } from "./rules/RuleEditor";
 
@@ -33,6 +33,7 @@ export default function RulesPage() {
   const [target, setTarget] = useState<EditTarget | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
+  const [tab, setTab] = useState<"rules" | "ai" | "history">("rules");
   const { show, node } = useToast();
 
   const state = override ?? rules.data;
@@ -69,7 +70,7 @@ export default function RulesPage() {
         actions={
           <>
             <button className="c-btn" onClick={() => setTarget({ kind: "global" })}>
-              ⚖️ 전체 판정 기준
+              전체 판정 기준 조정
             </button>
             <button className="c-btn" onClick={() => setConfirmReset(true)} disabled={!customized}>
               기본값으로 복원
@@ -85,7 +86,20 @@ export default function RulesPage() {
         <Kpi label="AI분석 등급" value={`${state.config.global.context_mid} · ${state.config.global.context_high}`} sub="중 · 고 시작 점수" />
       </div>
 
-      <div className="c-stack">
+      <div className="c-tabs">
+        <Segmented
+          label="룰 관리 보기"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { id: "rules", label: "룰·판정 기준" },
+            { id: "ai", label: "✨ AI 룰 분석" },
+            { id: "history", label: "변경 이력", count: history.data?.length ?? 0 },
+          ]}
+        />
+      </div>
+
+      <div className="c-stack" hidden={tab !== "rules"}>
         <Card title="1단계 · 송금위험도 룰" sub="행을 누르면 조건·배점을 고칠 수 있어요. 발동 통계는 쌓인 거래 로그 기준이에요.">
           <div className="c-table-wrap">
             <table className="c-table c-rules">
@@ -147,7 +161,9 @@ export default function RulesPage() {
             })}
           </div>
         </Card>
+      </div>
 
+      <div className="c-stack" hidden={tab !== "ai"}>
         {data.data ? (
           <AiAnalysis state={state} data={data.data} onApplied={applied} notify={show} />
         ) : data.error ? (
@@ -159,8 +175,10 @@ export default function RulesPage() {
             <Loading text="분석에 쓸 거래 로그를 불러오는 중…" />
           </Card>
         )}
+      </div>
 
-        <Card title="변경 이력" sub="누가 언제 무엇을 바꿨는지 남아요. 되돌리려면 위에서 값을 다시 고치거나 기본값으로 복원하세요.">
+      <div className="c-stack" hidden={tab !== "history"}>
+        <Card title="변경 이력" sub="누가 언제 무엇을 바꿨는지 남아요. 되돌리려면 ‘룰·판정 기준’ 탭에서 값을 다시 고치거나 기본값으로 복원하세요.">
           {history.data && history.data.length > 0 ? (
             <ul className="c-history">
               {history.data.map((h) => (

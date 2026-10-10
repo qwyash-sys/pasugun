@@ -51,7 +51,7 @@ def calculate_final_risk(
 
 def _threshold_snapshot() -> dict[str, float]:
     cfg = get_rule_config()
-    return {k: cfg.g(k) for k in ("account_mid", "account_high", "context_mid", "context_high")}
+    return {k: cfg.g(k) for k in ("account_mid", "account_high", "context_mid", "context_high", "rag_mid_sim", "rag_mid_score", "rag_high_sim", "rag_high_score")}
 
 
 def intervention_intensity(account_score: int) -> str:

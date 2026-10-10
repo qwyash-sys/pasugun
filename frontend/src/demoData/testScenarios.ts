@@ -15,6 +15,11 @@ export interface TestScenario {
   overrides: TransferQuoteRequest["context_overrides"];
 }
 
+/** 시연 케이스(demoData/cases.ts)와 같은 상황의 실제 입력값. 케이스 선택 화면에서 고르면 이 값으로 채워진다. */
+export function scenarioForCase(caseTitle: string): TestScenario | undefined {
+  return TEST_SCENARIOS.find((s) => s.label.includes(caseTitle));
+}
+
 export const TEST_SCENARIOS: TestScenario[] = [
   {
     label: "🔴 검찰사칭",
