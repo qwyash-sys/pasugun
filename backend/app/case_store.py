@@ -124,6 +124,8 @@ class CaseDoc(BaseModel):
     visit: VisitInfo | None = None
     delayed: DelayedInfo | None = None
     postcheck: PostCheck | None = None
+    # 고객이 결과·취소 화면에서 112(경찰)·1332(콜센터) 안내를 눌러 확인한 기록("112" | "1332")
+    hotlines: list[Literal["112", "1332"]] = []
     timeline: list[TimelineEvent] = []
 
 

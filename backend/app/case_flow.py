@@ -37,6 +37,38 @@ def cancel_delayed(store: CaseStore, case: CaseDoc) -> CaseDoc:
     return store.put(case)
 
 
+HOTLINE_TEXT = {"112": "112(경찰) 신고", "1332": "1332(콜센터) 상담"}
+
+
+def note_hotline(store: CaseStore, case: CaseDoc, line: str) -> CaseDoc:
+    """고객이 112·1332 안내를 확인했다는 기록(선택 분기는 바꾸지 않는다). 같은 번호는 한 번만 남긴다."""
+    if line in case.hotlines:
+        return case
+    case.hotlines.append(line)  # type: ignore[arg-type]
+    _log(case, "고객", "hotline", f"고객이 {HOTLINE_TEXT[line]} 안내를 확인했어요.", now_iso())
+    return store.put(case)
+
+
+def cancelled_by_customer(case: CaseDoc) -> bool:
+    """고객이 직접 송금을 중단했거나 실행 전 지연이체를 취소해 종결된 건."""
+    if case.status != "종결":
+        return False
+    if case.choice == "abandoned":
+        return True
+    return case.choice == "delayed" and bool(case.delayed) and not case.delayed.executed_at and any(t.kind == "cancel" for t in case.timeline)
+
+
+def reopen_as_visit(store: CaseStore, case: CaseDoc, report: ReportPayload, branch_name: str | None, reserved_at: str | None) -> CaseDoc:
+    """송금을 취소한 뒤 영업점 상담을 예약하면 사례를 다시 열어 '영업점 내방'으로 진행한다(담당 책임자에게 리포트 메일)."""
+    at = now_iso()
+    _log(case, "고객", "reopen", "송금을 취소한 뒤 영업점 상담을 예약해 사례를 다시 열었어요.", at)
+    case.choice = "pending"
+    case.status = "고객 선택 대기"
+    case.outcome = None
+    case.outcome_at = None
+    return apply_customer_choice(store, report, "visit", branch_name, reserved_at)
+
+
 def apply_customer_choice(
     store: CaseStore,
     report: ReportPayload,
@@ -50,6 +82,10 @@ def apply_customer_choice(
     case = store.ensure_pending(report)
     if choice == "cancel_delayed":
         return cancel_delayed(store, case)
+    if choice in ("hotline_112", "hotline_1332"):
+        return note_hotline(store, case, choice.removeprefix("hotline_"))
+    if choice == "visit" and cancelled_by_customer(case):
+        return reopen_as_visit(store, case, report, branch_name, reserved_at)
     if case.choice != "pending":
         return case
 

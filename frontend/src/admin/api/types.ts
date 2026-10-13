@@ -197,6 +197,8 @@ export interface CaseDoc {
   visit: VisitInfo | null;
   delayed: DelayedInfo | null;
   postcheck: PostCheck | null;
+  /** 고객이 결과·취소 화면에서 112(경찰)·1332(콜센터) 안내를 확인한 기록(예전 데이터에는 없을 수 있다). */
+  hotlines?: ("112" | "1332")[];
   timeline: TimelineEvent[];
 }
 

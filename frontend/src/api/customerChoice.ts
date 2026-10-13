@@ -4,7 +4,7 @@
 import { API_BASE_URL, RESPONSE_SOURCE } from "../config";
 import type { ReportPayload } from "../types";
 
-export type CustomerChoice = "visit" | "delayed" | "abandoned" | "cancel_delayed";
+export type CustomerChoice = "visit" | "delayed" | "abandoned" | "cancel_delayed" | "hotline_112" | "hotline_1332";
 
 /** 데모 전용: 결과 화면에 들어온 순간(서버의 finalize와 같은 시점) 판정을 거래 로그로 남기고,
  * '위험'이면 리포트를 저장한 뒤 '고객 선택 대기' 사례를 연다. */
@@ -30,6 +30,7 @@ export async function recordCustomerChoice(args: {
     if (RESPONSE_SOURCE === "demo") {
       const demo = await import("../admin/api/demoApi");
       if (args.choice === "cancel_delayed") await demo.cancelDemoDelayed(args.report.report_id);
+      else if (args.choice === "hotline_112" || args.choice === "hotline_1332") await demo.noteDemoHotline(args.report, args.choice === "hotline_112" ? "112" : "1332");
       else await demo.recordDemoChoice(args.report, args.choice, { branch: args.branch, reservedAt: args.reservedAt });
       return;
     }

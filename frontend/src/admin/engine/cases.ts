@@ -13,7 +13,7 @@ export const CURRENT_STAFF: Person = { name: "구하늘", title: "본부 모니�
 
 export const CHOICE_LABEL: Record<CaseDoc["choice"], string> = {
   visit: "영업점 내방 예약",
-  delayed: "지연송금(강행)",
+  delayed: "지연송금",
   abandoned: "송금 중단",
   pending: "선택 없음",
 };
@@ -240,6 +240,24 @@ function nextBusinessMorning(from: Date): Date {
   return d;
 }
 
+export const HOTLINE_LABEL: Record<"112" | "1332", string> = { "112": "112 신고", "1332": "1332 상담" };
+
+/** 고객이 112·1332 안내를 확인한 기록(서버 case_flow.note_hotline과 같다). 같은 번호는 한 번만. */
+export function noteHotline(src: CaseDoc, line: "112" | "1332", now: string): CaseDoc {
+  if (src.hotlines?.includes(line)) return src;
+  const c: CaseDoc = structuredClone(src);
+  c.hotlines = [...(c.hotlines ?? []), line];
+  logEvent(c, now, "고객", "hotline", `고객이 ${line === "112" ? "112(경찰) 신고" : "1332(콜센터) 상담"} 안내를 확인했어요.`);
+  return c;
+}
+
+/** 고객이 직접 송금을 중단했거나 실행 전 지연이체를 취소해 종결된 건(서버 cancelled_by_customer와 같다). */
+export function cancelledByCustomer(c: CaseDoc): boolean {
+  if (c.status !== "종결") return false;
+  if (c.choice === "abandoned") return true;
+  return c.choice === "delayed" && !!c.delayed && !c.delayed.executed_at && c.timeline.some((t) => t.kind === "cancel");
+}
+
 /** 지연이체로 접수한 고객이 실행 전에 직접 취소(서버 case_flow.cancel_delayed와 같다). */
 export function cancelDelayed(src: CaseDoc, now: string): CaseDoc {
   const c: CaseDoc = structuredClone(src);
@@ -267,6 +285,7 @@ export function createCase(report: Pick<ReportPayload, "report_id" | "final">, c
     visit: null,
     delayed: null,
     postcheck: null,
+    hotlines: [],
     timeline: [{ at, actor: "시스템", kind: "created", text: "위험 판정 — 리포트가 생성됐어요." }],
   };
   const log = (actor: string, kind: string, text: string) => doc.timeline.push({ at, actor, kind, text });

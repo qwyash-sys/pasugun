@@ -7,7 +7,7 @@ import { ConfigError } from "./adminApi";
 import type {
   Branch, CaseChoice, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RuleInfo, RulesState, Scenario, TransferLog,
 } from "./types";
-import { CURRENT_STAFF, cancelDelayed, createCase } from "../engine/cases";
+import { CURRENT_STAFF, cancelDelayed, cancelledByCustomer, createCase, noteHotline } from "../engine/cases";
 import { kstIso } from "../format";
 import { cloneConfig, diffConfig, summarize } from "../engine/configDiff";
 import { analyzeActivity, makeActivity, seededRandom } from "../engine/postcheck";
@@ -263,14 +263,29 @@ export async function openDemoCase(report: ReportPayload): Promise<CaseDoc> {
 
 /** 고객이 위험 결과 뒤 고른 분기를 사례에 반영한다. 처음 고른 것만 인정한다(서버의 apply_customer_choice와 같다). */
 export async function recordDemoChoice(report: ReportPayload, choice: CaseChoice, opts: { branch?: string; reservedAt?: string }): Promise<CaseDoc> {
-  const opened = await openDemoCase(report);
-  if (opened.choice !== "pending") return opened;
+  let opened = await openDemoCase(report);
+  // 송금을 취소한 뒤 영업점 상담을 예약하면 사례를 다시 연다(서버 reopen_as_visit와 같다).
+  const reopening = choice === "visit" && cancelledByCustomer(opened);
+  if (reopening) {
+    const at = kstIso(new Date());
+    opened = { ...opened, timeline: [...opened.timeline, { at, actor: "고객", kind: "reopen", text: "송금을 취소한 뒤 영업점 상담을 예약해 사례를 다시 열었어요." }] };
+  } else if (opened.choice !== "pending") return opened;
   const doc = createCase(report, choice, new Date(), await branchList(), opts);
   doc.created_at = opened.created_at;
+  doc.hotlines = opened.hotlines ?? [];
   doc.timeline = [...opened.timeline, ...doc.timeline.slice(1)];
   overrides()[doc.case_id] = doc;
   save(KEY.cases, overrides());
   return doc;
+}
+
+/** 고객이 결과·취소 화면에서 112·1332 안내를 확인한 경우. */
+export async function noteDemoHotline(report: ReportPayload, line: "112" | "1332"): Promise<void> {
+  const opened = await openDemoCase(report);
+  const next = noteHotline(opened, line, kstIso(new Date()));
+  if (next === opened) return;
+  overrides()[next.case_id] = next;
+  save(KEY.cases, overrides());
 }
 
 /** 지연이체로 접수한 고객이 실행 전에 직접 취소한 경우. */

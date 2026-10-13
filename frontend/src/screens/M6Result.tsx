@@ -16,6 +16,8 @@ interface Props {
   amount: number;
   onProceed: () => void; // 안전/주의/위험(그래도 송금) -> M7
   onCancel: () => void; // 주의(취소) -> 처음으로
+  /** 112·1332 안내를 눌러 확인했을 때(위험 건이면 본부 모니터링에 기록). */
+  onHotline?: (line: Hotline) => void;
   onBookBranch: () => void; // 위험 -> 영업점 상담 예약
   onViewReport: () => void; // 위험 -> 리포트 보기(관리자)
   onHome: () => void;
@@ -53,6 +55,7 @@ export default function M6Result({
   amount,
   onProceed,
   onCancel,
+  onHotline,
   onBookBranch,
   onViewReport,
   onHome,
@@ -140,10 +143,22 @@ export default function M6Result({
             그래도 송금할게요
           </button>
           <div className="btn-row">
-            <button className="btn btn-secondary" onClick={() => setHotline("112")}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setHotline("112");
+                onHotline?.("112");
+              }}
+            >
               {HOTLINES["112"].label}
             </button>
-            <button className="btn btn-secondary" onClick={() => setHotline("1332")}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setHotline("1332");
+                onHotline?.("1332");
+              }}
+            >
               {HOTLINES["1332"].label}
             </button>
           </div>

@@ -250,6 +250,35 @@ def test_customer_can_cancel_a_delayed_transfer_before_it_runs(live):
     assert case["delayed"]["executed_at"] is None
 
 
+def test_booking_after_cancelling_reopens_the_case_as_a_visit(live):
+    sid = _risky_session()
+    rid = client.post(f"/api/transfer/{sid}/finalize").json()["report"]["report_id"]
+    client.post(f"/api/transfer/{sid}/choice", json={"choice": "abandoned"})
+    assert client.get(f"/api/admin/cases/{rid}").json()["case"]["status"] == "종결"
+    client.post(f"/api/transfer/{sid}/choice", json={"choice": "visit", "branch": "양재남지점"})
+    case = client.get(f"/api/admin/cases/{rid}").json()["case"]
+    assert case["choice"] == "visit" and case["status"] == "면담 대기" and case["outcome"] is None
+    kinds = [t["kind"] for t in case["timeline"]]
+    assert kinds.index("reopen") < kinds.index("mail")
+
+    # 지연이체를 실행 전에 취소한 뒤 예약해도 다시 열린다
+    sid2 = _risky_session()
+    rid2 = client.post(f"/api/transfer/{sid2}/finalize").json()["report"]["report_id"]
+    for c in ("delayed", "cancel_delayed", "visit"):
+        client.post(f"/api/transfer/{sid2}/choice", json={"choice": c})
+    assert client.get(f"/api/admin/cases/{rid2}").json()["case"]["status"] == "면담 대기"
+
+
+def test_hotline_taps_are_recorded_once_without_changing_the_choice(live):
+    sid = _risky_session()
+    rid = client.post(f"/api/transfer/{sid}/finalize").json()["report"]["report_id"]
+    for c in ("hotline_1332", "hotline_112", "hotline_1332"):
+        client.post(f"/api/transfer/{sid}/choice", json={"choice": c})
+    case = client.get(f"/api/admin/cases/{rid}").json()["case"]
+    assert case["hotlines"] == ["1332", "112"] and case["choice"] == "pending"
+    assert [t["kind"] for t in case["timeline"]].count("hotline") == 2
+
+
 def test_choice_on_a_non_risky_session_is_a_noop(live):
     q = client.post("/api/transfer/quote", json={"customer_id": "C001", "payee_account": "552-102-993917", "amount": 150_000, "current_time": "2026-08-13T18:00:00+09:00"}).json()
     client.post(f"/api/transfer/{q['session_id']}/finalize")

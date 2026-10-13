@@ -2,13 +2,15 @@ import { useMemo, useState } from "react";
 import { getAdminApi } from "../api";
 import type { RulesState } from "../api/types";
 import { loadAnalysisData, type AnalysisData } from "../data";
+import PeriodFilter, { inPeriod, periodOf, periodText, type Period, type PeriodPreset } from "../components/PeriodFilter";
+
+const PRESETS: PeriodPreset[] = ["7", "30", "90", "all", "custom"];
 import { backtest } from "../engine/backtest";
 import { findGaps, proposeTuning, requestText, suggestNewRules, summarizeFindings } from "../engine/ruleAnalysis";
 import { byAge, byAmount, byHour, byProvince, byRegion, byScenario, hotSegments, overview, ruleStats, weeklyTrend, type Group, type Row } from "../engine/stats";
 import { dayOf, pct, wonShort } from "../format";
 import { Badge, BarRows, Card, Empty, ErrorBox, Kpi, Legend, Loading, PageHeader, Segmented, TrendChart, useLoad, useToast, type BarRow } from "../components/ui";
 
-type Period = "all" | "28" | "14";
 
 /** 선택 기간의 판정 로그를 CSV로(엑셀이 한글을 깨뜨리지 않게 BOM을 붙인다). */
 function downloadCsv(rows: Row[], filename: string) {
@@ -62,7 +64,7 @@ function MiniBar({ value, tone }: { value: number; tone: "green" | "muted" }) {
 export default function StatsPage() {
   const data = useLoad<AnalysisData>(loadAnalysisData, []);
   const rules = useLoad<RulesState>(() => getAdminApi().getRules(), []);
-  const [period, setPeriod] = useState<Period>("all");
+  const [period, setPeriod] = useState<Period>(() => periodOf("30"));
   const [regionMode, setRegionMode] = useState<"province" | "city">("province");
   const [narrative, setNarrative] = useState<{ text: string; llm: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -71,10 +73,7 @@ export default function StatsPage() {
   const all = data.data;
   const rows: Row[] = useMemo(() => {
     if (!all) return [];
-    if (period === "all") return all.rows;
-    const last = all.rows.reduce((m, r) => (r.log.at > m ? r.log.at : m), "");
-    const cutoff = dayOf(new Date(new Date(last).getTime() - Number(period) * 86400_000).toISOString());
-    return all.rows.filter((r) => dayOf(r.log.at) > cutoff);
+    return all.rows.filter((r) => inPeriod(r.log.at, period));
   }, [all, period]);
 
   const view = useMemo(() => {
@@ -105,7 +104,13 @@ export default function StatsPage() {
 
   if (data.loading && !all) return <div className="console-content"><Loading text="거래 로그를 분석하는 중…" /></div>;
   if (data.error || !all) return <div className="console-content"><ErrorBox message={data.error ?? "데이터를 불러오지 못했어요."} onRetry={() => void data.reload()} /></div>;
-  if (!view) return <div className="console-content"><PageHeader title="통계 분석" /><Empty>선택한 기간에 거래 로그가 없어요.</Empty></div>;
+  if (!view)
+    return (
+      <div className="console-content">
+        <PageHeader title="통계 분석" sub={`${periodText(period)} · 판정 로그로 어디가 위험하고 무엇이 부족한지 살펴봐요.`} actions={<PeriodFilter value={period} onChange={setPeriod} presets={PRESETS} />} />
+        <Empty>선택한 기간({periodText(period)})에 거래 로그가 없어요. 기간을 넓혀 보세요.</Empty>
+      </div>
+    );
 
   const { ov } = view;
   const first = rows.reduce((m, r) => (r.log.at < m ? r.log.at : m), rows[0].log.at);
@@ -157,19 +162,10 @@ export default function StatsPage() {
     <div className="console-content">
       <PageHeader
         title="통계 분석"
-        sub={`${dayOf(first)} ~ ${dayOf(last)} 거래 ${ov.total}건의 판정 로그를 모아 어디가 위험하고 무엇이 부족한지 살펴봐요.`}
+        sub={`${periodText(period)} · 거래 ${ov.total}건(${dayOf(first)} ~ ${dayOf(last)})의 판정 로그로 어디가 위험하고 무엇이 부족한지 살펴봐요.`}
         actions={
           <>
-            <Segmented
-              label="기간"
-              value={period}
-              onChange={setPeriod}
-              options={[
-                { id: "all", label: "전체" },
-                { id: "28", label: "최근 4주" },
-                { id: "14", label: "최근 2주" },
-              ]}
-            />
+            <PeriodFilter value={period} onChange={setPeriod} presets={PRESETS} />
             <button className="c-btn" onClick={() => downloadCsv(rows, `파수꾼_거래로그_${dayOf(first)}_${dayOf(last)}.csv`)} title="선택한 기간의 거래 판정 로그를 엑셀에서 열 수 있는 CSV로 내려받아요">
               CSV 내보내기
             </button>

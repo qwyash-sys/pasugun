@@ -84,7 +84,9 @@ export default function App() {
   // 위험 판정 뒤 고객이 처음 고른 분기(내방 예약/지연송금/중단)는 한 번만 본부 모니터링에 알린다.
   const choiceSent = useRef(false);
   // 결과 화면에서 고객이 송금을 취소했는지(완료 화면을 '취소됨'으로 보여준다).
-  const [cancelled, setCancelled] = useState(false);
+  const [cancelled, setCancelled] = useState<"transfer" | "delayed" | null>(null);
+  // 결과 화면 취소 또는 지연이체 취소 — 그 뒤 영업점 상담을 예약하면 모니터링 사례를 다시 연다.
+  const customerCancelled = useRef(false);
 
   const demoCase: DemoCase | undefined = useMemo(
     () => (demoCaseId ? findDemoCase(demoCaseId) : undefined),
@@ -116,7 +118,8 @@ export default function App() {
     setViewedReport(null);
     setListQuery(EMPTY_REPORT_QUERY);
     choiceSent.current = false;
-    setCancelled(false);
+    customerCancelled.current = false;
+    setCancelled(null);
     setScreen(role ? flowStart : "role-picker");
   }
 
@@ -359,9 +362,11 @@ export default function App() {
             notifyChoice(result, "delayed");
             setScreen("m7");
           }}
+          onHotline={(line) => void recordCustomerChoice({ sessionId, report: result.report, choice: line === "112" ? "hotline_112" : "hotline_1332" })}
           onCancel={() => {
             notifyChoice(result, "abandoned");
-            setCancelled(true);
+            customerCancelled.current = true;
+            setCancelled("transfer");
             setScreen("m7");
           }}
           onBookBranch={() => setScreen("branch-booking")}
@@ -378,13 +383,23 @@ export default function App() {
           amount={amount}
           cancelled={cancelled}
           onBookBranch={() => setScreen("branch-booking")}
-          onCancelDelayed={() => void recordCustomerChoice({ sessionId, report: result.report, choice: "cancel_delayed" })}
+          onCancelDelayed={() => {
+            customerCancelled.current = true;
+            setCancelled("delayed");
+            void recordCustomerChoice({ sessionId, report: result.report, choice: "cancel_delayed" });
+          }}
+          onHotline={(line) => void recordCustomerChoice({ sessionId, report: result.report, choice: line === "112" ? "hotline_112" : "hotline_1332" })}
           onRestart={resetFlow}
         />
       )}
 
       {screen === "branch-booking" && quote && (
-        <BranchBooking customerName={quote.customer_name} onBack={() => setScreen(cancelled ? "m7" : "m6")} onHome={resetFlow} onBooked={(b) => notifyChoice(result, "visit", b)} />
+        <BranchBooking customerName={quote.customer_name} onBack={() => setScreen(cancelled ? "m7" : "m6")} onHome={resetFlow} onBooked={(b) => {
+            // 취소한 뒤의 예약은 '첫 선택만 인정' 규칙과 별개로 사례를 다시 열어 기록한다(결정: 2026-10-14).
+            if (customerCancelled.current) void recordCustomerChoice({ sessionId, report: result?.report ?? null, choice: "visit", ...b });
+            else notifyChoice(result, "visit", b);
+          }}
+        />
       )}
 
       {/* 리포트·리포트 목록은 고객(사용자) - 관리자 뷰 전용 화면이다. */}

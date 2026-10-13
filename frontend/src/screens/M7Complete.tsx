@@ -12,11 +12,13 @@ interface Props {
   payeeName: string;
   amount: number;
   /** 결과 화면에서 고객이 송금을 취소하고 들어온 경우(출금 없음). */
-  cancelled?: boolean;
+  cancelled?: "transfer" | "delayed" | null;
   /** 지연이체를 실행 전에 직접 취소했을 때 본부 모니터링에 알린다. */
   onCancelDelayed?: () => void;
   /** 취소 완료 화면의 '영업점 상담 예약'. */
   onBookBranch?: () => void;
+  /** 112·1332 안내를 눌러 확인했을 때(위험 건이면 본부 모니터링에 기록). */
+  onHotline?: (line: Hotline) => void;
   onRestart: () => void;
 }
 
@@ -31,12 +33,12 @@ function kstWhen(d: Date, now: Date = new Date()): string {
   return `${day(d) === day(now) ? "오늘" : "내일"} ${hm}`;
 }
 
-export default function M7Complete({ role, final, payeeName, amount, cancelled = false, onCancelDelayed, onBookBranch, onRestart }: Props) {
+export default function M7Complete({ role, final, payeeName, amount, cancelled = null, onCancelDelayed, onBookBranch, onHotline, onRestart }: Props) {
   const [releaseAt] = useState(() => new Date(Date.now() + DELAY_MS));
   const [confirmCancel, setConfirmCancel] = useState(false);
-  const [cancelledDelayed, setCancelledDelayed] = useState(false);
   const [hotline, setHotline] = useState<Hotline | null>(null);
-  const isCancelled = cancelled || cancelledDelayed;
+  const isCancelled = !!cancelled;
+  const cancelledDelayed = cancelled === "delayed";
   const isDelayed = final.final === "위험" && !isCancelled;
 
   const title = isCancelled ? "송금 취소" : isDelayed ? "지연이체 접수" : "이체완료";
@@ -91,7 +93,13 @@ export default function M7Complete({ role, final, payeeName, amount, cancelled =
                 영업점 상담 예약
               </button>
             )}
-            <button className="btn btn-secondary" onClick={() => setHotline("1332")}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setHotline("1332");
+                onHotline?.("1332");
+              }}
+            >
               {HOTLINES["1332"].label}
             </button>
           </div>
@@ -121,7 +129,6 @@ export default function M7Complete({ role, final, payeeName, amount, cancelled =
               className="btn btn-danger"
               onClick={() => {
                 onCancelDelayed?.();
-                setCancelledDelayed(true);
                 setConfirmCancel(false);
               }}
             >

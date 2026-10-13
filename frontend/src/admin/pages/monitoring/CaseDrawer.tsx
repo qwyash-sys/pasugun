@@ -1,13 +1,13 @@
 // 사례 상세: 지금 해야 할 조치 → 고객 선택 분기별 진행 내용 → 위험 리포트 → 처리 이력.
 import { useEffect, useRef, useState } from "react";
 import type { ActivityEvent, Analysis, CaseDoc, ReportPayload } from "../../api/types";
-import { availableActions, CHOICE_LABEL, INTERVIEW_ACTION_LABEL, INTERVIEW_RESULT_LABEL, OUTCOME_LABEL, type ActionPayload, type CaseAction } from "../../engine/cases";
+import { availableActions, CHOICE_LABEL, HOTLINE_LABEL, INTERVIEW_ACTION_LABEL, INTERVIEW_RESULT_LABEL, OUTCOME_LABEL, type ActionPayload, type CaseAction } from "../../engine/cases";
 import { fmtDateTime, fmtKorean, fmtShort, won } from "../../format";
 import { Badge, Card, Drawer, ErrorBox, Loading, useLoad } from "../../components/ui";
 import { getAdminApi } from "../../api";
 import ActionModal from "./ActionModal";
 import ReportSection from "./ReportSection";
-import { ACTIVITY_ICON, CHOICE_TONE, statusTone, WAITING_ON } from "./labels";
+import { ACTIVITY_ICON, CHOICE_TONE, statusLabel, statusTone, WAITING_ON } from "./labels";
 
 function mailBody(doc: CaseDoc, report: ReportPayload): string {
   const v = doc.visit!;
@@ -171,8 +171,13 @@ export default function CaseDrawer({
         <div className="c-stack">
           <Card className="c-next" title="지금 상태">
             <div className="c-status-line">
-              <Badge tone={statusTone(doc)}>{doc.status}</Badge>
+              <Badge tone={statusTone(doc)}>{statusLabel(doc.status)}</Badge>
               <Badge tone={CHOICE_TONE[doc.choice]}>{CHOICE_LABEL[doc.choice]}</Badge>
+              {(doc.hotlines ?? []).map((h) => (
+                <Badge key={h} tone="blue">
+                  {HOTLINE_LABEL[h]}
+                </Badge>
+              ))}
               <span className="c-muted c-small">{WAITING_ON[doc.status] ?? ""}</span>
             </div>
             {doc.outcome && (
@@ -238,7 +243,7 @@ export default function CaseDrawer({
           )}
 
           {doc.delayed && (
-            <Card title="② 지연송금(고객이 송금 강행)" sub="본부가 리포트와 거래 추적으로 판단해 송금을 진행하거나 고객에게 다시 확인해요.">
+            <Card title="② 지연송금" sub="본부가 리포트와 거래 추적으로 판단해 송금을 진행하거나 고객에게 다시 확인해요.">
               <dl className="c-kv">
                 <dt>지연 해제 예정</dt>
                 <dd>{fmtDateTime(doc.delayed.delay_until)}</dd>

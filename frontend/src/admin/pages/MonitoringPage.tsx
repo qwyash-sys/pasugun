@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAdminApi } from "../api";
 import type { CaseDoc, CaseItem } from "../api/types";
-import { applyAction, availableActions, CHOICE_LABEL, dueInfo, needsHq, OUTCOME_LABEL, POSTCHECK_STATUSES, urgency, type ActionPayload, type CaseAction } from "../engine/cases";
+import { applyAction, availableActions, CHOICE_LABEL, dueInfo, HOTLINE_LABEL, needsHq, OUTCOME_LABEL, POSTCHECK_STATUSES, urgency, type ActionPayload, type CaseAction } from "../engine/cases";
 import { fmtShort, kstIso, wonShort } from "../format";
-import { Badge, Card, Empty, ErrorBox, Kpi, Loading, PageHeader, Segmented, useLoad, useToast } from "../components/ui";
+import { Badge, Card, Empty, ErrorBox, Kpi, Loading, PageHeader, useLoad, useToast } from "../components/ui";
+import PeriodFilter, { inPeriod, periodOf, periodText, type Period } from "../components/PeriodFilter";
 import CaseDrawer from "./monitoring/CaseDrawer";
-import { CHOICE_TONE, statusTone, WAITING_ON } from "./monitoring/labels";
+import { CHOICE_TONE, statusLabel, statusTone, WAITING_ON } from "./monitoring/labels";
 
 type Queue = "all" | "hq" | "visit" | "delayed" | "post" | "pending" | "done";
 
@@ -26,6 +27,8 @@ export default function MonitoringPage() {
   const [queue, setQueue] = useState<Queue>("hq");
   const [severity, setSeverity] = useState<"" | "초고위험" | "고위험">("");
   const [query, setQuery] = useState("");
+  const [choice, setChoice] = useState<"" | CaseDoc["choice"]>("");
+  const [period, setPeriod] = useState<Period>(() => periodOf("7"));
   const [selected, setSelected] = useState<string | null>(null);
   const [rev, setRev] = useState(0);
   const [updatedAt, setUpdatedAt] = useState(() => new Date());
@@ -69,7 +72,10 @@ export default function MonitoringPage() {
     return () => window.clearInterval(id);
   }, [api.mode, reload]);
 
-  const items = useMemo(() => list.data ?? [], [list.data]);
+  const all = useMemo(() => list.data ?? [], [list.data]);
+  // 기간(시도 일시 기준)을 먼저 적용하고, 위쪽 단계 카드 숫자와 아래 목록이 같은 기간을 본다.
+  const items = useMemo(() => all.filter((i) => inPeriod(i.report.attempted_at, period, now)), [all, period, now]);
+  const openOutside = useMemo(() => all.filter((i) => isOpenCase(i.case) && !inPeriod(i.report.attempted_at, period, now)).length, [all, period, now]);
   const counts = useMemo(() => {
     const out = {} as Record<Queue, number>;
     (Object.keys(inQueue) as Queue[]).forEach((q) => (out[q] = items.filter((i) => inQueue[q](i.case)).length));
@@ -81,18 +87,10 @@ export default function MonitoringPage() {
     return items
       .filter((i) => inQueue[queue](i.case))
       .filter((i) => !severity || i.case.severity === severity)
+      .filter((i) => !choice || i.case.choice === choice)
       .filter((i) => !kw || [i.case.case_id, i.report.customer_name, i.report.payee_name].some((s) => s.includes(kw)))
       .sort((a, b) => urgency(b.case) - urgency(a.case) || b.case.created_at.localeCompare(a.case.created_at));
-  }, [items, queue, severity, query]);
-
-  const stats = useMemo(() => {
-    const open = items.filter((i) => isOpenCase(i.case));
-    return {
-      urgent: open.filter((i) => i.case.severity === "초고위험").length,
-      fraud: items.filter((i) => i.case.outcome === "fraud_confirmed").length,
-      fraudAmount: items.filter((i) => i.case.outcome === "fraud_confirmed").reduce((s, i) => s + i.report.amount, 0),
-    };
-  }, [items]);
+  }, [items, queue, severity, choice, query]);
 
   const refresh = async () => {
     await list.reload(true);
@@ -114,7 +112,7 @@ export default function MonitoringPage() {
         await list.reload(true);
         setUpdatedAt(new Date());
         const label = availableActions(doc).find((a) => a.id === action)?.label ?? "조치";
-        show(next.status === "종결" ? `${label} — 사례를 종결했어요.` : `${label} 완료 → ${next.status}`);
+        show(next.status === "종결" ? `${label} — 사례를 종결했어요.` : `${label} 완료 → ${statusLabel(next.status)}`);
       } catch (e) {
         show(e instanceof Error ? e.message : "처리하지 못했어요.", "danger");
         throw e;
@@ -127,6 +125,7 @@ export default function MonitoringPage() {
     if (!api.simulateIncoming) return;
     await api.simulateIncoming();
     setQueue("all");
+    setPeriod(periodOf("today"));
     await list.reload(true); // 알림·강조는 위의 '신규 건 감지'가 처리한다
   };
 
@@ -156,48 +155,69 @@ export default function MonitoringPage() {
         }
       />
 
-      <div className="c-kpis">
-        <Kpi label="본부 조치 필요" value={counts.hq} sub="지금 처리할 사례" tone="danger" onClick={() => setQueue("hq")} active={queue === "hq"} />
-        <Kpi label="초고위험 진행 중" value={stats.urgent} sub="최우선 확인" tone="warn" onClick={() => { setQueue("all"); setSeverity("초고위험"); }} active={severity === "초고위험"} />
-        <Kpi label="영업점 면담 진행" value={counts.visit} sub="내방 예약 건" tone="blue" onClick={() => setQueue("visit")} active={queue === "visit"} />
-        <Kpi label="지연송금 검토 진행" value={counts.delayed} sub="송금 강행 건" tone="warn" onClick={() => setQueue("delayed")} active={queue === "delayed"} />
-        <Kpi label="사후 확인 필요" value={counts.post} sub="실행된 송금 재분석" tone="purple" onClick={() => setQueue("post")} active={queue === "post"} />
-        <Kpi label="보이스피싱 확정" value={stats.fraud} sub={`피해 시도액 ${wonShort(stats.fraudAmount)}`} tone="default" onClick={() => setQueue("done")} active={false} />
+      {/* 처리 단계(카드를 누르면 아래 목록이 그 단계만 보여준다) — 색: 본부 조치(빨강)·영업점 면담(파랑)·지연송금(노랑)·송금 재분석(초록) */}
+      <div className="c-queue-cards" aria-label="처리 단계">
+        <Kpi label="본부 조치 필요" value={counts.hq} sub="지금 본부가 처리할 사례" tone="danger" onClick={() => setQueue("hq")} active={queue === "hq"} />
+        <Kpi label="영업점 면담 진행" value={counts.visit} sub="내방 예약 · 면담 결과 확인" tone="blue" onClick={() => setQueue("visit")} active={queue === "visit"} />
+        <Kpi label="지연송금 검토 진행" value={counts.delayed} sub="본부 승인 · 고객 재확인" tone="warn" onClick={() => setQueue("delayed")} active={queue === "delayed"} />
+        <Kpi label="재분석 필요(송금)" value={counts.post} sub="실행된 송금의 수취계좌 재분석" tone="green" onClick={() => setQueue("post")} active={queue === "post"} />
+        <div className="c-queue-more">
+          {(
+            [
+              ["pending", "고객 선택 대기"],
+              ["done", "종결"],
+              ["all", "전체"],
+            ] as [Queue, string][]
+          ).map(([id, label]) => (
+            <button key={id} className={queue === id ? "on" : ""} aria-pressed={queue === id} onClick={() => setQueue(id)}>
+              <span>{label}</span>
+              <b>{counts[id]}</b>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <Card title="위험 리포트 목록" sub="최종 판정이 ‘위험’으로 저장된 모든 리포트예요. 행을 누르면 근거·조치·이력을 볼 수 있어요.">
-        <div className="c-toolbar">
-          <div className="c-queue">
-            <Segmented
-              label="처리 단계"
-              value={queue}
-              onChange={(v) => {
-                setQueue(v);
-                if (v !== "all") setSeverity("");
+      <Card title="위험 리포트 목록" sub={`최종 판정이 ‘위험’으로 저장된 리포트예요 · ${periodText(period, now)} · 행을 누르면 근거·조치·이력을 볼 수 있어요.`}>
+        <div className="c-filters c-filters-row">
+          <PeriodFilter value={period} onChange={setPeriod} />
+          <select value={severity} onChange={(e) => setSeverity(e.target.value as typeof severity)} aria-label="위험 등급">
+            <option value="">전체 등급</option>
+            <option value="초고위험">초고위험</option>
+            <option value="고위험">고위험</option>
+          </select>
+          <select value={choice} onChange={(e) => setChoice(e.target.value as typeof choice)} aria-label="고객 선택">
+            <option value="">전체 고객 선택</option>
+            <option value="visit">영업점 내방 예약</option>
+            <option value="delayed">지연송금</option>
+            <option value="abandoned">송금 중단</option>
+            <option value="pending">선택 없음</option>
+          </select>
+          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="고객명·수취인·리포트번호" aria-label="검색" />
+          {(severity || choice || query || period.preset !== "7") && (
+            <button
+              className="c-btn c-btn-sm c-btn-ghost"
+              onClick={() => {
+                setSeverity("");
+                setChoice("");
+                setQuery("");
+                setPeriod(periodOf("7"));
               }}
-              options={[
-                { id: "hq", label: "본부 조치 필요", count: counts.hq },
-                { id: "visit", label: "영업점 내방", count: counts.visit },
-                { id: "delayed", label: "지연송금", count: counts.delayed },
-                { id: "post", label: "사후 확인", count: counts.post },
-                { id: "pending", label: "고객 선택 대기", count: counts.pending },
-                { id: "done", label: "종결", count: counts.done },
-                { id: "all", label: "전체", count: counts.all },
-              ]}
-            />
-          </div>
-          <div className="c-filters">
-            <select value={severity} onChange={(e) => setSeverity(e.target.value as typeof severity)} aria-label="위험 등급">
-              <option value="">전체 등급</option>
-              <option value="초고위험">초고위험</option>
-              <option value="고위험">고위험</option>
-            </select>
-            <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="고객명·수취인·리포트번호" aria-label="검색" />
-          </div>
+            >
+              조건 초기화
+            </button>
+          )}
         </div>
+        {openOutside > 0 && (
+          <div className="c-note tone-warn c-outside">
+            선택한 기간 밖에 아직 처리 중인 사례가 {openOutside}건 있어요.{" "}
+            <button className="c-link" onClick={() => setPeriod(periodOf("all"))}>
+              전체 기간으로 보기
+            </button>
+          </div>
+        )}
 
         {rows.length === 0 ? (
-          <Empty>{queue === "hq" && !query && !severity ? "지금 조치가 필요한 사례가 없어요. 👍" : "조건에 맞는 사례가 없어요."}</Empty>
+          <Empty>{queue === "hq" && !query && !severity && !choice ? `${periodText(period, now)} 기간에 본부가 조치할 사례가 없어요. 👍` : "조건에 맞는 사례가 없어요."}</Empty>
         ) : (
           <div className="c-table-wrap">
             <table className="c-table c-cases">
@@ -207,7 +227,8 @@ export default function MonitoringPage() {
                   <th>리포트 · 시도 일시</th>
                   <th>고객 → 수취인</th>
                   <th className="num">금액</th>
-                  <th>고객 선택 · 진행 상태</th>
+                  <th>고객 선택</th>
+                  <th>진행 상태</th>
                   <th>다음 할 일</th>
                 </tr>
               </thead>
@@ -234,8 +255,15 @@ export default function MonitoringPage() {
                       <td>
                         <div className="c-badges">
                           <Badge tone={CHOICE_TONE[c.choice]}>{CHOICE_LABEL[c.choice]}</Badge>
-                          <Badge tone={statusTone(c)}>{c.status}</Badge>
+                          {(c.hotlines ?? []).map((h) => (
+                            <Badge key={h} tone="blue">
+                              {HOTLINE_LABEL[h]}
+                            </Badge>
+                          ))}
                         </div>
+                      </td>
+                      <td>
+                        <Badge tone={statusTone(c)}>{statusLabel(c.status)}</Badge>
                         {c.outcome && <div className="c-muted c-small">{OUTCOME_LABEL[c.outcome]}</div>}
                       </td>
                       <td className="c-small">
