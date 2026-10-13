@@ -377,13 +377,14 @@ export default function App() {
           payeeName={quote.payee_name}
           amount={amount}
           cancelled={cancelled}
+          onBookBranch={() => setScreen("branch-booking")}
           onCancelDelayed={() => void recordCustomerChoice({ sessionId, report: result.report, choice: "cancel_delayed" })}
           onRestart={resetFlow}
         />
       )}
 
       {screen === "branch-booking" && quote && (
-        <BranchBooking customerName={quote.customer_name} onBack={() => setScreen("m6")} onHome={resetFlow} onBooked={(b) => notifyChoice(result, "visit", b)} />
+        <BranchBooking customerName={quote.customer_name} onBack={() => setScreen(cancelled ? "m7" : "m6")} onHome={resetFlow} onBooked={(b) => notifyChoice(result, "visit", b)} />
       )}
 
       {/* 리포트·리포트 목록은 고객(사용자) - 관리자 뷰 전용 화면이다. */}

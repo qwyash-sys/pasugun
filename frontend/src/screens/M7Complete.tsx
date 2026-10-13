@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AppBar from "../components/AppBar";
 import BottomSheet from "../components/BottomSheet";
+import HotlineSheet, { HOTLINES, type Hotline } from "../components/HotlineSheet";
 import StatusMark from "../components/StatusMark";
 import type { Role } from "../roles";
 import type { FinalRisk } from "../types";
@@ -14,6 +15,8 @@ interface Props {
   cancelled?: boolean;
   /** 지연이체를 실행 전에 직접 취소했을 때 본부 모니터링에 알린다. */
   onCancelDelayed?: () => void;
+  /** 취소 완료 화면의 '영업점 상담 예약'. */
+  onBookBranch?: () => void;
   onRestart: () => void;
 }
 
@@ -28,10 +31,11 @@ function kstWhen(d: Date, now: Date = new Date()): string {
   return `${day(d) === day(now) ? "오늘" : "내일"} ${hm}`;
 }
 
-export default function M7Complete({ role, final, payeeName, amount, cancelled = false, onCancelDelayed, onRestart }: Props) {
+export default function M7Complete({ role, final, payeeName, amount, cancelled = false, onCancelDelayed, onBookBranch, onRestart }: Props) {
   const [releaseAt] = useState(() => new Date(Date.now() + DELAY_MS));
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [cancelledDelayed, setCancelledDelayed] = useState(false);
+  const [hotline, setHotline] = useState<Hotline | null>(null);
   const isCancelled = cancelled || cancelledDelayed;
   const isDelayed = final.final === "위험" && !isCancelled;
 
@@ -73,12 +77,26 @@ export default function M7Complete({ role, final, payeeName, amount, cancelled =
         <>
           <p className="complete-note">
             보이스피싱이 의심되는 거래라 안전을 위해 일정 시간 후 처리돼요. 처리 전까지는 아래 버튼으로 언제든 취소할 수 있고,
-            영업점·112·1332로 확인할 수도 있어요.
+            영업점·112(경찰)·1332(콜센터)로 확인할 수도 있어요.
           </p>
           <p className="delayed-callback">📞 지연이체 진행 전 고객센터에서 최대한 빠르게 확인상담 연락을 드릴 거예요.</p>
         </>
       )}
-      {isCancelled && <p className="complete-note">잘하셨어요. 의심되는 연락을 받으셨다면 112(경찰) 또는 1332(금융감독원)에 알려주세요.</p>}
+      {isCancelled && (
+        <>
+          <p className="complete-note">송금이 취소되었어요. 가까운 영업점 상담 또는 보이스피싱 전담 콜센터 상담을 권장드려요.</p>
+          <div className="cancel-actions">
+            {onBookBranch && (
+              <button className="btn btn-outline" onClick={onBookBranch}>
+                영업점 상담 예약
+              </button>
+            )}
+            <button className="btn btn-secondary" onClick={() => setHotline("1332")}>
+              {HOTLINES["1332"].label}
+            </button>
+          </div>
+        </>
+      )}
 
       <div className="spacer" />
       {isDelayed && (
@@ -90,6 +108,7 @@ export default function M7Complete({ role, final, payeeName, amount, cancelled =
         확인
       </button>
 
+      {hotline && <HotlineSheet hotline={hotline} onClose={() => setHotline(null)} />}
       {confirmCancel && (
         <BottomSheet>
           <h2 className="sheet-title">지연이체를 취소할까요?</h2>

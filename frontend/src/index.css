@@ -3095,3 +3095,11 @@ textarea:focus-visible {
   align-items: center;
   justify-content: center;
 }
+
+/* 송금 취소 완료 화면의 다음 행동(영업점 상담 예약 · 1332 상담) */
+.cancel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}

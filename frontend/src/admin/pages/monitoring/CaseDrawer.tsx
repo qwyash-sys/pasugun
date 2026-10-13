@@ -1,5 +1,5 @@
 // 사례 상세: 지금 해야 할 조치 → 고객 선택 분기별 진행 내용 → 위험 리포트 → 처리 이력.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ActivityEvent, Analysis, CaseDoc, ReportPayload } from "../../api/types";
 import { availableActions, CHOICE_LABEL, INTERVIEW_ACTION_LABEL, INTERVIEW_RESULT_LABEL, OUTCOME_LABEL, type ActionPayload, type CaseAction } from "../../engine/cases";
 import { fmtDateTime, fmtKorean, fmtShort, won } from "../../format";
@@ -84,8 +84,41 @@ export default function CaseDrawer({
   const [pending, setPending] = useState<CaseAction | null>(null);
   const [busy, setBusy] = useState(false);
   const [mailOpen, setMailOpen] = useState(false);
+  // 사후 확인(AI 재분석) 결과가 새로 나오면 그 카드로 스크롤하고 잠깐 강조한다 — 화면 아래쪽에서 조용히 바뀌면 놓치기 쉽다.
+  const postRef = useRef<HTMLDivElement>(null);
+  const seen = useRef<{ ready: boolean; at: string | null }>({ ready: false, at: null });
 
   const doc = detail.data?.case;
+  const analysisAt = doc?.postcheck?.analysis?.at ?? null;
+  const hasPostcheck = !!doc?.postcheck;
+
+  useEffect(() => {
+    if (!hasPostcheck && !seen.current.ready) return;
+    if (!seen.current.ready) {
+      seen.current = { ready: true, at: analysisAt };
+      return;
+    }
+    if (analysisAt === seen.current.at) return;
+    seen.current.at = analysisAt;
+    if (!analysisAt) return;
+    const box = postRef.current;
+    const card = box?.querySelector(".c-card");
+    box?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // 부드러운 스크롤이 막힌 환경(움직임 줄이기 설정 등)에서도 카드가 보이게 한 번 더 확인한다.
+    const settle = window.setTimeout(() => {
+      const top = box?.getBoundingClientRect().top ?? 0;
+      if (top > window.innerHeight * 0.6) box?.scrollIntoView({ block: "start" });
+    }, 600);
+    if (!card) return () => window.clearTimeout(settle);
+    card.classList.remove("c-flash");
+    void (card as HTMLElement).offsetWidth; // 애니메이션을 처음부터 다시 재생
+    card.classList.add("c-flash");
+    const t = window.setTimeout(() => card.classList.remove("c-flash"), 2400);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(settle);
+    };
+  }, [analysisAt, hasPostcheck]);
   const report = detail.data?.report;
   const actions = doc ? availableActions(doc) : [];
 
@@ -242,7 +275,15 @@ export default function CaseDrawer({
           )}
 
           {doc.postcheck && (
-            <Card title="③ 사후 확인" sub={doc.postcheck.required ? "초고위험 건은 송금 실행 뒤 수취계좌의 이후 거래내역을 AI로 다시 분석해 정상 거래였는지 확인해요." : "고위험 건의 선택 확인이에요. 필요하면 수취계좌 거래내역을 재분석할 수 있어요."}>
+            <div ref={postRef} className="c-scroll-anchor">
+            <Card
+              className="c-card-post"
+              title={
+                <>
+                  ③ 사후 확인 {doc.postcheck.analysis ? <Badge tone="purple">AI 재분석 완료</Badge> : <Badge tone="warn">재분석 필요</Badge>}
+                </>
+              }
+              sub={doc.postcheck.required ? "초고위험 건은 송금 실행 뒤 수취계좌의 이후 거래내역을 AI로 다시 분석해 정상 거래였는지 확인해요." : "고위험 건의 선택 확인이에요. 필요하면 수취계좌 거래내역을 재분석할 수 있어요."}>
               {doc.postcheck.activity.length > 0 ? (
                 <>
                   <h4 className="c-sec">수취계좌 이후 거래내역</h4>
@@ -264,6 +305,7 @@ export default function CaseDrawer({
               )}
               {doc.postcheck.confirmed_at && <p className="c-small c-muted">본부 확인: {fmtDateTime(doc.postcheck.confirmed_at)}</p>}
             </Card>
+            </div>
           )}
 
           {doc.choice === "abandoned" && <div className="c-note tone-muted">고객이 위험 안내를 보고 송금을 중단했어요. 추가 조치가 필요 없어요.</div>}

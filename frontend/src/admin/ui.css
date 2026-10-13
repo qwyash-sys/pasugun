@@ -255,3 +255,9 @@
 .c-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
 /* 한국어가 단어 중간에서 줄바뀜되지 않게(긴 영문·번호는 필요하면 끊는다) */
 .console { word-break: keep-all; overflow-wrap: break-word; }
+/* 사후 확인(AI 재분석) 카드: 다른 진행 카드와 구분되게 보라빛 배경, 새 결과가 나오면 잠깐 반짝인다 */
+.c-card.c-card-post { background: linear-gradient(180deg, #f6f1ff 0%, #ffffff 70%); border-color: #d6c8fb; }
+.c-card-post .c-card-title { display: flex; align-items: center; gap: 8px; }
+.c-scroll-anchor { scroll-margin-top: 12px; }
+.c-flash { animation: c-flash 2.2s ease; }
+@keyframes c-flash { 0%, 35% { box-shadow: 0 0 0 4px rgba(122, 76, 240, 0.35); border-color: var(--c-purple); } 100% { box-shadow: var(--c-shadow); } }
