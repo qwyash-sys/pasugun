@@ -93,6 +93,8 @@ export default function App() {
   const customerCancelled = useRef(false);
   // 본부의 송금 확인 요청에 답하는 화면에서 보고 있는 사례
   const [reconfirmItem, setReconfirmItem] = useState<CaseItem | null>(null);
+  // 앞 단계 질문에서 고른 답 — 대화 첫 마디·주의 송금 확인창 문구를 고르는 데 쓴다.
+  const [choiceIds, setChoiceIds] = useState<string[]>([]);
 
   const demoCase: DemoCase | undefined = useMemo(
     () => (demoCaseId ? findDemoCase(demoCaseId) : undefined),
@@ -125,6 +127,7 @@ export default function App() {
     setListQuery(EMPTY_REPORT_QUERY);
     choiceSent.current = false;
     customerCancelled.current = false;
+    setChoiceIds([]);
     setCancelled(null);
     setScreen(role ? flowStart : "role-picker");
   }
@@ -221,6 +224,7 @@ export default function App() {
     if (!client || !sessionId) return;
     runGuarded(async () => {
       await client.submitAnswers(sessionId, answers);
+      setChoiceIds(answers.map((a) => a.choice_id));
       setScreen("m5");
     });
   }
@@ -381,6 +385,7 @@ export default function App() {
           chatTurns={demoCase?.chatTurns}
           demoAttachments={demoCase?.report?.attachments}
           onSendTurn={handleChatTurn}
+          loadOpening={client && sessionId ? () => client.opening(sessionId) : undefined}
           onFinish={finalizeToResult}
           onSkipAnalysis={skipAnalysisAndSend}
           onHome={resetFlow}
@@ -401,6 +406,7 @@ export default function App() {
             setScreen("m7");
           }}
           onHotline={(line) => void recordCustomerChoice({ sessionId, report: result.report, choice: line === "112" ? "hotline_112" : "hotline_1332" })}
+          choiceIds={choiceIds}
           onCancel={() => {
             notifyChoice(result, "abandoned");
             customerCancelled.current = true;

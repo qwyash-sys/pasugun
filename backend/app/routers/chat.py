@@ -16,6 +16,7 @@ from app.models import AccountAssessment, ContextAnswer
 from app.providers.llm.factory import get_llm
 from app.providers.ocr.factory import get_ocr
 from app.providers.rag.factory import get_rag
+from app.opening import rule_opening
 from app.questions import SAFETY_QUESTION, empathy_question, questions_for
 from app.case_store import get_case_store
 from app.report_store import UploadedImage, get_report_store
@@ -119,6 +120,26 @@ def submit_answers(session_id: str, payload: AnswersRequest):
     return {"ok": True}
 
 
+@router.post("/{session_id}/opening")
+def opening(session_id: str):
+    """AI 대화의 첫 마디. 앞 단계(받는 분·금액·질문 답)를 바탕으로 AI가 쓰고, 실패하면 같은 기준의 규칙 문장."""
+    try:
+        session = get_session(session_id)
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    with session.lock:
+        if session.opening:
+            return {"text": session.opening, "source": session.opening_source}
+        choice_ids = [a.choice_id for a in session.answers]
+        prompts = {q["question_id"]: q["prompt"] for q in questions_for(session.intervention, session.customer_name)}
+        # 답만 넘기면("비슷한 안내를 받았어요") 무슨 안내인지 모르니, 질문과 답을 함께 넘긴다.
+        labels = [f'질문 "{prompts.get(a.question_id, a.question_id)}" → 답 "{_choice_lookup(a.question_id, a.choice_id, session.customer_name)["label"]}"' for a in session.answers]
+        fallback = rule_opening(choice_ids)
+        text, by_ai = PasugunAgent(get_llm(), get_rag()).opening(labels, fallback)
+        session.opening, session.opening_source = text, ("ai" if by_ai else "rule")
+        return {"text": text, "source": session.opening_source}
+
+
 @router.post("/{session_id}/chat", response_model=ChatTurnResponse)
 def chat_turn(session_id: str, payload: ChatTurnRequest):
     try:
@@ -163,7 +184,7 @@ def _chat_turn_locked(session: TransferSession, payload: ChatTurnRequest) -> Cha
 
     agent = PasugunAgent(get_llm(), get_rag())
     try:
-        reply, new_history, rag_match = agent.chat_turn(session.customer_name, session.chat_history, text)
+        reply, new_history, rag_match = agent.chat_turn(session.customer_name, session.chat_history, text, opening=session.opening)
     except Exception as e:
         logger.exception("Agent chat_turn failed")
         raise HTTPException(status_code=502, detail="AI 확인 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.") from e

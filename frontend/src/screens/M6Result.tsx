@@ -3,6 +3,7 @@ import AppBar, { AiTag } from "../components/AppBar";
 import RiskBreakdown from "../components/RiskBreakdown";
 import BottomSheet from "../components/BottomSheet";
 import HotlineSheet, { HOTLINES, type Hotline } from "../components/HotlineSheet";
+import { cautionCheck } from "../utils/opening";
 import type { Role } from "../roles";
 import type { AccountAssessment, ContextAssessment, FinalRisk } from "../types";
 
@@ -18,6 +19,8 @@ interface Props {
   onCancel: () => void; // 주의(취소) -> 처음으로
   /** 112·1332 안내를 눌러 확인했을 때(위험 건이면 본부 모니터링에 기록). */
   onHotline?: (line: Hotline) => void;
+  /** 앞 단계 질문에서 고른 답(주의 송금 확인창의 요약·확인 문구를 고르는 데 쓴다). */
+  choiceIds?: string[];
   onBookBranch: () => void; // 위험 -> 영업점 상담 예약
   onViewReport: () => void; // 위험 -> 리포트 보기(관리자)
   onHome: () => void;
@@ -56,6 +59,7 @@ export default function M6Result({
   onProceed,
   onCancel,
   onHotline,
+  choiceIds = [],
   onBookBranch,
   onViewReport,
   onHome,
@@ -65,6 +69,10 @@ export default function M6Result({
   const [hotline, setHotline] = useState<Hotline | null>(null);
   // 송금 취소는 되돌릴 수 없으니 한 번 더 묻는다.
   const [confirmingCancel, setConfirmingCancel] = useState(false);
+  // 주의 결과의 '그래도 송금'은 바로 실제 송금이 되므로, AI 요약을 보고 확인 표시를 해야 진행된다.
+  const [confirmingSend, setConfirmingSend] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
+  const check = cautionCheck(choiceIds);
   const isAdmin = role === "admin";
 
   return (
@@ -121,7 +129,13 @@ export default function M6Result({
             <button className="btn btn-secondary" onClick={() => setConfirmingCancel(true)}>
               취소
             </button>
-            <button className="btn btn-primary" onClick={onProceed}>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setAcknowledged(false);
+                setConfirmingSend(true);
+              }}
+            >
               그래도 송금
             </button>
           </div>
@@ -204,6 +218,27 @@ export default function M6Result({
               }}
             >
               송금 취소
+            </button>
+          </div>
+        </BottomSheet>
+      )}
+      {confirmingSend && (
+        <BottomSheet>
+          <h2 className="sheet-title">송금 전 확인</h2>
+          <div className="send-check-summary">
+            <span className="send-check-tag">AI파수꾼 요약</span>
+            <p>{agentReply || check.summary}</p>
+          </div>
+          <label className={`send-check-ack ${acknowledged ? "on" : ""}`}>
+            <input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
+            <span>{check.ack}</span>
+          </label>
+          <div className="btn-row">
+            <button className="btn btn-secondary" onClick={() => setConfirmingSend(false)}>
+              돌아가기
+            </button>
+            <button className="btn btn-primary" disabled={!acknowledged} onClick={onProceed}>
+              송금 진행
             </button>
           </div>
         </BottomSheet>

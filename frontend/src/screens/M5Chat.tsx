@@ -38,6 +38,8 @@ interface Props {
   /** AI 분석을 건너뛰고 송금으로 바로 간다(막지 않는다는 원칙). 판정은 지금까지 쌓인 내용으로 확정된다. */
   onSkipAnalysis: () => void;
   onHome: () => void;
+  /** 대화 첫 마디를 불러온다(앞 단계 답에 맞춘 질문). 없으면 기본 인사로 시작. */
+  loadOpening?: () => Promise<{ text: string; source: "ai" | "rule" }>;
 }
 
 /** 입력창에 올려둔(또는 보낸) 사진. url은 미리보기용, base64는 실제 모드 전송용. */
@@ -114,6 +116,8 @@ export default function M5Chat(props: Props) {
   };
 
   // 데모·실제 모드가 같은 첫 인사로 시작한다(케이스를 고르지 않은 실제 모드만 이름을 불러 시작).
+  // 첫 마디는 앞 단계(받는 분·금액·질문 답)에 맞춰 불러온다(실제 모드는 AI, 데모·AI 장애는 같은 규칙 문장).
+  // 불러오지 못하면 아래 기본 인사로 시작한다.
   const greeting = chatTurns !== undefined
     ? `현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. ${hint || "상황 설명이나 안내문자 캡처를 올려주세요."}`
     : `${customerName}님, 현재 송금이 안전한지 AI가 분석해드릴 수도 있어요. 상황 설명이나 안내문자 캡처를 올려주세요.`;
@@ -123,6 +127,7 @@ export default function M5Chat(props: Props) {
       <ChatView
         {...props}
         greeting={greeting}
+        loadOpening={props.loadOpening}
         sendTurn={sendTurn}
         initialMaxTurns={isDemo ? turns.length || 3 : 3}
         // 시연 케이스의 다음 문장을 추천으로 띄운다(데모·실제 모드 공통 — 실제 모드는 보낸 내용을 진짜 AI가 분석).
@@ -150,10 +155,12 @@ interface ChatViewProps extends Props {
   suggestionFor?: (turnIndex: number) => { text: string; images: StagedImage[] } | null;
   noChat: boolean;
   allowSkipLink: boolean;
+  loadOpening?: () => Promise<{ text: string; source: "ai" | "rule" }>;
 }
 
 function ChatView({
   greeting,
+  loadOpening,
   sendTurn,
   initialMaxTurns,
   suggestionFor,
@@ -164,10 +171,11 @@ function ChatView({
   onHome,
   error,
 }: ChatViewProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([{ role: "ai", text: greeting }]);
+  // 첫 마디를 불러오는 동안은 '입력 중…' 점 세 개를 보여주고, 도착하면 한 글자씩 흘려보낸다.
+  const [messages, setMessages] = useState<ChatMessage[]>(() => (loadOpening ? [] : [{ role: "ai", text: greeting }]));
   const [input, setInput] = useState("");
   const [images, setImages] = useState<StagedImage[]>([]);
-  const [sending, setSending] = useState(false);
+  const [sending, setSending] = useState(!!loadOpening);
   // 답장은 도착 즉시 통째로 넣지 않고 여기 잠깐 담아뒀다가 화면에서 한 글자씩 흘려보낸다.
   const [pendingReply, setPendingReply] = useState<{ text: string; turn: number; maxTurns: number; fallback?: boolean } | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -178,6 +186,26 @@ function ChatView({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!loadOpening) return;
+    let alive = true;
+    loadOpening()
+      .then(
+        (o) => o.text.trim() || greeting,
+        () => greeting,
+      )
+      .then((text) => {
+        if (!alive) return;
+        setSending(false);
+        setPendingReply({ text, turn: 0, maxTurns: initialMaxTurns });
+      });
+    return () => {
+      alive = false;
+    };
+    // 화면에 들어올 때 한 번만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const reachedCap = !noChat && turn >= maxTurns;
   const busy = sending || !!pendingReply;

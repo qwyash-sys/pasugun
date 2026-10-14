@@ -2,6 +2,7 @@ import { freshDemoReport } from "./demoStore";
 import { recordDemoFinalize } from "./customerChoice";
 import { API_BASE_URL, RESPONSE_SOURCE } from "../config";
 import { findDemoCase } from "../demoData/cases";
+import { ruleOpening } from "../utils/opening";
 import type {
   AnswerSubmission,
   ChatTurnRequest,
@@ -14,6 +15,8 @@ import type {
 export interface BackendClient {
   quote(req: TransferQuoteRequest): Promise<QuoteResponse>;
   submitAnswers(sessionId: string, answers: AnswerSubmission[]): Promise<void>;
+  /** AI 대화 첫 마디(앞 단계 답에 맞춘 질문). source: ai(실제 AI) | rule(규칙 문장) */
+  opening(sessionId: string): Promise<{ text: string; source: "ai" | "rule" }>;
   chatTurn(sessionId: string, req: ChatTurnRequest): Promise<ChatTurnResponse>;
   finalize(sessionId: string): Promise<FinalizeResponse>;
 }
@@ -36,6 +39,12 @@ class HttpBackendClient implements BackendClient {
       body: JSON.stringify({ answers }),
     });
     if (!res.ok) throw new Error(`answers 실패: ${res.status}`);
+  }
+
+  async opening(sessionId: string): Promise<{ text: string; source: "ai" | "rule" }> {
+    const res = await fetch(`${API_BASE_URL}/api/transfer/${sessionId}/opening`, { method: "POST" });
+    if (!res.ok) throw new Error(`opening 실패: ${res.status}`);
+    return res.json();
   }
 
   async chatTurn(sessionId: string, req: ChatTurnRequest): Promise<ChatTurnResponse> {
@@ -89,8 +98,16 @@ class DemoBackendClient implements BackendClient {
     };
   }
 
-  async submitAnswers(): Promise<void> {
-    // 데모는 선택 내용과 무관하게 대본대로 진행한다.
+  private answers: AnswerSubmission[] = [];
+
+  async submitAnswers(_sessionId: string, answers: AnswerSubmission[]): Promise<void> {
+    // 판정은 대본대로지만, 대화 첫 마디는 고객이 실제로 고른 답에 맞춘다(실제 모드와 같은 규칙).
+    this.answers = answers;
+  }
+
+  async opening(): Promise<{ text: string; source: "ai" | "rule" }> {
+    await new Promise((r) => setTimeout(r, 700)); // AI가 생각하는 시간처럼
+    return { text: ruleOpening(this.answers.map((a) => a.choice_id)), source: "rule" };
   }
 
   async chatTurn(): Promise<ChatTurnResponse> {

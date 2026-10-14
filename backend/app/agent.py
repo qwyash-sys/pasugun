@@ -9,6 +9,7 @@ import threading
 from datetime import datetime
 from typing import Any
 
+from app.opening import CLOSING, OPENING_PROMPT
 from app.models import KST, RagMatch
 from app.providers.llm.base import LlmProvider
 from app.providers.rag.base import RagProvider
@@ -200,11 +201,13 @@ class PasugunAgent:
         return AgentResult(reply=reply, rag=rag_match)
 
     def chat_turn(
-        self, customer_name: str, history: list[dict[str, Any]], user_text: str
+        self, customer_name: str, history: list[dict[str, Any]], user_text: str, opening: str | None = None
     ) -> tuple[str, list[dict[str, Any]], RagMatch | None]:
         """M5의 멀티턴 대화 한 턴을 처리한다. history는 이전 턴들의 원본 메시지
         (role/content 블록)이고, 반환하는 messages를 다음 턴 history로 그대로 넘기면 된다."""
         system = SYSTEM_PROMPT.format(name=customer_name)
+        if opening:  # 화면에 먼저 보여준 첫 마디를 AI도 알고 이어가게 한다
+            system += f'\n\n대화 시작 때 고객에게 이미 이렇게 말했습니다: "{opening}" 이 질문에 대한 고객의 답을 이어서 확인하세요.'
         messages = [*history, {"role": "user", "content": user_text}]
         self.last_turn_fallback = False
         try:
@@ -225,6 +228,26 @@ class PasugunAgent:
         reply = _fallback_chat_reply(customer_name, rag_match, user_turn)
         # 다음 턴에 LLM이 돌아오면 이 이력을 그대로 이어받을 수 있게 user/assistant 교대를 지킨다.
         return reply, [*messages, {"role": "assistant", "content": [{"type": "text", "text": reply}]}], rag_match
+
+    def opening(self, answer_labels: list[str], fallback: str) -> tuple[str, bool]:
+        """대화 첫 마디를 앞 단계 답변에 맞춰 LLM이 쓴다. 실패하면 규칙 문장(fallback). (문장, AI가 썼는지)"""
+        try:
+            response = self._llm.chat(
+                system="당신은 송금 직전 고객과 대화를 시작하는 파수꾼의 AI 상담원입니다.",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": OPENING_PROMPT.format(answers=", ".join(answer_labels) or "(없음)", closing=CLOSING, example=fallback),
+                    }
+                ],
+            )
+            text = _text_of(response).strip()
+            llm_status.success()
+            return (text, True) if text else (fallback, False)
+        except Exception as e:
+            logger.exception("LLM opening failed — using rule-based opening")
+            llm_status.failure(e)
+            return fallback, False
 
     def conclude(self, customer_name: str, verdict: str, reasons: list[str], conversation: str) -> str:
         """확정된 판정(scoring이 이미 결정)에 맞춰 결론 안내 문구만 자연어로 쓴다 — 판정은 바꾸지 않는다.

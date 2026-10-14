@@ -3180,3 +3180,51 @@ textarea:focus-visible {
   font-size: 14px;
   resize: vertical;
 }
+
+/* 주의 결과 '그래도 송금' 확인창: AI 요약 + 이해 확인 */
+.send-check-summary {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--nh-green-soft);
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.send-check-summary p {
+  margin: 6px 0 0;
+}
+
+.send-check-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nh-green-dark);
+}
+
+.send-check-ack {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: keep-all;
+  cursor: pointer;
+}
+
+.send-check-ack.on {
+  border-color: var(--nh-green);
+  background: #f6fbf8;
+}
+
+.send-check-ack input {
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--nh-green);
+}

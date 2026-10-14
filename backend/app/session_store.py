@@ -23,6 +23,9 @@ class TransferSession:
     account_level: RiskLevel
     intervention: str
     answers: list[ContextAnswer] = field(default_factory=list)
+    # M5 대화 첫 마디(앞 단계 답변 기반) — 한 번 만들면 다시 열어도 같은 문장
+    opening: str | None = None
+    opening_source: str = "rule"
     # M5 멀티턴 대화 상태. chat_history는 LLM에 그대로 재전달하는 원본 메시지 형식(role/content
     # 블록)이고, conversation_text는 사람이 읽는 합본 — 리포트 요약·2단계 스코어링에 쓴다.
     chat_history: list[dict[str, Any]] = field(default_factory=list)
