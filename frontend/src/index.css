@@ -3228,3 +3228,12 @@ textarea:focus-visible {
   flex-shrink: 0;
   accent-color: var(--nh-green);
 }
+
+/* 데모는 시연 케이스 값이 고정이라 입력칸을 잠그지만, 실제 모드와 같은 모양으로 보이게(회색 처리 없이) */
+.screen select:disabled,
+.screen input:disabled {
+  opacity: 1;
+  color: var(--text);
+  background: var(--card);
+  -webkit-text-fill-color: var(--text);
+}

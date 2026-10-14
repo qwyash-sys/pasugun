@@ -326,6 +326,7 @@ export default function App() {
         <M1Amount
           isDemo={isDemo}
           demoCase={isDemo ? demoCase : undefined}
+          presetCase={!isDemo ? demoCase : undefined}
           caseTitle={!isDemo ? demoCase?.title : undefined}
           initial={amount ? { customerId, amount, scenario } : undefined}
           onNext={handleM1Next}

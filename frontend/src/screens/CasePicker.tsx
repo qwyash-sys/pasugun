@@ -57,9 +57,8 @@ export default function CasePicker({
       )}
       <h1 className="title">어떤 상황을 보여드릴까요?</h1>
       <p className="subtitle">
-        {live
-          ? "케이스를 고르면 입력값이 채워지고, 실제 엔진과 AI가 판정해요. 값을 바꾸거나 직접 입력해도 돼요."
-          : "SPEC 5장 시연 케이스 5종 + 주의 케이스 1종을 재생해요. 점수와 판정은 개발 모드 엔진으로 계산한 값이에요."}
+        SPEC 5장 시연 케이스 5종 + 주의 케이스 1종이에요. 점수와 판정은 개발 모드 엔진 기준이에요.
+        {live && " 값을 바꾸거나 직접 입력해서 해볼 수도 있어요."}
       </p>
       <div className="case-picker-list">
         {DEMO_CASES.map((c) => {
@@ -71,7 +70,7 @@ export default function CasePicker({
                 <span className="case-title">{c.title}</span>
                 <span className="case-subtitle">{c.subtitle}</span>
               </span>
-              <span className="case-verdict">{live ? `예상 ${verdict}` : verdict}</span>
+              <span className="case-verdict">{verdict}</span>
             </button>
           );
         })}

@@ -15,6 +15,8 @@ export interface M1Result {
 interface Props {
   isDemo: boolean;
   demoCase?: DemoCase;
+  /** 실제 모드에서 시연 케이스를 고른 경우 그 케이스(화면은 데모와 똑같이, 값은 바꿀 수 있게). */
+  presetCase?: DemoCase;
   /** 실제 모드에서 시연 케이스를 골라 들어온 경우 그 케이스 이름(값이 미리 채워졌다는 안내용). */
   caseTitle?: string;
   /** 수취계좌 화면에서 뒤로 돌아왔을 때 앞서 입력한 값을 그대로 보여준다. */
@@ -33,27 +35,36 @@ function maskAccount(account: string): string {
   return [parts[0], ...parts.slice(1, -1).map((p) => "*".repeat(p.length)), parts.at(-1)].join("-");
 }
 
-export default function M1Amount({ isDemo, demoCase, caseTitle, initial, onNext, onHome }: Props) {
+export default function M1Amount({ isDemo, demoCase, presetCase, caseTitle, initial, onNext, onHome }: Props) {
   const [customerId, setCustomerId] = useState(initial?.customerId || CUSTOMER_OPTIONS[0].customer_id);
   const [amount, setAmount] = useState(initial?.amount ?? 0);
   const [scenario] = useState<TestScenario | undefined>(initial?.scenario);
   const tooMuch = amount > MAX_AMOUNT;
+  // 실제 모드도 케이스를 골랐으면 데모와 같은 은행 앱 화면으로 보여주고, 원할 때만 값 편집 화면을 연다.
+  const [editing, setEditing] = useState(false);
+  const shown = isDemo ? demoCase : editing ? undefined : presetCase;
 
-  if (isDemo && demoCase) {
+  if (shown) {
+    const fixedAmount = isDemo ? shown.input.amount : amount;
     return (
       <>
         <AppBar title="이체" onHome={onHome} />
         <div className="account-selector-row">
           <span>출금계좌(본인)</span>
-          <span className="balance">NH농협은행 {maskAccount(demoCase.input.customerAccount)}</span>
+          <span className="balance">NH농협은행 {maskAccount(shown.input.customerAccount)}</span>
         </div>
         <div className="amount-prompt">
           얼마를 보낼까요?
-          <strong>{demoCase.input.amount.toLocaleString()}원</strong>
-          <span className="amount-korean">{koreanAmount(demoCase.input.amount)}</span>
+          <strong>{fixedAmount.toLocaleString()}원</strong>
+          <span className="amount-korean">{koreanAmount(fixedAmount)}</span>
         </div>
+        {!isDemo && (
+          <button className="text-btn" onClick={() => setEditing(true)}>
+            금액·출금계좌 바꾸기
+          </button>
+        )}
         <div className="spacer" />
-        <button className="btn btn-primary" onClick={() => onNext({ customerId: "demo", amount: demoCase.input.amount })}>
+        <button className="btn btn-primary" onClick={() => onNext(isDemo ? { customerId: "demo", amount: fixedAmount } : { customerId, amount, scenario })}>
           다음
         </button>
       </>
