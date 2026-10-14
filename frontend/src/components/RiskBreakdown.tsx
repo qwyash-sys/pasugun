@@ -330,13 +330,32 @@ function VerdictBasis({ account, context, cut }: Props & { cut: Cutoffs }) {
           <br />→ 점수와 무관하게 AI분석 <strong>고</strong>, 최종 <strong>위험</strong>으로 고정
         </p>
       )}
-      <p className="verdict-basis-result">
-        송금위험 <strong>{account.level}</strong> × AI분석 <strong>{contextLevel}</strong> → 매트릭스{" "}
-        <strong>
-          {matrixMark} {VERDICT_NAME[matrixMark]}
-        </strong>
-        {hardOverride && matrixMark !== "🔴" && " (결정적 피싱징후로 위험 적용)"}
-      </p>
+      {(() => {
+        const final = hardOverride ? "위험" : VERDICT_NAME[matrixMark];
+        // 모니터링 등급(본부 처리 우선순위) — 관리자 페이지 모니터링과 같은 기준·같은 색(초고위험 빨강 · 고위험 주황)
+        const grade = final !== "위험" ? null : hardOverride || (account.level === "고" && contextLevel === "고") ? "초고위험" : "고위험";
+        const tone = grade === "초고위험" ? "critical" : grade === "고위험" ? "high" : final === "주의" ? "caution" : "safe";
+        return (
+          <div className={`verdict-final tone-${tone}`}>
+            <div className="verdict-final-head">
+              <span>최종 판정</span>
+              <strong>{final}</strong>
+              {grade && <span className={`verdict-grade grade-${tone}`}>모니터링 등급 · {grade}</span>}
+            </div>
+            <p>
+              송금위험 <b>{account.level}</b> × AI분석 <b>{contextLevel}</b> → 매트릭스 {matrixMark} {VERDICT_NAME[matrixMark]}
+              {hardOverride && matrixMark !== "🔴" && " → 결정적 피싱징후로 위험 적용"}
+            </p>
+            <p className="verdict-final-rule">
+              {grade === "초고위험"
+                ? "결정적 피싱징후가 있거나 송금위험·AI분석이 모두 '고'라 초고위험이에요. 본부 모니터링에서 가장 먼저 처리하고, 송금이 실행되면 사후 확인이 필수예요."
+                : grade === "고위험"
+                  ? "위험 판정이지만 송금위험·AI분석이 모두 '고'는 아니라 고위험이에요. 본부 모니터링 대상이에요."
+                  : "위험이 아니라 본부 모니터링 대상은 아니에요."}
+            </p>
+          </div>
+        );
+      })()}
     </div>
   );
 }

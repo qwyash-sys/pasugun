@@ -2,6 +2,7 @@
 .console .tone-green { --t-fg: var(--c-green-dark); --t-bg: var(--c-green-soft); --t-solid: var(--c-green); }
 .console .tone-danger { --t-fg: var(--c-danger); --t-bg: var(--c-danger-soft); --t-solid: var(--c-danger); }
 .console .tone-warn { --t-fg: var(--c-warn); --t-bg: var(--c-warn-soft); --t-solid: #f0a020; }
+.console .tone-orange { --t-fg: #b55a05; --t-bg: #fff2e3; --t-solid: #ee8a1f; }
 .console .tone-blue { --t-fg: var(--c-blue); --t-bg: var(--c-blue-soft); --t-solid: var(--c-blue); }
 .console .tone-purple { --t-fg: var(--c-purple); --t-bg: var(--c-purple-soft); --t-solid: var(--c-purple); }
 .console .tone-muted { --t-fg: var(--c-muted); --t-bg: #eef0f3; --t-solid: #b9c0c9; }

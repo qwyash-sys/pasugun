@@ -238,7 +238,7 @@ export default function MonitoringPage() {
                   return (
                     <tr key={c.case_id} className={`clickable ${selected === c.case_id ? "selected" : ""} ${fresh === c.case_id ? "c-fresh" : ""}`} onClick={() => setSelected(c.case_id)} tabIndex={0} onKeyDown={(e) => e.key === "Enter" && setSelected(c.case_id)}>
                       <td>
-                        <Badge tone={c.severity === "초고위험" ? "danger" : "warn"}>{c.severity}</Badge>
+                        <Badge tone={c.severity === "초고위험" ? "danger" : "orange"}>{c.severity}</Badge>
                       </td>
                       <td className="nowrap">
                         <b>{c.case_id}</b>

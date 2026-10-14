@@ -129,7 +129,7 @@ export default function CaseDrawer({
       wide
       title={
         <>
-          {caseId} {doc && <Badge tone={doc.severity === "초고위험" ? "danger" : "warn"}>{doc.severity}</Badge>}
+          {caseId} {doc && <Badge tone={doc.severity === "초고위험" ? "danger" : "orange"}>{doc.severity}</Badge>}
         </>
       }
       sub={doc && report ? `${report.customer_name} → ${report.payee_name} · ${won(report.amount)}` : undefined}

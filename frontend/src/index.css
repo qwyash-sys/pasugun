@@ -3237,3 +3237,50 @@ textarea:focus-visible {
   background: var(--card);
   -webkit-text-fill-color: var(--text);
 }
+
+/* 최종 판정 카드 — 모니터링 등급과 같은 색: 초고위험 빨강 · 고위험 주황 · 주의 노랑 · 안전 초록 */
+.verdict-final {
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 2px solid var(--vf-line);
+  background: var(--vf-bg);
+}
+.verdict-final.tone-critical { --vf-line: #e23b3b; --vf-bg: #fdecec; --vf-fg: #b3261e; }
+.verdict-final.tone-high { --vf-line: #ee8a1f; --vf-bg: #fff2e3; --vf-fg: #b55a05; }
+.verdict-final.tone-caution { --vf-line: #e3b230; --vf-bg: #fdf6df; --vf-fg: #8a5d05; }
+.verdict-final.tone-safe { --vf-line: var(--nh-green); --vf-bg: var(--nh-green-soft); --vf-fg: var(--nh-green-dark); }
+.verdict-final-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.verdict-final-head > span:first-child {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.verdict-final-head strong {
+  font-size: 22px;
+  color: var(--vf-fg);
+}
+.verdict-grade {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: white;
+}
+.verdict-grade.grade-critical { background: #e23b3b; }
+.verdict-grade.grade-high { background: #ee8a1f; }
+.verdict-final p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+.verdict-final-rule {
+  color: var(--text-muted);
+  font-size: 12px !important;
+}

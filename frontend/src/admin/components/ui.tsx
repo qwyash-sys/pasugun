@@ -75,7 +75,7 @@ export function Card({ title, sub, actions, children, className = "" }: { title?
   );
 }
 
-export type Tone = "default" | "green" | "danger" | "warn" | "blue" | "purple" | "muted";
+export type Tone = "default" | "green" | "danger" | "warn" | "orange" | "blue" | "purple" | "muted";
 
 export function Badge({ tone = "default", children, title }: { tone?: Tone; children: ReactNode; title?: string }) {
   return (
