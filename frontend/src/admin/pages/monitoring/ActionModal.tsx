@@ -12,7 +12,7 @@ const CONFIRM_TEXT: Record<string, string> = {
   confirm_postcheck: "확인하면 사례가 종결돼요.",
 };
 
-export default function ActionModal({ action, doc, busy, onCancel, onSubmit }: { action: CaseAction; doc: CaseDoc; busy: boolean; onCancel: () => void; onSubmit: (p: ActionPayload) => void }) {
+export default function ActionModal({ action, doc, busy, onCancel, onSubmit, actor = "hq" }: { action: CaseAction; doc: CaseDoc; busy: boolean; onCancel: () => void; onSubmit: (p: ActionPayload) => void; actor?: "hq" | "officer" }) {
   const [note, setNote] = useState("");
   const [result, setResult] = useState<Interview["result"]>("normal");
   const [follow, setFollow] = useState<Interview["action"]>("none");
@@ -34,6 +34,8 @@ export default function ActionModal({ action, doc, busy, onCancel, onSubmit }: {
   return (
     <Modal
       open
+      theme={actor}
+      kicker={actor === "officer" ? `영업점 책임자 · ${doc.visit?.branch ?? ""} ${doc.visit?.officer.name ?? ""}` : "본부 조치 · 모니터링 담당"}
       title={action.label}
       onClose={busy ? () => {} : onCancel}
       footer={

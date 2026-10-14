@@ -258,7 +258,7 @@ export function Drawer({ open, title, sub, onClose, children, footer, wide }: { 
   );
 }
 
-export function Modal({ open, title, onClose, children, footer }: { open: boolean; title: ReactNode; onClose: () => void; children: ReactNode; footer?: ReactNode }) {
+export function Modal({ open, title, onClose, children, footer, kicker, theme }: { open: boolean; title: ReactNode; onClose: () => void; children: ReactNode; footer?: ReactNode; kicker?: string; theme?: "hq" | "officer" }) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -271,7 +271,8 @@ export function Modal({ open, title, onClose, children, footer }: { open: boolea
   return (
     <div className="c-modal-root">
       <div className="c-scrim" onClick={onClose} />
-      <div className="c-modal" role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : "입력"}>
+      <div className={`c-modal ${theme ? `c-modal-${theme}` : ""}`} role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : "입력"}>
+        {kicker && <span className="c-modal-kicker">{kicker}</span>}
         <h2>{title}</h2>
         <div className="c-modal-body">{children}</div>
         {footer && <div className="c-modal-foot">{footer}</div>}

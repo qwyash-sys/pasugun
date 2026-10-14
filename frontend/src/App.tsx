@@ -6,6 +6,8 @@ import { createBackendClient, type BackendClient } from "./api/client";
 import { EMPTY_REPORT_QUERY, getReport } from "./api/reports";
 import { findDemoCase, type DemoCase } from "./demoData/cases";
 import CasePicker, { MANUAL_CASE } from "./screens/CasePicker";
+import ReconfirmRequest from "./screens/ReconfirmRequest";
+import type { CaseItem } from "./admin/api/types";
 import { scenarioForCase } from "./demoData/testScenarios";
 import RolePicker from "./screens/RolePicker";
 import type { Role } from "./roles";
@@ -38,7 +40,8 @@ type Screen =
   | "m7"
   | "branch-booking"
   | "report"
-  | "report-list";
+  | "report-list"
+  | "reconfirm";
 
 const isDemo = RESPONSE_SOURCE === "demo";
 const MIN_ANALYZING_MS = 1900;
@@ -58,6 +61,7 @@ const SCREEN_ORDER: Screen[] = [
   "m7",
   "report",
   "report-list",
+  "reconfirm",
 ];
 // 데모·실제 모드 모두 시연 케이스 선택에서 시작한다(실제 모드는 고른 케이스의 입력값을 채운 뒤 진짜로 판정).
 const flowStart: Screen = "case-picker";
@@ -87,6 +91,8 @@ export default function App() {
   const [cancelled, setCancelled] = useState<"transfer" | "delayed" | null>(null);
   // 결과 화면 취소 또는 지연이체 취소 — 그 뒤 영업점 상담을 예약하면 모니터링 사례를 다시 연다.
   const customerCancelled = useRef(false);
+  // 본부의 송금 확인 요청에 답하는 화면에서 보고 있는 사례
+  const [reconfirmItem, setReconfirmItem] = useState<CaseItem | null>(null);
 
   const demoCase: DemoCase | undefined = useMemo(
     () => (demoCaseId ? findDemoCase(demoCaseId) : undefined),
@@ -278,7 +284,39 @@ export default function App() {
     >
       {screen === "role-picker" && <RolePicker onSelect={chooseRole} />}
 
-      {screen === "case-picker" && <CasePicker live={!isDemo} onSelect={selectDemoCase} onBack={changeRole} />}
+      {screen === "case-picker" && (
+        <CasePicker
+          live={!isDemo}
+          onSelect={selectDemoCase}
+          onBack={changeRole}
+          onReconfirm={
+            role === "customer" || role === "admin"
+              ? (item) => {
+                  setReconfirmItem(item);
+                  setScreen("reconfirm");
+                }
+              : undefined
+          }
+        />
+      )}
+
+      {screen === "reconfirm" && reconfirmItem && (
+        <ReconfirmRequest
+          item={reconfirmItem}
+          onHome={() => {
+            setReconfirmItem(null);
+            setScreen("case-picker");
+          }}
+          onSubmit={async (answer, note) => {
+            // 고객 몫의 조치(재확인 응답)를 같은 사례 문서에 기록한다 — 본부 모니터링이 바로 이어서 판단한다.
+            const [{ getAdminApi }, { applyAction }] = await Promise.all([import("./admin/api"), import("./admin/engine/cases")]);
+            const api = getAdminApi();
+            const { case: doc } = await api.getCase(reconfirmItem.case.case_id);
+            const kst = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 19) + "+09:00";
+            await api.saveCase(applyAction(doc, "reconfirm_result", { reconfirmResult: answer, note }, kst));
+          }}
+        />
+      )}
 
       {screen === "m1" && (
         <M1Amount

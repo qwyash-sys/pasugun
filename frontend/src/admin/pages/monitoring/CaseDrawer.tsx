@@ -1,30 +1,15 @@
 // 사례 상세: 지금 해야 할 조치 → 고객 선택 분기별 진행 내용 → 위험 리포트 → 처리 이력.
 import { useEffect, useRef, useState } from "react";
-import type { ActivityEvent, Analysis, CaseDoc, ReportPayload } from "../../api/types";
+import type { ActivityEvent, Analysis, CaseDoc } from "../../api/types";
 import { availableActions, CHOICE_LABEL, HOTLINE_LABEL, INTERVIEW_ACTION_LABEL, INTERVIEW_RESULT_LABEL, OUTCOME_LABEL, type ActionPayload, type CaseAction } from "../../engine/cases";
 import { fmtDateTime, fmtKorean, fmtShort, won } from "../../format";
 import { Badge, Card, Drawer, ErrorBox, Loading, useLoad } from "../../components/ui";
 import { getAdminApi } from "../../api";
 import ActionModal from "./ActionModal";
 import ReportSection from "./ReportSection";
+import { mailBody } from "./mail";
 import { ACTIVITY_ICON, CHOICE_TONE, statusLabel, statusTone, WAITING_ON } from "./labels";
 
-function mailBody(doc: CaseDoc, report: ReportPayload): string {
-  const v = doc.visit!;
-  return [
-    `${v.officer.name} ${v.officer.title}님께,`,
-    "",
-    `AI파수꾼이 아래 거래를 고위험으로 분류했고, 고객이 영업점 내방을 예약했습니다. 면담 후 결과를 입력해 주세요.`,
-    "",
-    `· 고객: ${report.customer_name} (${report.customer_phone_masked})`,
-    `· 예약: ${v.branch} ${fmtKorean(v.reserved_at)}`,
-    `· 거래: ${report.payee_bank} ${report.payee_name} ${won(report.amount)}`,
-    `· 판정: ${report.final.final}(송금위험도 ${report.final.account_level} · AI분석 ${report.final.context_level})`,
-    `· 권고: ${report.recommendation}`,
-    "",
-    "※ 본 메일은 개인우편으로 담당 책임자에게만 전달됩니다.",
-  ].join("\n");
-}
 
 function ActivityList({ items }: { items: ActivityEvent[] }) {
   return (
@@ -185,6 +170,17 @@ export default function CaseDrawer({
                 최종 결과: <b>{OUTCOME_LABEL[doc.outcome]}</b>
               </p>
             )}
+            {doc.status === "면담 대기" && (
+              <div className="c-note tone-blue c-waiting">
+                면담 결과는 <b>영업점 책임자</b>가 책임자 화면에서 입력해요.{" "}
+                <a href={`#/admin/branch?case=${encodeURIComponent(doc.case_id)}`} className="c-link">
+                  책임자 화면 열기 ›
+                </a>
+              </div>
+            )}
+            {doc.status === "고객 재확인 중" && (
+              <div className="c-note tone-warn c-waiting">고객 앱에 송금 의사 확인 요청을 보냈어요. 고객이 응답하면 여기에서 바로 이어서 판단할 수 있어요.</div>
+            )}
             {actions.length > 0 && (
               <ul className="c-actions">
                 {actions.map((a) => (
@@ -192,10 +188,7 @@ export default function CaseDrawer({
                     <button className={`c-btn ${a.tone === "primary" ? "c-btn-primary" : a.tone === "danger" ? "c-btn-danger" : ""}`} onClick={() => click(a)} disabled={busy}>
                       {busy && !a.needsInput ? "처리 중…" : a.label}
                     </button>
-                    <span className="c-muted c-small">
-                      {a.hint}
-                      {a.demoOnBehalf && " (시연용)"}
-                    </span>
+                    <span className="c-muted c-small">{a.hint}</span>
                   </li>
                 ))}
               </ul>

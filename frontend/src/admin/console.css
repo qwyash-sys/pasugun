@@ -360,3 +360,7 @@
 .console-nav button.on .console-nav-icon svg {
   color: var(--c-green-dark);
 }
+
+/* 영업점 책임자 메뉴는 본부 메뉴(초록)와 구분되게 파랑 */
+.console-nav button.nav-officer.on { background: var(--c-blue-soft); color: var(--c-blue); }
+.console-nav button.nav-officer.on .console-nav-icon svg { color: var(--c-blue); }

@@ -62,14 +62,24 @@ export interface CaseAction {
 
 export const isOpen = (c: CaseDoc): boolean => c.status !== "종결";
 
-export function availableActions(c: CaseDoc): CaseAction[] {
+/** 누가 하는 조치인지: 본부(관리자 페이지 모니터링) · 영업점 책임자(책임자 화면) · 고객(고객 앱 재확인 응답). */
+export type Actor = "hq" | "officer" | "customer";
+const ACTOR_OF: Partial<Record<ActionId, Actor>> = { submit_interview: "officer", reconfirm_result: "customer" };
+export const actorOf = (id: ActionId): Actor => ACTOR_OF[id] ?? "hq";
+
+/** 지금 상태에서 그 사람이 할 수 있는 조치. */
+export function availableActions(c: CaseDoc, actor: Actor = "hq"): CaseAction[] {
+  return allActions(c).filter((a) => actorOf(a.id) === actor);
+}
+
+function allActions(c: CaseDoc): CaseAction[] {
   if (!isOpen(c)) return [];
   switch (c.status) {
     case "고객 선택 대기":
       return [{ id: "contact_customer", label: "고객 안내 연락 완료", tone: "default", hint: "고객이 선택을 마치지 않았어요. 연락해 상황을 안내했다면 종결해요." }];
     case "면담 대기":
       return [
-        { id: "submit_interview", label: "면담 결과 입력", tone: "primary", hint: "담당 영업점 책임자가 작성하는 항목이에요. 시연을 위해 본부 화면에서 대신 입력해요.", needsInput: true, demoOnBehalf: true },
+        { id: "submit_interview", label: "면담 결과 입력", tone: "primary", hint: "고객과 면담한 뒤 결과와 조치를 입력해요. 입력하면 본부로 전달돼요.", needsInput: true },
         { id: "resend_mail", label: "리포트 개인우편 재전송", tone: "default", hint: "담당 책임자에게 리포트를 다시 보내요." },
       ];
     case "면담 결과 확인 대기":
@@ -87,7 +97,7 @@ export function availableActions(c: CaseDoc): CaseAction[] {
         { id: "hold", label: "지급정지 요청", tone: "danger", hint: "사기로 판단해 송금을 막고 지급정지를 요청해요.", needsInput: true },
       ];
     case "고객 재확인 중":
-      return [{ id: "reconfirm_result", label: "재확인 결과 입력", tone: "primary", hint: "고객과 통화한 결과예요. 시연을 위해 본부 화면에서 대신 입력해요.", needsInput: true, demoOnBehalf: true }];
+      return [{ id: "reconfirm_result", label: "송금 의사 응답", tone: "primary", hint: "본부의 확인 요청에 고객이 직접 답해요.", needsInput: true }];
     case "사후확인 대기":
     case "사후확인 결과 확인 대기":
       return [
@@ -122,7 +132,7 @@ export function defaultOutcome(c: CaseDoc): Outcome {
 
 /** 조치를 적용한 새 사례 문서를 돌려준다(원본은 건드리지 않는다). 가능하지 않은 조치면 예외. */
 export function applyAction(src: CaseDoc, action: ActionId, payload: ActionPayload, now: string, staff: Person = CURRENT_STAFF): CaseDoc {
-  if (!availableActions(src).some((a) => a.id === action)) throw new Error(`지금 상태("${src.status}")에서는 할 수 없는 조치예요.`);
+  if (!allActions(src).some((a) => a.id === action)) throw new Error(`지금 상태("${src.status}")에서는 할 수 없는 조치예요.`);
   const c: CaseDoc = structuredClone(src);
   const who = `본부 담당자(${staff.name})`;
   const note = (payload.note ?? "").trim();

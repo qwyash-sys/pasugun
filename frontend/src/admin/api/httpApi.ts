@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../config";
 import type { AdminApi, NarrativeResult, ReanalyzeResult } from "./adminApi";
 import { ConfigError } from "./adminApi";
-import type { CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RulesState, Scenario, TransferLog } from "./types";
+import type { Branch, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RulesState, Scenario, TransferLog } from "./types";
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -52,6 +52,10 @@ export class HttpAdminApi implements AdminApi {
 
   getScenarios() {
     return call<Scenario[]>("/api/admin/scenarios");
+  }
+
+  listBranches() {
+    return call<Branch[]>("/api/admin/branches");
   }
 
   listCases() {

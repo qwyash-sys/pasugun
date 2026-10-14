@@ -141,6 +141,10 @@ export class DemoAdminApi implements AdminApi {
     return m.default as unknown as Scenario[];
   }
 
+  listBranches() {
+    return branchList();
+  }
+
   async listCases(): Promise<CaseItem[]> {
     caseOverrides = null; // 다른 탭(고객 화면)에서 바뀐 내용까지 읽도록 매번 저장소에서 다시 읽는다
     const items: CaseItem[] = [];

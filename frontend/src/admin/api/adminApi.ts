@@ -1,5 +1,5 @@
 import type {
-  ActivityEvent, Analysis, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RulesState, Scenario, TransferLog,
+  ActivityEvent, Analysis, Branch, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RulesState, Scenario, TransferLog,
 } from "./types";
 
 /** 설정 저장이 검증에서 거절됐을 때(서버 422 또는 화면 검증). errors는 사람이 읽는 문장 목록. */
@@ -33,6 +33,8 @@ export interface AdminApi {
   getRuleHistory(): Promise<ConfigHistoryEntry[]>;
   getLogs(): Promise<TransferLog[]>;
   getScenarios(): Promise<Scenario[]>;
+  /** 영업점과 담당 준법감시책임자 목록. */
+  listBranches(): Promise<Branch[]>;
   listCases(): Promise<CaseItem[]>;
   getCase(id: string): Promise<{ case: CaseDoc; report: ReportPayload }>;
   saveCase(doc: CaseDoc): Promise<CaseDoc>;
