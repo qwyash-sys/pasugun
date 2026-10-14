@@ -1,0 +1,182 @@
+[
+  {
+    "id": "case1",
+    "title": "검찰사칭",
+    "customer_id": "C001",
+    "payee_account": "010-6691-98217",
+    "amount": 20000000,
+    "current_time": "2026-08-11T01:10:00+09:00",
+    "overrides": {
+      "fund_source_recent": true
+    },
+    "answers": {
+      "empathy": "normal_known",
+      "safety": "safety_yes"
+    },
+    "chat": [
+      {
+        "text": "검찰이라며 제 계좌가 범죄에 연루됐다고 안전계좌로 옮기라고 했어요",
+        "attachments": []
+      },
+      {
+        "text": "네, 검찰 공무원증 사진을 보내줬고 '지금 안전계좌로 옮기지 않으면 계좌가 동결된다'는 문자도 왔어요",
+        "attachments": [
+          {
+            "name": "검찰공무원증_캡처.jpg",
+            "lines": [
+              "문자 메시지",
+              "[Web발신] 서울중앙지검 사건조회",
+              "귀하 명의 계좌가 범죄에 연루되어",
+              "지금 안전계좌로 옮기지 않으면",
+              "계좌가 동결됩니다"
+            ]
+          },
+          {
+            "name": "사건공문_사진.jpg",
+            "lines": [
+              "문자 메시지",
+              "서울중앙지방검찰청",
+              "사건번호 2026형제XXXXX호",
+              "피의자 명의 계좌 범죄 연루",
+              "자산 동결 전 보호조치 요망"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "case2",
+    "title": "대환대출",
+    "customer_id": "C002",
+    "payee_account": "110-452-118921",
+    "amount": 5000000,
+    "current_time": "2026-08-09T11:00:00+09:00",
+    "overrides": {
+      "limit_changed_recent": true
+    },
+    "answers": {
+      "empathy": "risky_offer",
+      "safety": "safety_no"
+    },
+    "chat": [
+      {
+        "text": "저금리로 대환대출 해준다고 해서 먼저 상환금부터 보내려고 해요",
+        "attachments": []
+      },
+      {
+        "text": "네, 저축은행 직원이라면서 문자로 먼저 연락이 왔고 한도도 이미 올려놨다고 했어요",
+        "attachments": [
+          {
+            "name": "대출안내_문자캡처.jpg",
+            "lines": [
+              "문자 메시지",
+              "[Web발신] 저금리 대환대출 승인 안내",
+              "기존 대출 선상환 확인 후",
+              "승인금 즉시 입금 예정",
+              "한도 상향 후 상환금 이체 바랍니다"
+            ]
+          },
+          {
+            "name": "대출승인_안내서.jpg",
+            "lines": [
+              "문자 메시지",
+              "대출 승인 예정 안내",
+              "승인 한도 30,000,000원 / 연 3.2%",
+              "기존 대출 상환 확인 후 실행",
+              "상환 계좌로 선입금 요망"
+            ]
+          },
+          {
+            "name": "상담원_카톡.jpg",
+            "lines": [
+              "문자 메시지",
+              "오늘 오후 3시 전까지 입금하셔야",
+              "승인이 유지됩니다",
+              "입금 후 캡처 보내주세요"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "case3",
+    "title": "메신저피싱",
+    "customer_id": "C001",
+    "payee_account": "301-8827-4491",
+    "amount": 1000000,
+    "current_time": "2026-08-12T15:00:00+09:00",
+    "overrides": {},
+    "answers": {
+      "empathy": "risky_text_only"
+    },
+    "chat": [
+      {
+        "text": "아는 사람인데 전화는 안 받고 문자로만 연락돼요",
+        "attachments": []
+      },
+      {
+        "text": "말투가 평소랑 좀 다르고, 급하게 돈이 필요하다는 말만 계속해요",
+        "attachments": [
+          {
+            "name": "대화_캡처.jpg",
+            "lines": [
+              "문자 메시지",
+              "엄마 나 폰 고장나서 이걸로 연락해",
+              "급하게 결제할 게 있는데",
+              "100만원만 먼저 보내줄 수 있어?",
+              "통화는 안 돼 문자로 해줘"
+            ]
+          },
+          {
+            "name": "프로필_캡처.jpg",
+            "lines": [
+              "문자 메시지",
+              "프로필 사진 없음",
+              "상태메시지: 폰 수리중",
+              "친구 추가 안 된 사용자"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "case4",
+    "title": "중고거래",
+    "customer_id": "C001",
+    "payee_account": "552-102-993917",
+    "amount": 150000,
+    "current_time": "2026-08-13T18:00:00+09:00",
+    "overrides": {},
+    "answers": {},
+    "chat": []
+  },
+  {
+    "id": "case5",
+    "title": "부동산 잔금",
+    "customer_id": "C004",
+    "payee_account": "088-19-284812",
+    "amount": 50000000,
+    "current_time": "2026-08-14T11:00:00+09:00",
+    "overrides": {},
+    "answers": {
+      "empathy": "normal_settlement"
+    },
+    "chat": []
+  },
+  {
+    "id": "case6",
+    "title": "투자 권유",
+    "customer_id": "C001",
+    "payee_account": "301-8827-4491",
+    "amount": 1000000,
+    "current_time": "2026-08-12T15:00:00+09:00",
+    "overrides": {},
+    "answers": {
+      "empathy": "risky_offer"
+    },
+    "chat": []
+  }
+]

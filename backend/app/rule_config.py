@@ -67,19 +67,37 @@ RULE_PARAMS: dict[str, list[ParamSpec]] = {
         _score("score", "24시간 내 한도 상향 시 배점", 20),
     ],
     "velocity": [
-        ParamSpec("count_high", "다건 이체 기준(건 이상)", 3, 2, 50, 1, "건", help="10분 내 이 건수 이상이면 고위험"),
+        ParamSpec("count_high", "다건 이체 기준(건 이상)", 3, 2, 50, 1, "건", help="10분 내 이체 + 분할 재시도 건수가 이 이상이면 고위험"),
         _score("score_high", "다건 이체 배점", 20),
         ParamSpec("count_mid", "반복 이체 기준(건 이상)", 2, 2, 50, 1, "건"),
         _score("score_mid", "반복 이체 배점", 10),
     ],
     "device": [
-        _score("score", "신규 기기·환경 감지 시 배점", 15),
+        _score("score", "신규 기기·접속 위치 변화 시 배점", 15, "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 이 점수를 줘요."),
     ],
     "time_pattern": [
         ParamSpec("dawn_start", "새벽 시작 시각", 0, 0, 23, 1, "시"),
         ParamSpec("dawn_end", "새벽 종료 시각(미만)", 6, 1, 24, 1, "시"),
         _score("score_dawn", "새벽 시간대 배점", 10),
         _score("score_off_hours", "평소 이용시간 밖 배점", 5),
+    ],
+    "balance_drain": [
+        ParamSpec("ratio_high", "잔액 소진 고위험 기준(% 이상)", 90, 10, 100, 1, "%", help="이체 금액이 이체 전 잔액의 이 비율 이상이면 고위험"),
+        _score("score_high", "잔액 소진 고위험 배점", 15),
+        ParamSpec("ratio_mid", "잔액 소진 중위험 기준(% 이상)", 70, 5, 99, 1, "%"),
+        _score("score_mid", "잔액 소진 중위험 배점", 8),
+    ],
+    "new_payee": [
+        ParamSpec("count_high", "신규 수취인 급증 기준(명 이상)", 3, 2, 30, 1, "명", help="최근 7일 처음 보내는 계좌 수(이번 포함)가 이 이상이면 고위험"),
+        _score("score_high", "신규 수취인 급증 배점", 15),
+        ParamSpec("count_mid", "신규 수취인 증가 기준(명 이상)", 2, 2, 30, 1, "명"),
+        _score("score_mid", "신규 수취인 증가 배점", 8),
+    ],
+    "inbound_concentration": [
+        ParamSpec("count_high", "다수입금 고위험 기준(명 이상)", 10, 2, 200, 1, "명", help="수취계좌에 24시간 내 입금한 서로 다른 사람 수가 이 이상이면 고위험"),
+        _score("score_high", "다수입금 고위험 배점", 20),
+        ParamSpec("count_mid", "다수입금 중위험 기준(명 이상)", 5, 2, 200, 1, "명"),
+        _score("score_mid", "다수입금 중위험 배점", 10),
     ],
 }
 
@@ -105,6 +123,9 @@ _ORDER_RULES: dict[str, list[tuple[str, str, bool]]] = {
     "payee_freshness": [("days_new", "days_recent", False), ("score_recent", "score_new", True)],
     "velocity": [("count_mid", "count_high", False), ("score_mid", "score_high", True)],
     "time_pattern": [("dawn_start", "dawn_end", False), ("score_off_hours", "score_dawn", True)],
+    "balance_drain": [("ratio_mid", "ratio_high", False), ("score_mid", "score_high", True)],
+    "new_payee": [("count_mid", "count_high", False), ("score_mid", "score_high", True)],
+    "inbound_concentration": [("count_mid", "count_high", False), ("score_mid", "score_high", True)],
 }
 _GLOBAL_ORDER: list[tuple[str, str, bool]] = [
     ("account_mid", "account_high", False),

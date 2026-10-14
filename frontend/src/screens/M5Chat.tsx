@@ -103,7 +103,9 @@ export default function M5Chat(props: Props) {
     if (isDemo) {
       await new Promise((r) => setTimeout(r, DEMO_REPLY_DELAY_MS));
       const scripted = turns[payload.turnIndex];
-      return { reply: scripted?.ai ?? "", turn: payload.turnIndex + 1, maxTurns: turns.length };
+      // 대본에 없는 입력(대화 없는 케이스에서 직접 물어본 경우 등)에도 빈 답 대신 안내 문장으로 답한다.
+      const reply = scripted?.ai ?? "말씀해주신 내용을 확인했어요. 아래 ‘결과 확인하기’를 누르면 분석 결과를 알려드릴게요.";
+      return { reply, turn: payload.turnIndex + 1, maxTurns: turns.length || 3 };
     }
     if (!onSendTurn) throw new Error("대화를 보낼 수 없어요");
     // 추천 문장의 캡처(벡터 이미지)는 실제 모드에서 PNG로 바꿔 보낸다 — 서버 OCR이 같은 글자를 읽는다.
@@ -122,7 +124,7 @@ export default function M5Chat(props: Props) {
         {...props}
         greeting={greeting}
         sendTurn={sendTurn}
-        initialMaxTurns={isDemo ? turns.length : 3}
+        initialMaxTurns={isDemo ? turns.length || 3 : 3}
         // 시연 케이스의 다음 문장을 추천으로 띄운다(데모·실제 모드 공통 — 실제 모드는 보낸 내용을 진짜 AI가 분석).
         suggestionFor={turns.length ? (i) => (turns[i] ? { text: turns[i].user, images: (turns[i].attachments ?? []).map(demoImage) } : null) : undefined}
         // 대화 없이 끝나는 시연 케이스(케이스를 골랐는데 대본이 비어 있음) — 데모·실제 모드 공통
@@ -302,7 +304,7 @@ function ChatView({
           </p>
         )}
 
-        {noChat && <p className="script-hint">💡 이 시나리오는 대화 없이 바로 결과를 확인해요</p>}
+        {noChat && turn === 0 && <p className="script-hint">💡 이 시나리오는 대화 없이 바로 결과를 확인해도 돼요. 궁금한 점은 입력하거나 사진을 첨부해 물어볼 수 있어요.</p>}
 
         {/* 데모: 대본의 다음 문장을 입력창 위에 추천으로 띄운다 — 누르면 입력창에 채워진다 */}
         {suggestion && (
@@ -322,7 +324,7 @@ function ChatView({
           </p>
         )}
 
-        {!reachedCap && !noChat && (
+        {!reachedCap && (
           <>
             {images.length > 0 && (
               <ThumbStrip
@@ -484,19 +486,16 @@ function useAutoGrow(ref: React.RefObject<HTMLTextAreaElement | null>, value: st
 /** 채팅 맨 아래 "AI분석 무시하고 송금 진행하기". 송금을 막지 않는다는 원칙 그대로, 고객이 원하면
  * 분석을 건너뛸 수 있게 하되 한 번 더 확인받는다 — 위험 신호가 이미 잡혔다면 지연이체로 접수된다. */
 function SkipAnalysisButton({ onConfirm, disabled }: { onConfirm: () => void; disabled: boolean }) {
+  // 판정이 안전·주의면 지연이체가 아니므로, 확인창은 짧게 묻기만 한다(위험이면 결과 뒤 지연이체 안내가 따로 나온다).
   const [confirming, setConfirming] = useState(false);
   return (
     <>
       <button className="btn btn-secondary skip-analysis-btn" disabled={disabled} onClick={() => setConfirming(true)}>
-        AI분석 무시하고 송금 진행하기
+        AI분석 건너뛰고 송금 진행하기
       </button>
       {confirming && (
         <BottomSheet>
-          <h2 className="sheet-title">AI 분석 없이 송금할까요?</h2>
-          <p className="sheet-body">
-            지금까지 확인된 내용만으로 송금을 진행해요. 보이스피싱 위험 신호가 이미 확인된 거래라면 안전을 위해
-            지연이체로 접수되고, 고객센터에서 최대한 빠르게 확인 연락을 드려요.
-          </p>
+          <h2 className="sheet-title sheet-title-only">AI 분석을 건너뛰고 송금을 진행할까요?</h2>
           <div className="btn-row">
             <button className="btn btn-secondary" onClick={() => setConfirming(false)}>
               계속 확인할게요

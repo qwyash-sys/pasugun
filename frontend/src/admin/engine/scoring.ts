@@ -41,10 +41,20 @@ export function scoreRule(rule: string, s: LogSignal, p: Params, usualHours: num
       if (s.value <= p.days_recent) return p.score_recent;
       return 0;
     }
-    case "velocity": {
+    case "velocity":
+    case "new_payee":
+    case "inbound_concentration": {
+      // 건수·인원 구간 배점(R06 다건+분할 재시도, R10 최근 7일 새 수취인, R11 24시간 입금인 수)
       const count = s.value ?? 0;
       if (count >= p.count_high) return p.score_high;
       if (count >= p.count_mid) return p.score_mid;
+      return 0;
+    }
+    case "balance_drain": {
+      // R09: 이체 금액 / 이체 전 잔액(%)
+      if (s.value == null) return s.score;
+      if (s.value >= p.ratio_high) return p.score_high;
+      if (s.value >= p.ratio_mid) return p.score_mid;
       return 0;
     }
     case "time_pattern": {

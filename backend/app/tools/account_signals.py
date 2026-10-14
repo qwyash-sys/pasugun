@@ -103,7 +103,9 @@ def check_limit_change(customer_id: str, overrides: ContextOverrides, cfg: RuleC
 
 def check_velocity(customer_id: str, overrides: ContextOverrides, cfg: RuleConfig | None = None) -> SignalResult:
     cfg = cfg or get_rule_config()
-    count = overrides.velocity_recent_count
+    # 단시간 다건 이체 + 분할 재시도(한도에 막혀 쪼개 보낸 시도)를 합쳐서 센다.
+    multi, split = overrides.velocity_recent_count, overrides.split_retry_count
+    count = multi + split
 
     def g(key: str) -> float:
         return cfg.p("velocity", key)
@@ -115,17 +117,66 @@ def check_velocity(customer_id: str, overrides: ContextOverrides, cfg: RuleConfi
     else:
         score = 0
     hit = score > 0
-    detail = f"10분 내 {count}건" if hit else "정상 빈도"
+    parts = ([f"10분 내 {multi}건"] if multi else []) + ([f"분할 재시도 {split}건"] if split else [])
+    detail = " + ".join(parts) if hit else "정상 빈도"
     return SignalResult(signal="velocity", hit=hit, score=score, detail=detail, value=float(count))
 
 
 def check_device(customer_id: str, overrides: ContextOverrides, cfg: RuleConfig | None = None) -> SignalResult:
     cfg = cfg or get_rule_config()
     customer = get_customer(customer_id)
-    hit = overrides.device_new or bool(customer["recent_events"].get("device_new"))
+    new_device = overrides.device_new or bool(customer["recent_events"].get("device_new"))
+    usual = customer.get("profile", {}).get("usual_login_region") or customer.get("profile", {}).get("region")
+    region = overrides.login_region or customer["recent_events"].get("login_region")
+    moved = bool(region) and region != usual
+    hit = new_device or moved
     score = int(cfg.p("device", "score")) if hit else 0
-    detail = "신규 기기/환경" if hit else "기존 사용 기기"
+    parts = (["신규 기기/환경"] if new_device else []) + ([f"접속 위치 급변({usual} → {region})"] if moved else [])
+    detail = " + ".join(parts) if hit else "기존 사용 기기·평소 접속 지역"
     return SignalResult(signal="device", hit=hit, score=score, detail=detail, value=1.0 if hit else 0.0)
+
+
+def check_balance_drain(customer_id: str, amount: int, cfg: RuleConfig | None = None) -> SignalResult:
+    """R09 잔액소진율: 이체 금액이 이체 전 잔액의 몇 %인지(통장을 비우듯 보내면 위험)."""
+    cfg = cfg or get_rule_config()
+    balance = get_customer(customer_id).get("balance") or 0
+    ratio = 100.0 if balance <= 0 else min(999.0, round(amount / balance * 100, 1))
+
+    def g(key: str) -> float:
+        return cfg.p("balance_drain", key)
+
+    score = int(g("score_high")) if ratio >= g("ratio_high") else int(g("score_mid")) if ratio >= g("ratio_mid") else 0
+    detail = f"잔액의 {min(ratio, 100):.0f}% 이체" + (" (잔액보다 많음 — 예·적금 해지 등 자금 유입 후)" if ratio > 100 else "")
+    return SignalResult(signal="balance_drain", hit=score > 0, score=score, detail=detail if score else f"잔액의 {ratio:.0f}%", value=ratio)
+
+
+def check_new_payee(customer_id: str, payee_account: str, overrides: ContextOverrides, cfg: RuleConfig | None = None) -> SignalResult:
+    """R10 신규 수취인 비율: 최근 7일 처음 보내는 계좌 수(이번 이체 포함)가 평소보다 급증했는지."""
+    cfg = cfg or get_rule_config()
+    customer = get_customer(customer_id)
+    known = set(customer.get("known_payee_accounts", []))
+    before = overrides.new_payees_7d if overrides.new_payees_7d is not None else int(customer["recent_events"].get("new_payees_7d") or 0)
+    count = before + (0 if payee_account in known else 1)
+
+    def g(key: str) -> float:
+        return cfg.p("new_payee", key)
+
+    score = int(g("score_high")) if count >= g("count_high") else int(g("score_mid")) if count >= g("count_mid") else 0
+    detail = f"최근 7일 새 수취인 {count}명" if score else ("처음 보내는 계좌(최근 7일 새 수취인 1명)" if count else "자주 보내는 계좌")
+    return SignalResult(signal="new_payee", hit=score > 0, score=score, detail=detail, value=float(count))
+
+
+def check_inbound_concentration(payee_account: str, cfg: RuleConfig | None = None) -> SignalResult:
+    """R11 다수입금 집중: 수취계좌가 24시간 안에 여러 사람에게서 입금받았는지(대포통장 패턴)."""
+    cfg = cfg or get_rule_config()
+    senders = int(get_payee(payee_account).get("inbound_senders_24h") or 0)
+
+    def g(key: str) -> float:
+        return cfg.p("inbound_concentration", key)
+
+    score = int(g("score_high")) if senders >= g("count_high") else int(g("score_mid")) if senders >= g("count_mid") else 0
+    detail = f"24시간 내 {senders}명에게서 입금" if score else (f"24시간 내 입금인 {senders}명" if senders else "최근 다수 입금 없음")
+    return SignalResult(signal="inbound_concentration", hit=score > 0, score=score, detail=detail, value=float(senders))
 
 
 def check_time_pattern(current_time: str, customer_id: str, cfg: RuleConfig | None = None) -> SignalResult:
@@ -205,8 +256,8 @@ class AccountSignalSpec:
         )
 
 
-# 1단계 계좌신호 룰. 순서 = 화면 표시 순서. 만점 합계가 곧 1단계 최대 점수(175).
-# 룰ID·정의·조건은 업무 룰 목록(R01~R11) 기준 — R09~R11은 아직 구현 전이라 여기엔 없다.
+# 1단계 계좌신호 룰. 순서 = 화면 표시 순서. 만점 합계가 곧 1단계 최대 점수(225).
+# 룰ID·정의·조건은 업무 룰 목록(R01~R11) 기준.
 ACCOUNT_SIGNALS: list[AccountSignalSpec] = [
     AccountSignalSpec(
         "payee_fraud", "수취계좌 사기이력", 40, lambda i: check_payee_fraud(i.payee_account, i.config),
@@ -247,15 +298,15 @@ ACCOUNT_SIGNALS: list[AccountSignalSpec] = [
         "velocity", "단기간 반복 이체", 20, lambda i: check_velocity(i.customer_id, i.overrides, i.config),
         rule_id="R06",
         definition="짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
-        condition="단시간 내 이체(분할 포함) 건수에 따라 점수 배점",
+        condition="10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
         scoring="10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)",
     ),
     AccountSignalSpec(
         "device", "신규 기기·환경", 15, lambda i: check_device(i.customer_id, i.overrides, i.config),
         rule_id="R07",
         definition="기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
-        condition="기기·위치 변경 이력 유무에 따라 점수 배점",
-        scoring="신규 기기·환경 감지 15점 · 없음 0점",
+        condition="처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+        scoring="신규 기기 또는 접속 위치 급변 15점 · 없음 0점",
     ),
     AccountSignalSpec(
         "time_pattern", "이용 시간대", 10, lambda i: check_time_pattern(i.current_time, i.customer_id, i.config),
@@ -263,6 +314,27 @@ ACCOUNT_SIGNALS: list[AccountSignalSpec] = [
         definition="평소와 다른 시간대 거래",
         condition="평소 거래시간대 이탈 여부에 따라 점수 배점",
         scoring="새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점",
+    ),
+    AccountSignalSpec(
+        "balance_drain", "잔액소진율", 15, lambda i: check_balance_drain(i.customer_id, i.amount, i.config),
+        rule_id="R09",
+        definition="이체 후 잔액이 거의 소진되는지",
+        condition="이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+        scoring="잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점",
+    ),
+    AccountSignalSpec(
+        "new_payee", "신규 수취인 급증", 15, lambda i: check_new_payee(i.customer_id, i.payee_account, i.overrides, i.config),
+        rule_id="R10",
+        definition="평소 이체 상대 외 새 수취인 비중 급증",
+        condition="최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+        scoring="3명 이상 15점 · 2명 8점 · 1명 이하 0점",
+    ),
+    AccountSignalSpec(
+        "inbound_concentration", "다수입금 집중", 20, lambda i: check_inbound_concentration(i.payee_account, i.config),
+        rule_id="R11",
+        definition="수취계좌가 단기간 다수로부터 입금받은 이력",
+        condition="수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+        scoring="10명 이상 20점 · 5명 이상 10점 · 그 미만 0점",
     ),
 ]
 

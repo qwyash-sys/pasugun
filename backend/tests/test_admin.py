@@ -116,7 +116,7 @@ def test_history_records_what_changed_and_reset_restores_defaults():
     history = store.history()
     assert [h["version"] for h in history] == [3, 2]
     assert history[1]["actor"] == "테스터" and history[1]["note"] == "점검"
-    assert history[1]["changes"] == [{"path": "rules.device.params.score", "label": "device · 신규 기기·환경 감지 시 배점", "from": 15, "to": 5}]
+    assert history[1]["changes"] == [{"path": "rules.device.params.score", "label": "device · 신규 기기·접속 위치 변화 시 배점", "from": 15, "to": 5}]
     store.reset()
     assert get_rule_config().to_dict() == DEFAULT_CONFIG and store.history()[0]["note"].startswith("기본값")
 
@@ -138,7 +138,7 @@ def test_rules_state_carries_the_schema_the_screen_validates_against():
 
 def test_rules_api_roundtrip_and_effect_on_quote():
     state = client.get("/api/admin/rules").json()
-    assert [r["rule_id"] for r in state["rules"]] == [f"R0{i}" for i in range(1, 9)]
+    assert [r["rule_id"] for r in state["rules"]] == [f"R{i:02d}" for i in range(1, 12)]
     assert state["rules"][1]["params"][0]["key"] == "ratio_high"
 
     cfg = state["config"]

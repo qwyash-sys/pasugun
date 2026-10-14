@@ -6,7 +6,8 @@
     "is_fraud_reported": true,
     "fraud_report_count": 3,
     "account_age_days": 5,
-    "note": "케이스1(검찰사칭). SPEC 7-3 리포트 예시와 동일한 계좌."
+    "note": "케이스1(검찰사칭). SPEC 7-3 리포트 예시와 동일한 계좌.",
+    "inbound_senders_24h": 12
   },
   {
     "payee_account": "110-452-118921",
@@ -15,7 +16,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 5,
-    "note": "케이스2(대환대출) 신규계좌."
+    "note": "케이스2(대환대출) 신규계좌.",
+    "inbound_senders_24h": 3
   },
   {
     "payee_account": "301-8827-4491",
@@ -24,7 +26,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 6,
-    "note": "케이스3(메신저피싱) 신규계좌."
+    "note": "케이스3(메신저피싱) 신규계좌.",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "552-102-993917",
@@ -33,7 +36,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 4,
-    "note": "케이스4(중고거래) 신규계좌. 정상 거래."
+    "note": "케이스4(중고거래) 신규계좌. 정상 거래.",
+    "inbound_senders_24h": 0
   },
   {
     "payee_account": "088-19-284812",
@@ -42,7 +46,8 @@
     "is_fraud_reported": false,
     "fraud_report_count": 0,
     "account_age_days": 3,
-    "note": "케이스5(부동산 잔금) 신규계좌. 정상 거래(에스크로)."
+    "note": "케이스5(부동산 잔금) 신규계좌. 정상 거래(에스크로).",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "3333-12-5582910",
@@ -52,7 +57,8 @@
     "fraud_report_count": 2,
     "account_age_days": 4,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_reported"
+    "pool": "scam_reported",
+    "inbound_senders_24h": 18
   },
   {
     "payee_account": "1002-331-448291",
@@ -62,7 +68,8 @@
     "fraud_report_count": 0,
     "account_age_days": 3,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_new"
+    "pool": "scam_new",
+    "inbound_senders_24h": 10
   },
   {
     "payee_account": "123-456789-01-011",
@@ -72,7 +79,8 @@
     "fraud_report_count": 1,
     "account_age_days": 12,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_reported"
+    "pool": "scam_reported",
+    "inbound_senders_24h": 9
   },
   {
     "payee_account": "302-1188-4501-21",
@@ -82,7 +90,8 @@
     "fraud_report_count": 0,
     "account_age_days": 2,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_new"
+    "pool": "scam_new",
+    "inbound_senders_24h": 4
   },
   {
     "payee_account": "110-588-203114",
@@ -92,7 +101,8 @@
     "fraud_report_count": 4,
     "account_age_days": 6,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_reported"
+    "pool": "scam_reported",
+    "inbound_senders_24h": 14
   },
   {
     "payee_account": "79421-43-12055",
@@ -102,7 +112,8 @@
     "fraud_report_count": 0,
     "account_age_days": 20,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_new"
+    "pool": "scam_new",
+    "inbound_senders_24h": 11
   },
   {
     "payee_account": "100-032-775120",
@@ -112,7 +123,8 @@
     "fraud_report_count": 0,
     "account_age_days": 5,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_new"
+    "pool": "scam_new",
+    "inbound_senders_24h": 10
   },
   {
     "payee_account": "3355-02-991234",
@@ -122,7 +134,8 @@
     "fraud_report_count": 1,
     "account_age_days": 1,
     "note": "리포트 이력 목업 전용 가상 수취계좌.",
-    "pool": "scam_reported"
+    "pool": "scam_reported",
+    "inbound_senders_24h": 12
   },
   {
     "payee_account": "356-0412-8819-03",
@@ -132,7 +145,8 @@
     "fraud_report_count": 0,
     "account_age_days": 1450,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 2
   },
   {
     "payee_account": "821-910345-02-017",
@@ -142,7 +156,8 @@
     "fraud_report_count": 0,
     "account_age_days": 980,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "110-244-901377",
@@ -152,7 +167,8 @@
     "fraud_report_count": 0,
     "account_age_days": 2210,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "1002-455-120934",
@@ -162,7 +178,8 @@
     "fraud_report_count": 0,
     "account_age_days": 640,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 2
   },
   {
     "payee_account": "3333-04-7719025",
@@ -172,7 +189,8 @@
     "fraud_report_count": 0,
     "account_age_days": 420,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "100-0412-77310",
@@ -182,7 +200,8 @@
     "fraud_report_count": 0,
     "account_age_days": 365,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 0
   },
   {
     "payee_account": "301-0192-6644-31",
@@ -192,7 +211,8 @@
     "fraud_report_count": 0,
     "account_age_days": 3100,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 2
   },
   {
     "payee_account": "585-21-009981",
@@ -202,7 +222,8 @@
     "fraud_report_count": 0,
     "account_age_days": 1850,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "140-012-558201",
@@ -212,7 +233,8 @@
     "fraud_report_count": 0,
     "account_age_days": 760,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "633-100422-04-005",
@@ -222,7 +244,8 @@
     "fraud_report_count": 0,
     "account_age_days": 2600,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "1005-702-318845",
@@ -232,7 +255,8 @@
     "fraud_report_count": 0,
     "account_age_days": 4200,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "352-0330-1187-93",
@@ -242,7 +266,8 @@
     "fraud_report_count": 0,
     "account_age_days": 530,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 1
   },
   {
     "payee_account": "110-390-228114",
@@ -252,7 +277,8 @@
     "fraud_report_count": 0,
     "account_age_days": 1210,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 0
   },
   {
     "payee_account": "3355-11-204470",
@@ -262,7 +288,8 @@
     "fraud_report_count": 0,
     "account_age_days": 300,
     "pool": "normal",
-    "note": "분석용 가상 수취계좌(정상)"
+    "note": "분석용 가상 수취계좌(정상)",
+    "inbound_senders_24h": 0
   },
   {
     "payee_account": "302-7741-0095-11",
@@ -272,7 +299,8 @@
     "fraud_report_count": 0,
     "account_age_days": 2,
     "pool": "scam_new",
-    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)",
+    "inbound_senders_24h": 9
   },
   {
     "payee_account": "3333-27-1045582",
@@ -282,7 +310,8 @@
     "fraud_report_count": 0,
     "account_age_days": 4,
     "pool": "scam_new",
-    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)",
+    "inbound_senders_24h": 7
   },
   {
     "payee_account": "100-0988-22145",
@@ -292,7 +321,8 @@
     "fraud_report_count": 0,
     "account_age_days": 6,
     "pool": "scam_new",
-    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)",
+    "inbound_senders_24h": 10
   },
   {
     "payee_account": "621-102-558420",
@@ -302,7 +332,8 @@
     "fraud_report_count": 0,
     "account_age_days": 9,
     "pool": "scam_new",
-    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)",
+    "inbound_senders_24h": 11
   },
   {
     "payee_account": "110-451-006892",
@@ -312,7 +343,8 @@
     "fraud_report_count": 0,
     "account_age_days": 11,
     "pool": "scam_new",
-    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)",
+    "inbound_senders_24h": 8
   },
   {
     "payee_account": "1002-902-441170",
@@ -322,7 +354,8 @@
     "fraud_report_count": 0,
     "account_age_days": 3,
     "pool": "scam_new",
-    "note": "분석용 가상 수취계좌(미신고 신규 사기)"
+    "note": "분석용 가상 수취계좌(미신고 신규 사기)",
+    "inbound_senders_24h": 7
   },
   {
     "payee_account": "3355-08-117702",
@@ -332,7 +365,8 @@
     "fraud_report_count": 1,
     "account_age_days": 14,
     "pool": "scam_reported",
-    "note": "분석용 가상 수취계좌(신고된 사기)"
+    "note": "분석용 가상 수취계좌(신고된 사기)",
+    "inbound_senders_24h": 11
   },
   {
     "payee_account": "356-0520-9931-47",
@@ -342,7 +376,8 @@
     "fraud_report_count": 2,
     "account_age_days": 19,
     "pool": "scam_reported",
-    "note": "분석용 가상 수취계좌(신고된 사기)"
+    "note": "분석용 가상 수취계좌(신고된 사기)",
+    "inbound_senders_24h": 13
   },
   {
     "payee_account": "100-1120-33098",
@@ -352,7 +387,8 @@
     "fraud_report_count": 3,
     "account_age_days": 35,
     "pool": "scam_reported",
-    "note": "분석용 가상 수취계좌(신고된 사기)"
+    "note": "분석용 가상 수취계좌(신고된 사기)",
+    "inbound_senders_24h": 16
   },
   {
     "payee_account": "824-910112-01-003",
@@ -362,6 +398,7 @@
     "fraud_report_count": 4,
     "account_age_days": 6,
     "pool": "scam_reported",
-    "note": "분석용 가상 수취계좌(신고된 사기)"
+    "note": "분석용 가상 수취계좌(신고된 사기)",
+    "inbound_senders_24h": 10
   }
 ]

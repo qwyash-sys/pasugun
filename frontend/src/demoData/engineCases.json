@@ -1,0 +1,2703 @@
+{
+ "case1": {
+  "intervention": "empathy_question+safety_question",
+  "questions": [
+   {
+    "question_id": "empathy",
+    "prompt": "남용준님, 이번 송금은 어떤 이유로 보내시는 걸까요?",
+    "choices": [
+     {
+      "choice_id": "normal_known",
+      "label": "직접 아는 지인·가족에게 보내요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_trade",
+      "label": "물건 구매/판매 대금이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_settlement",
+      "label": "임대료·잔금 등 정산 목적이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_offer",
+      "label": "최근 대출·투자 안내를 받고 보내요",
+      "weight": 25,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_text_only",
+      "label": "아는 사람이라는데 문자로만 연락돼요",
+      "weight": 25,
+      "hard_override": false
+     }
+    ]
+   },
+   {
+    "question_id": "safety",
+    "prompt": "혹시 검찰·금감원이라며 '안전계좌'로 옮기라거나, 앱 설치를 안내받으셨나요?",
+    "choices": [
+     {
+      "choice_id": "safety_no",
+      "label": "아니요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "safety_yes",
+      "label": "비슷한 안내를 받았어요",
+      "weight": 50,
+      "hard_override": true
+     }
+    ]
+   }
+  ],
+  "account": {
+   "signals": [
+    {
+     "signal": "payee_fraud",
+     "hit": true,
+     "score": 40,
+     "detail": "사기신고 3건",
+     "label": "수취계좌 사기이력",
+     "max_score": 40,
+     "value": 3.0,
+     "rule_id": "R01",
+     "definition": "수취계좌의 사기신고 이력 여부",
+     "condition": "신고 건수에 따라 점수 배점",
+     "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+    },
+    {
+     "signal": "amount_anomaly",
+     "hit": true,
+     "score": 25,
+     "detail": "평소 대비 66.7배",
+     "label": "이체금액 이상치",
+     "max_score": 25,
+     "value": 66.66666666666667,
+     "rule_id": "R02",
+     "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+     "condition": "평소 대비 배수 구간에 따라 점수 배점",
+     "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "fund_source",
+     "hit": true,
+     "score": 25,
+     "detail": "예·적금 해지 등 자금이동 24시간 이내",
+     "label": "최근 자금이동(해지 등)",
+     "max_score": 25,
+     "value": 1.0,
+     "rule_id": "R03",
+     "definition": "예·적금 해지 등 자금원천 이동 여부",
+     "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+     "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+    },
+    {
+     "signal": "payee_freshness",
+     "hit": true,
+     "score": 20,
+     "detail": "개설 5일",
+     "label": "수취계좌 개설 기간",
+     "max_score": 20,
+     "value": 5.0,
+     "rule_id": "R04",
+     "definition": "수취계좌 개설 후 경과일수",
+     "condition": "개설 경과일 구간에 따라 점수 배점",
+     "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+    },
+    {
+     "signal": "limit_change",
+     "hit": false,
+     "score": 0,
+     "detail": "한도 변경 없음",
+     "label": "이체한도 변경 이력",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R05",
+     "definition": "최근 이체한도 상향 이력",
+     "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+     "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+    },
+    {
+     "signal": "velocity",
+     "hit": false,
+     "score": 0,
+     "detail": "정상 빈도",
+     "label": "단기간 반복 이체",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R06",
+     "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+     "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+     "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+    },
+    {
+     "signal": "device",
+     "hit": false,
+     "score": 0,
+     "detail": "기존 사용 기기·평소 접속 지역",
+     "label": "신규 기기·환경",
+     "max_score": 15,
+     "value": 0.0,
+     "rule_id": "R07",
+     "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+     "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+     "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+    },
+    {
+     "signal": "time_pattern",
+     "hit": true,
+     "score": 10,
+     "detail": "평소 없는 새벽 시간대(00~06시)",
+     "label": "이용 시간대",
+     "max_score": 10,
+     "value": 1.0,
+     "rule_id": "R08",
+     "definition": "평소와 다른 시간대 거래",
+     "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+     "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+    },
+    {
+     "signal": "balance_drain",
+     "hit": true,
+     "score": 15,
+     "detail": "잔액의 100% 이체 (잔액보다 많음 — 예·적금 해지 등 자금 유입 후)",
+     "label": "잔액소진율",
+     "max_score": 15,
+     "value": 248.4,
+     "rule_id": "R09",
+     "definition": "이체 후 잔액이 거의 소진되는지",
+     "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+     "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "new_payee",
+     "hit": false,
+     "score": 0,
+     "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+     "label": "신규 수취인 급증",
+     "max_score": 15,
+     "value": 1.0,
+     "rule_id": "R10",
+     "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+     "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+     "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+    },
+    {
+     "signal": "inbound_concentration",
+     "hit": true,
+     "score": 20,
+     "detail": "24시간 내 12명에게서 입금",
+     "label": "다수입금 집중",
+     "max_score": 20,
+     "value": 12.0,
+     "rule_id": "R11",
+     "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+     "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+     "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+    }
+   ],
+   "total_score": 155,
+   "level": "고"
+  },
+  "context": {
+   "answers": [
+    {
+     "question_id": "empathy",
+     "choice_id": "normal_known",
+     "choice_weight": 0,
+     "hard_override": false
+    },
+    {
+     "question_id": "safety",
+     "choice_id": "safety_yes",
+     "choice_weight": 50,
+     "hard_override": true
+    }
+   ],
+   "used_input_or_attachment": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "기관사칭",
+    "matched_id": "S02",
+    "similarity": 0.81,
+    "score": 50,
+    "risk_signals": [
+     "안전계좌",
+     "자산보호",
+     "수사기관사칭",
+     "사건번호"
+    ],
+    "source": "경찰청 월간피싱 zero S02",
+    "candidates": [
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.812
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.672
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.651
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.562
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.556
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.554
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.524
+     },
+     {
+      "scenario_id": "S11",
+      "matched_type": "협박형",
+      "similarity": 0.506
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.476
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.442
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.435
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.354
+     }
+    ]
+   },
+   "total_score": 110,
+   "level": "고",
+   "hard_override": true
+  },
+  "final": {
+   "account_level": "고",
+   "context_level": "고",
+   "final": "위험",
+   "hard_override": true,
+   "reasons": [
+    "사기신고 3건(+40)",
+    "평소 대비 66.7배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 5일(+20)",
+    "평소 없는 새벽 시간대(00~06시)(+10)",
+    "잔액의 100% 이체 (잔액보다 많음 — 예·적금 해지 등 자금 유입 후)(+15)",
+    "24시간 내 12명에게서 입금(+20)",
+    "RAG 매칭: 기관사칭(유사도 0.81, 경찰청 월간피싱 zero S02)",
+    "결정적 피싱징후 감지: 위험신호 직접 확인"
+   ],
+   "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
+   "thresholds": {
+    "account_mid": 30.0,
+    "account_high": 60.0,
+    "context_mid": 25.0,
+    "context_high": 50.0,
+    "rag_mid_sim": 0.6,
+    "rag_mid_score": 30.0,
+    "rag_high_sim": 0.8,
+    "rag_high_score": 50.0
+   }
+  },
+  "report": {
+   "report_id": "RPT-20261014-001",
+   "generated_at": "2026-10-14T12:47:20+09:00",
+   "customer_name": "남용준",
+   "customer_phone_masked": "010-****-0001",
+   "customer_account_masked": "351-****-0001",
+   "customer_age_group": "30대",
+   "customer_region": "서울 강남구",
+   "payee_bank": "미래에셋증권",
+   "payee_account": "010-6691-98217",
+   "payee_name": "남용준",
+   "amount": 20000000,
+   "attempted_at": "2026-08-11T01:10:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": true,
+    "reasons": [
+     "사기신고 3건(+40)",
+     "평소 대비 66.7배(+25)",
+     "예·적금 해지 등 자금이동 24시간 이내(+25)",
+     "개설 5일(+20)",
+     "평소 없는 새벽 시간대(00~06시)(+10)",
+     "잔액의 100% 이체 (잔액보다 많음 — 예·적금 해지 등 자금 유입 후)(+15)",
+     "24시간 내 12명에게서 입금(+20)",
+     "RAG 매칭: 기관사칭(유사도 0.81, 경찰청 월간피싱 zero S02)",
+     "결정적 피싱징후 감지: 위험신호 직접 확인"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
+    "thresholds": {
+     "account_mid": 30.0,
+     "account_high": 60.0,
+     "context_mid": 25.0,
+     "context_high": 50.0,
+     "rag_mid_sim": 0.6,
+     "rag_mid_score": 30.0,
+     "rag_high_sim": 0.8,
+     "rag_high_score": 50.0
+    }
+   },
+   "account_reasons": [
+    "사기신고 3건(+40)",
+    "평소 대비 66.7배(+25)",
+    "예·적금 해지 등 자금이동 24시간 이내(+25)",
+    "개설 5일(+20)",
+    "평소 없는 새벽 시간대(00~06시)(+10)",
+    "잔액의 100% 이체 (잔액보다 많음 — 예·적금 해지 등 자금 유입 후)(+15)",
+    "24시간 내 12명에게서 입금(+20)"
+   ],
+   "conversation_summary": "확인했어요.",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "기관사칭",
+    "matched_id": "S02",
+    "similarity": 0.81,
+    "score": 50,
+    "risk_signals": [
+     "안전계좌",
+     "자산보호",
+     "수사기관사칭",
+     "사건번호"
+    ],
+    "source": "경찰청 월간피싱 zero S02",
+    "candidates": [
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.812
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.672
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.651
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.562
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.556
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.554
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.524
+     },
+     {
+      "scenario_id": "S11",
+      "matched_type": "협박형",
+      "similarity": 0.506
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.476
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.442
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.435
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.354
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": true,
+      "score": 40,
+      "detail": "사기신고 3건",
+      "label": "수취계좌 사기이력",
+      "max_score": 40,
+      "value": 3.0,
+      "rule_id": "R01",
+      "definition": "수취계좌의 사기신고 이력 여부",
+      "condition": "신고 건수에 따라 점수 배점",
+      "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 66.7배",
+      "label": "이체금액 이상치",
+      "max_score": 25,
+      "value": 66.66666666666667,
+      "rule_id": "R02",
+      "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+      "condition": "평소 대비 배수 구간에 따라 점수 배점",
+      "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+     },
+     {
+      "signal": "fund_source",
+      "hit": true,
+      "score": 25,
+      "detail": "예·적금 해지 등 자금이동 24시간 이내",
+      "label": "최근 자금이동(해지 등)",
+      "max_score": 25,
+      "value": 1.0,
+      "rule_id": "R03",
+      "definition": "예·적금 해지 등 자금원천 이동 여부",
+      "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+      "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일",
+      "label": "수취계좌 개설 기간",
+      "max_score": 20,
+      "value": 5.0,
+      "rule_id": "R04",
+      "definition": "수취계좌 개설 후 경과일수",
+      "condition": "개설 경과일 구간에 따라 점수 배점",
+      "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음",
+      "label": "이체한도 변경 이력",
+      "max_score": 20,
+      "value": 0.0,
+      "rule_id": "R05",
+      "definition": "최근 이체한도 상향 이력",
+      "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+      "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도",
+      "label": "단기간 반복 이체",
+      "max_score": 20,
+      "value": 0.0,
+      "rule_id": "R06",
+      "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+      "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+      "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기·평소 접속 지역",
+      "label": "신규 기기·환경",
+      "max_score": 15,
+      "value": 0.0,
+      "rule_id": "R07",
+      "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+      "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+      "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": true,
+      "score": 10,
+      "detail": "평소 없는 새벽 시간대(00~06시)",
+      "label": "이용 시간대",
+      "max_score": 10,
+      "value": 1.0,
+      "rule_id": "R08",
+      "definition": "평소와 다른 시간대 거래",
+      "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+      "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+     },
+     {
+      "signal": "balance_drain",
+      "hit": true,
+      "score": 15,
+      "detail": "잔액의 100% 이체 (잔액보다 많음 — 예·적금 해지 등 자금 유입 후)",
+      "label": "잔액소진율",
+      "max_score": 15,
+      "value": 248.4,
+      "rule_id": "R09",
+      "definition": "이체 후 잔액이 거의 소진되는지",
+      "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+      "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+     },
+     {
+      "signal": "new_payee",
+      "hit": false,
+      "score": 0,
+      "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+      "label": "신규 수취인 급증",
+      "max_score": 15,
+      "value": 1.0,
+      "rule_id": "R10",
+      "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+      "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+      "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+     },
+     {
+      "signal": "inbound_concentration",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 12명에게서 입금",
+      "label": "다수입금 집중",
+      "max_score": 20,
+      "value": 12.0,
+      "rule_id": "R11",
+      "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+      "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+      "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+     }
+    ],
+    "total_score": 155,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "normal_known",
+      "choice_weight": 0,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_yes",
+      "choice_weight": 50,
+      "hard_override": true
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "기관사칭",
+     "matched_id": "S02",
+     "similarity": 0.81,
+     "score": 50,
+     "risk_signals": [
+      "안전계좌",
+      "자산보호",
+      "수사기관사칭",
+      "사건번호"
+     ],
+     "source": "경찰청 월간피싱 zero S02",
+     "candidates": [
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.812
+      },
+      {
+       "scenario_id": "S12",
+       "matched_type": "기관사칭",
+       "similarity": 0.672
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.651
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.562
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.556
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.554
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.524
+      },
+      {
+       "scenario_id": "S11",
+       "matched_type": "협박형",
+       "similarity": 0.506
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.476
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.442
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.435
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.354
+      }
+     ]
+    },
+    "total_score": 110,
+    "level": "고",
+    "hard_override": true
+   },
+   "extra": {}
+  }
+ },
+ "case2": {
+  "intervention": "empathy_question+safety_question",
+  "questions": [
+   {
+    "question_id": "empathy",
+    "prompt": "김도현님, 이번 송금은 어떤 이유로 보내시는 걸까요?",
+    "choices": [
+     {
+      "choice_id": "normal_known",
+      "label": "직접 아는 지인·가족에게 보내요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_trade",
+      "label": "물건 구매/판매 대금이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_settlement",
+      "label": "임대료·잔금 등 정산 목적이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_offer",
+      "label": "최근 대출·투자 안내를 받고 보내요",
+      "weight": 25,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_text_only",
+      "label": "아는 사람이라는데 문자로만 연락돼요",
+      "weight": 25,
+      "hard_override": false
+     }
+    ]
+   },
+   {
+    "question_id": "safety",
+    "prompt": "혹시 검찰·금감원이라며 '안전계좌'로 옮기라거나, 앱 설치를 안내받으셨나요?",
+    "choices": [
+     {
+      "choice_id": "safety_no",
+      "label": "아니요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "safety_yes",
+      "label": "비슷한 안내를 받았어요",
+      "weight": 50,
+      "hard_override": true
+     }
+    ]
+   }
+  ],
+  "account": {
+   "signals": [
+    {
+     "signal": "payee_fraud",
+     "hit": false,
+     "score": 0,
+     "detail": "사기신고 이력 없음",
+     "label": "수취계좌 사기이력",
+     "max_score": 40,
+     "value": 0.0,
+     "rule_id": "R01",
+     "definition": "수취계좌의 사기신고 이력 여부",
+     "condition": "신고 건수에 따라 점수 배점",
+     "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+    },
+    {
+     "signal": "amount_anomaly",
+     "hit": true,
+     "score": 25,
+     "detail": "평소 대비 25.0배",
+     "label": "이체금액 이상치",
+     "max_score": 25,
+     "value": 25.0,
+     "rule_id": "R02",
+     "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+     "condition": "평소 대비 배수 구간에 따라 점수 배점",
+     "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "fund_source",
+     "hit": false,
+     "score": 0,
+     "detail": "특이 자금이동 없음",
+     "label": "최근 자금이동(해지 등)",
+     "max_score": 25,
+     "value": 0.0,
+     "rule_id": "R03",
+     "definition": "예·적금 해지 등 자금원천 이동 여부",
+     "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+     "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+    },
+    {
+     "signal": "payee_freshness",
+     "hit": true,
+     "score": 20,
+     "detail": "개설 5일",
+     "label": "수취계좌 개설 기간",
+     "max_score": 20,
+     "value": 5.0,
+     "rule_id": "R04",
+     "definition": "수취계좌 개설 후 경과일수",
+     "condition": "개설 경과일 구간에 따라 점수 배점",
+     "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+    },
+    {
+     "signal": "limit_change",
+     "hit": true,
+     "score": 20,
+     "detail": "24시간 내 이체한도 상향",
+     "label": "이체한도 변경 이력",
+     "max_score": 20,
+     "value": 1.0,
+     "rule_id": "R05",
+     "definition": "최근 이체한도 상향 이력",
+     "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+     "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+    },
+    {
+     "signal": "velocity",
+     "hit": false,
+     "score": 0,
+     "detail": "정상 빈도",
+     "label": "단기간 반복 이체",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R06",
+     "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+     "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+     "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+    },
+    {
+     "signal": "device",
+     "hit": false,
+     "score": 0,
+     "detail": "기존 사용 기기·평소 접속 지역",
+     "label": "신규 기기·환경",
+     "max_score": 15,
+     "value": 0.0,
+     "rule_id": "R07",
+     "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+     "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+     "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+    },
+    {
+     "signal": "time_pattern",
+     "hit": false,
+     "score": 0,
+     "detail": "평소 이용 시간대",
+     "label": "이용 시간대",
+     "max_score": 10,
+     "value": 11.0,
+     "rule_id": "R08",
+     "definition": "평소와 다른 시간대 거래",
+     "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+     "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+    },
+    {
+     "signal": "balance_drain",
+     "hit": false,
+     "score": 0,
+     "detail": "잔액의 40%",
+     "label": "잔액소진율",
+     "max_score": 15,
+     "value": 40.2,
+     "rule_id": "R09",
+     "definition": "이체 후 잔액이 거의 소진되는지",
+     "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+     "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "new_payee",
+     "hit": false,
+     "score": 0,
+     "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+     "label": "신규 수취인 급증",
+     "max_score": 15,
+     "value": 1.0,
+     "rule_id": "R10",
+     "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+     "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+     "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+    },
+    {
+     "signal": "inbound_concentration",
+     "hit": false,
+     "score": 0,
+     "detail": "24시간 내 입금인 3명",
+     "label": "다수입금 집중",
+     "max_score": 20,
+     "value": 3.0,
+     "rule_id": "R11",
+     "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+     "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+     "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+    }
+   ],
+   "total_score": 65,
+   "level": "고"
+  },
+  "context": {
+   "answers": [
+    {
+     "question_id": "empathy",
+     "choice_id": "risky_offer",
+     "choice_weight": 25,
+     "hard_override": false
+    },
+    {
+     "question_id": "safety",
+     "choice_id": "safety_no",
+     "choice_weight": 0,
+     "hard_override": false
+    }
+   ],
+   "used_input_or_attachment": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "대출사기",
+    "matched_id": "S04",
+    "similarity": 0.88,
+    "score": 50,
+    "risk_signals": [
+     "선입금요구",
+     "한도상향유도",
+     "대환대출",
+     "신용점수언급"
+    ],
+    "source": "NH 제작 S04",
+    "candidates": [
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.876
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.688
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.587
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.556
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.522
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.487
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.48
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.465
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.451
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.45
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.429
+     },
+     {
+      "scenario_id": "S11",
+      "matched_type": "협박형",
+      "similarity": 0.394
+     }
+    ]
+   },
+   "total_score": 85,
+   "level": "고",
+   "hard_override": false
+  },
+  "final": {
+   "account_level": "고",
+   "context_level": "고",
+   "final": "위험",
+   "hard_override": false,
+   "reasons": [
+    "평소 대비 25.0배(+25)",
+    "개설 5일(+20)",
+    "24시간 내 이체한도 상향(+20)",
+    "RAG 매칭: 대출사기(유사도 0.88, NH 제작 S04)"
+   ],
+   "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
+   "thresholds": {
+    "account_mid": 30.0,
+    "account_high": 60.0,
+    "context_mid": 25.0,
+    "context_high": 50.0,
+    "rag_mid_sim": 0.6,
+    "rag_mid_score": 30.0,
+    "rag_high_sim": 0.8,
+    "rag_high_score": 50.0
+   }
+  },
+  "report": {
+   "report_id": "RPT-20261014-002",
+   "generated_at": "2026-10-14T12:47:21+09:00",
+   "customer_name": "김도현",
+   "customer_phone_masked": "010-****-0002",
+   "customer_account_masked": "351-****-0002",
+   "customer_age_group": "20대",
+   "customer_region": "서울 마포구",
+   "payee_bank": "신한은행",
+   "payee_account": "110-452-118921",
+   "payee_name": "정대현",
+   "amount": 5000000,
+   "attempted_at": "2026-08-09T11:00:00+09:00",
+   "final": {
+    "account_level": "고",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 25.0배(+25)",
+     "개설 5일(+20)",
+     "24시간 내 이체한도 상향(+20)",
+     "RAG 매칭: 대출사기(유사도 0.88, NH 제작 S04)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
+    "thresholds": {
+     "account_mid": 30.0,
+     "account_high": 60.0,
+     "context_mid": 25.0,
+     "context_high": 50.0,
+     "rag_mid_sim": 0.6,
+     "rag_mid_score": 30.0,
+     "rag_high_sim": 0.8,
+     "rag_high_score": 50.0
+    }
+   },
+   "account_reasons": [
+    "평소 대비 25.0배(+25)",
+    "개설 5일(+20)",
+    "24시간 내 이체한도 상향(+20)"
+   ],
+   "conversation_summary": "확인했어요.",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "대출사기",
+    "matched_id": "S04",
+    "similarity": 0.88,
+    "score": 50,
+    "risk_signals": [
+     "선입금요구",
+     "한도상향유도",
+     "대환대출",
+     "신용점수언급"
+    ],
+    "source": "NH 제작 S04",
+    "candidates": [
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.876
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.688
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.587
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.556
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.522
+     },
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.487
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.48
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.465
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.451
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.45
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.429
+     },
+     {
+      "scenario_id": "S11",
+      "matched_type": "협박형",
+      "similarity": 0.394
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음",
+      "label": "수취계좌 사기이력",
+      "max_score": 40,
+      "value": 0.0,
+      "rule_id": "R01",
+      "definition": "수취계좌의 사기신고 이력 여부",
+      "condition": "신고 건수에 따라 점수 배점",
+      "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 25,
+      "detail": "평소 대비 25.0배",
+      "label": "이체금액 이상치",
+      "max_score": 25,
+      "value": 25.0,
+      "rule_id": "R02",
+      "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+      "condition": "평소 대비 배수 구간에 따라 점수 배점",
+      "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음",
+      "label": "최근 자금이동(해지 등)",
+      "max_score": 25,
+      "value": 0.0,
+      "rule_id": "R03",
+      "definition": "예·적금 해지 등 자금원천 이동 여부",
+      "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+      "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 5일",
+      "label": "수취계좌 개설 기간",
+      "max_score": 20,
+      "value": 5.0,
+      "rule_id": "R04",
+      "definition": "수취계좌 개설 후 경과일수",
+      "condition": "개설 경과일 구간에 따라 점수 배점",
+      "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+     },
+     {
+      "signal": "limit_change",
+      "hit": true,
+      "score": 20,
+      "detail": "24시간 내 이체한도 상향",
+      "label": "이체한도 변경 이력",
+      "max_score": 20,
+      "value": 1.0,
+      "rule_id": "R05",
+      "definition": "최근 이체한도 상향 이력",
+      "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+      "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도",
+      "label": "단기간 반복 이체",
+      "max_score": 20,
+      "value": 0.0,
+      "rule_id": "R06",
+      "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+      "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+      "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기·평소 접속 지역",
+      "label": "신규 기기·환경",
+      "max_score": 15,
+      "value": 0.0,
+      "rule_id": "R07",
+      "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+      "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+      "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대",
+      "label": "이용 시간대",
+      "max_score": 10,
+      "value": 11.0,
+      "rule_id": "R08",
+      "definition": "평소와 다른 시간대 거래",
+      "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+      "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+     },
+     {
+      "signal": "balance_drain",
+      "hit": false,
+      "score": 0,
+      "detail": "잔액의 40%",
+      "label": "잔액소진율",
+      "max_score": 15,
+      "value": 40.2,
+      "rule_id": "R09",
+      "definition": "이체 후 잔액이 거의 소진되는지",
+      "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+      "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+     },
+     {
+      "signal": "new_payee",
+      "hit": false,
+      "score": 0,
+      "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+      "label": "신규 수취인 급증",
+      "max_score": 15,
+      "value": 1.0,
+      "rule_id": "R10",
+      "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+      "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+      "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+     },
+     {
+      "signal": "inbound_concentration",
+      "hit": false,
+      "score": 0,
+      "detail": "24시간 내 입금인 3명",
+      "label": "다수입금 집중",
+      "max_score": 20,
+      "value": 3.0,
+      "rule_id": "R11",
+      "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+      "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+      "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+     }
+    ],
+    "total_score": 65,
+    "level": "고"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_offer",
+      "choice_weight": 25,
+      "hard_override": false
+     },
+     {
+      "question_id": "safety",
+      "choice_id": "safety_no",
+      "choice_weight": 0,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "대출사기",
+     "matched_id": "S04",
+     "similarity": 0.88,
+     "score": 50,
+     "risk_signals": [
+      "선입금요구",
+      "한도상향유도",
+      "대환대출",
+      "신용점수언급"
+     ],
+     "source": "NH 제작 S04",
+     "candidates": [
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.876
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.688
+      },
+      {
+       "scenario_id": "S12",
+       "matched_type": "기관사칭",
+       "similarity": 0.587
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.556
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.522
+      },
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.487
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.48
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.465
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.451
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.45
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.429
+      },
+      {
+       "scenario_id": "S11",
+       "matched_type": "협박형",
+       "similarity": 0.394
+      }
+     ]
+    },
+    "total_score": 85,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  }
+ },
+ "case3": {
+  "intervention": "empathy_question",
+  "questions": [
+   {
+    "question_id": "empathy",
+    "prompt": "남용준님, 이번 송금은 어떤 이유로 보내시는 걸까요?",
+    "choices": [
+     {
+      "choice_id": "normal_known",
+      "label": "직접 아는 지인·가족에게 보내요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_trade",
+      "label": "물건 구매/판매 대금이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_settlement",
+      "label": "임대료·잔금 등 정산 목적이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_offer",
+      "label": "최근 대출·투자 안내를 받고 보내요",
+      "weight": 25,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_text_only",
+      "label": "아는 사람이라는데 문자로만 연락돼요",
+      "weight": 25,
+      "hard_override": false
+     }
+    ]
+   }
+  ],
+  "account": {
+   "signals": [
+    {
+     "signal": "payee_fraud",
+     "hit": false,
+     "score": 0,
+     "detail": "사기신고 이력 없음",
+     "label": "수취계좌 사기이력",
+     "max_score": 40,
+     "value": 0.0,
+     "rule_id": "R01",
+     "definition": "수취계좌의 사기신고 이력 여부",
+     "condition": "신고 건수에 따라 점수 배점",
+     "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+    },
+    {
+     "signal": "amount_anomaly",
+     "hit": true,
+     "score": 8,
+     "detail": "평소 대비 3.3배",
+     "label": "이체금액 이상치",
+     "max_score": 25,
+     "value": 3.3333333333333335,
+     "rule_id": "R02",
+     "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+     "condition": "평소 대비 배수 구간에 따라 점수 배점",
+     "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "fund_source",
+     "hit": false,
+     "score": 0,
+     "detail": "특이 자금이동 없음",
+     "label": "최근 자금이동(해지 등)",
+     "max_score": 25,
+     "value": 0.0,
+     "rule_id": "R03",
+     "definition": "예·적금 해지 등 자금원천 이동 여부",
+     "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+     "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+    },
+    {
+     "signal": "payee_freshness",
+     "hit": true,
+     "score": 20,
+     "detail": "개설 6일",
+     "label": "수취계좌 개설 기간",
+     "max_score": 20,
+     "value": 6.0,
+     "rule_id": "R04",
+     "definition": "수취계좌 개설 후 경과일수",
+     "condition": "개설 경과일 구간에 따라 점수 배점",
+     "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+    },
+    {
+     "signal": "limit_change",
+     "hit": false,
+     "score": 0,
+     "detail": "한도 변경 없음",
+     "label": "이체한도 변경 이력",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R05",
+     "definition": "최근 이체한도 상향 이력",
+     "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+     "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+    },
+    {
+     "signal": "velocity",
+     "hit": false,
+     "score": 0,
+     "detail": "정상 빈도",
+     "label": "단기간 반복 이체",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R06",
+     "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+     "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+     "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+    },
+    {
+     "signal": "device",
+     "hit": false,
+     "score": 0,
+     "detail": "기존 사용 기기·평소 접속 지역",
+     "label": "신규 기기·환경",
+     "max_score": 15,
+     "value": 0.0,
+     "rule_id": "R07",
+     "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+     "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+     "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+    },
+    {
+     "signal": "time_pattern",
+     "hit": false,
+     "score": 0,
+     "detail": "평소 이용 시간대",
+     "label": "이용 시간대",
+     "max_score": 10,
+     "value": 15.0,
+     "rule_id": "R08",
+     "definition": "평소와 다른 시간대 거래",
+     "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+     "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+    },
+    {
+     "signal": "balance_drain",
+     "hit": false,
+     "score": 0,
+     "detail": "잔액의 12%",
+     "label": "잔액소진율",
+     "max_score": 15,
+     "value": 12.4,
+     "rule_id": "R09",
+     "definition": "이체 후 잔액이 거의 소진되는지",
+     "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+     "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "new_payee",
+     "hit": false,
+     "score": 0,
+     "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+     "label": "신규 수취인 급증",
+     "max_score": 15,
+     "value": 1.0,
+     "rule_id": "R10",
+     "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+     "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+     "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+    },
+    {
+     "signal": "inbound_concentration",
+     "hit": false,
+     "score": 0,
+     "detail": "24시간 내 입금인 1명",
+     "label": "다수입금 집중",
+     "max_score": 20,
+     "value": 1.0,
+     "rule_id": "R11",
+     "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+     "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+     "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+    }
+   ],
+   "total_score": 28,
+   "level": "저"
+  },
+  "context": {
+   "answers": [
+    {
+     "question_id": "empathy",
+     "choice_id": "risky_text_only",
+     "choice_weight": 25,
+     "hard_override": false
+    }
+   ],
+   "used_input_or_attachment": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.85,
+    "score": 50,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.851
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.566
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.54
+     },
+     {
+      "scenario_id": "S11",
+      "matched_type": "협박형",
+      "similarity": 0.529
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.481
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.388
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.381
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.378
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.352
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.348
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.289
+     }
+    ]
+   },
+   "total_score": 85,
+   "level": "고",
+   "hard_override": false
+  },
+  "final": {
+   "account_level": "저",
+   "context_level": "고",
+   "final": "위험",
+   "hard_override": false,
+   "reasons": [
+    "평소 대비 3.3배(+8)",
+    "개설 6일(+20)",
+    "RAG 매칭: 메신저피싱(유사도 0.85, 경찰청 월간피싱 zero S05)"
+   ],
+   "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
+   "thresholds": {
+    "account_mid": 30.0,
+    "account_high": 60.0,
+    "context_mid": 25.0,
+    "context_high": 50.0,
+    "rag_mid_sim": 0.6,
+    "rag_mid_score": 30.0,
+    "rag_high_sim": 0.8,
+    "rag_high_score": 50.0
+   }
+  },
+  "report": {
+   "report_id": "RPT-20261014-003",
+   "generated_at": "2026-10-14T12:47:21+09:00",
+   "customer_name": "남용준",
+   "customer_phone_masked": "010-****-0001",
+   "customer_account_masked": "351-****-0001",
+   "customer_age_group": "30대",
+   "customer_region": "서울 강남구",
+   "payee_bank": "카카오뱅크",
+   "payee_account": "301-8827-4491",
+   "payee_name": "황민준",
+   "amount": 1000000,
+   "attempted_at": "2026-08-12T15:00:00+09:00",
+   "final": {
+    "account_level": "저",
+    "context_level": "고",
+    "final": "위험",
+    "hard_override": false,
+    "reasons": [
+     "평소 대비 3.3배(+8)",
+     "개설 6일(+20)",
+     "RAG 매칭: 메신저피싱(유사도 0.85, 경찰청 월간피싱 zero S05)"
+    ],
+    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
+    "thresholds": {
+     "account_mid": 30.0,
+     "account_high": 60.0,
+     "context_mid": 25.0,
+     "context_high": 50.0,
+     "rag_mid_sim": 0.6,
+     "rag_mid_score": 30.0,
+     "rag_high_sim": 0.8,
+     "rag_high_score": 50.0
+    }
+   },
+   "account_reasons": [
+    "평소 대비 3.3배(+8)",
+    "개설 6일(+20)"
+   ],
+   "conversation_summary": "확인했어요.",
+   "attachments_present": true,
+   "rag": {
+    "signal": "scenario",
+    "hit": true,
+    "matched_type": "메신저피싱",
+    "matched_id": "S05",
+    "similarity": 0.85,
+    "score": 50,
+    "risk_signals": [
+     "통화회피",
+     "문자로만연락",
+     "급전요청",
+     "신분증요구"
+    ],
+    "source": "경찰청 월간피싱 zero S05",
+    "candidates": [
+     {
+      "scenario_id": "S05",
+      "matched_type": "메신저피싱",
+      "similarity": 0.851
+     },
+     {
+      "scenario_id": "S08",
+      "matched_type": "몸캠피싱",
+      "similarity": 0.566
+     },
+     {
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.54
+     },
+     {
+      "scenario_id": "S11",
+      "matched_type": "협박형",
+      "similarity": 0.529
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.481
+     },
+     {
+      "scenario_id": "S07",
+      "matched_type": "스미싱",
+      "similarity": 0.473
+     },
+     {
+      "scenario_id": "S10",
+      "matched_type": "원격제어형",
+      "similarity": 0.388
+     },
+     {
+      "scenario_id": "S03",
+      "matched_type": "기관사칭",
+      "similarity": 0.381
+     },
+     {
+      "scenario_id": "S09",
+      "matched_type": "취업사기",
+      "similarity": 0.378
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.352
+     },
+     {
+      "scenario_id": "S04",
+      "matched_type": "대출사기",
+      "similarity": 0.348
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.289
+     }
+    ]
+   },
+   "recommendation": "대면 본인확인 및 통화상대 진위 확인, 필요시 지급정지·112 안내",
+   "account": {
+    "signals": [
+     {
+      "signal": "payee_fraud",
+      "hit": false,
+      "score": 0,
+      "detail": "사기신고 이력 없음",
+      "label": "수취계좌 사기이력",
+      "max_score": 40,
+      "value": 0.0,
+      "rule_id": "R01",
+      "definition": "수취계좌의 사기신고 이력 여부",
+      "condition": "신고 건수에 따라 점수 배점",
+      "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+     },
+     {
+      "signal": "amount_anomaly",
+      "hit": true,
+      "score": 8,
+      "detail": "평소 대비 3.3배",
+      "label": "이체금액 이상치",
+      "max_score": 25,
+      "value": 3.3333333333333335,
+      "rule_id": "R02",
+      "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+      "condition": "평소 대비 배수 구간에 따라 점수 배점",
+      "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+     },
+     {
+      "signal": "fund_source",
+      "hit": false,
+      "score": 0,
+      "detail": "특이 자금이동 없음",
+      "label": "최근 자금이동(해지 등)",
+      "max_score": 25,
+      "value": 0.0,
+      "rule_id": "R03",
+      "definition": "예·적금 해지 등 자금원천 이동 여부",
+      "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+      "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+     },
+     {
+      "signal": "payee_freshness",
+      "hit": true,
+      "score": 20,
+      "detail": "개설 6일",
+      "label": "수취계좌 개설 기간",
+      "max_score": 20,
+      "value": 6.0,
+      "rule_id": "R04",
+      "definition": "수취계좌 개설 후 경과일수",
+      "condition": "개설 경과일 구간에 따라 점수 배점",
+      "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+     },
+     {
+      "signal": "limit_change",
+      "hit": false,
+      "score": 0,
+      "detail": "한도 변경 없음",
+      "label": "이체한도 변경 이력",
+      "max_score": 20,
+      "value": 0.0,
+      "rule_id": "R05",
+      "definition": "최근 이체한도 상향 이력",
+      "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+      "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+     },
+     {
+      "signal": "velocity",
+      "hit": false,
+      "score": 0,
+      "detail": "정상 빈도",
+      "label": "단기간 반복 이체",
+      "max_score": 20,
+      "value": 0.0,
+      "rule_id": "R06",
+      "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+      "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+      "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+     },
+     {
+      "signal": "device",
+      "hit": false,
+      "score": 0,
+      "detail": "기존 사용 기기·평소 접속 지역",
+      "label": "신규 기기·환경",
+      "max_score": 15,
+      "value": 0.0,
+      "rule_id": "R07",
+      "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+      "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+      "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+     },
+     {
+      "signal": "time_pattern",
+      "hit": false,
+      "score": 0,
+      "detail": "평소 이용 시간대",
+      "label": "이용 시간대",
+      "max_score": 10,
+      "value": 15.0,
+      "rule_id": "R08",
+      "definition": "평소와 다른 시간대 거래",
+      "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+      "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+     },
+     {
+      "signal": "balance_drain",
+      "hit": false,
+      "score": 0,
+      "detail": "잔액의 12%",
+      "label": "잔액소진율",
+      "max_score": 15,
+      "value": 12.4,
+      "rule_id": "R09",
+      "definition": "이체 후 잔액이 거의 소진되는지",
+      "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+      "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+     },
+     {
+      "signal": "new_payee",
+      "hit": false,
+      "score": 0,
+      "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+      "label": "신규 수취인 급증",
+      "max_score": 15,
+      "value": 1.0,
+      "rule_id": "R10",
+      "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+      "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+      "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+     },
+     {
+      "signal": "inbound_concentration",
+      "hit": false,
+      "score": 0,
+      "detail": "24시간 내 입금인 1명",
+      "label": "다수입금 집중",
+      "max_score": 20,
+      "value": 1.0,
+      "rule_id": "R11",
+      "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+      "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+      "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+     }
+    ],
+    "total_score": 28,
+    "level": "저"
+   },
+   "context": {
+    "answers": [
+     {
+      "question_id": "empathy",
+      "choice_id": "risky_text_only",
+      "choice_weight": 25,
+      "hard_override": false
+     }
+    ],
+    "used_input_or_attachment": true,
+    "rag": {
+     "signal": "scenario",
+     "hit": true,
+     "matched_type": "메신저피싱",
+     "matched_id": "S05",
+     "similarity": 0.85,
+     "score": 50,
+     "risk_signals": [
+      "통화회피",
+      "문자로만연락",
+      "급전요청",
+      "신분증요구"
+     ],
+     "source": "경찰청 월간피싱 zero S05",
+     "candidates": [
+      {
+       "scenario_id": "S05",
+       "matched_type": "메신저피싱",
+       "similarity": 0.851
+      },
+      {
+       "scenario_id": "S08",
+       "matched_type": "몸캠피싱",
+       "similarity": 0.566
+      },
+      {
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.54
+      },
+      {
+       "scenario_id": "S11",
+       "matched_type": "협박형",
+       "similarity": 0.529
+      },
+      {
+       "scenario_id": "S12",
+       "matched_type": "기관사칭",
+       "similarity": 0.481
+      },
+      {
+       "scenario_id": "S07",
+       "matched_type": "스미싱",
+       "similarity": 0.473
+      },
+      {
+       "scenario_id": "S10",
+       "matched_type": "원격제어형",
+       "similarity": 0.388
+      },
+      {
+       "scenario_id": "S03",
+       "matched_type": "기관사칭",
+       "similarity": 0.381
+      },
+      {
+       "scenario_id": "S09",
+       "matched_type": "취업사기",
+       "similarity": 0.378
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.352
+      },
+      {
+       "scenario_id": "S04",
+       "matched_type": "대출사기",
+       "similarity": 0.348
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.289
+      }
+     ]
+    },
+    "total_score": 85,
+    "level": "고",
+    "hard_override": false
+   },
+   "extra": {}
+  }
+ },
+ "case4": {
+  "intervention": "confirm_only",
+  "questions": [],
+  "account": {
+   "signals": [
+    {
+     "signal": "payee_fraud",
+     "hit": false,
+     "score": 0,
+     "detail": "사기신고 이력 없음",
+     "label": "수취계좌 사기이력",
+     "max_score": 40,
+     "value": 0.0,
+     "rule_id": "R01",
+     "definition": "수취계좌의 사기신고 이력 여부",
+     "condition": "신고 건수에 따라 점수 배점",
+     "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+    },
+    {
+     "signal": "amount_anomaly",
+     "hit": false,
+     "score": 0,
+     "detail": "평소 대비 0.5배",
+     "label": "이체금액 이상치",
+     "max_score": 25,
+     "value": 0.5,
+     "rule_id": "R02",
+     "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+     "condition": "평소 대비 배수 구간에 따라 점수 배점",
+     "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "fund_source",
+     "hit": false,
+     "score": 0,
+     "detail": "특이 자금이동 없음",
+     "label": "최근 자금이동(해지 등)",
+     "max_score": 25,
+     "value": 0.0,
+     "rule_id": "R03",
+     "definition": "예·적금 해지 등 자금원천 이동 여부",
+     "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+     "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+    },
+    {
+     "signal": "payee_freshness",
+     "hit": true,
+     "score": 20,
+     "detail": "개설 4일",
+     "label": "수취계좌 개설 기간",
+     "max_score": 20,
+     "value": 4.0,
+     "rule_id": "R04",
+     "definition": "수취계좌 개설 후 경과일수",
+     "condition": "개설 경과일 구간에 따라 점수 배점",
+     "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+    },
+    {
+     "signal": "limit_change",
+     "hit": false,
+     "score": 0,
+     "detail": "한도 변경 없음",
+     "label": "이체한도 변경 이력",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R05",
+     "definition": "최근 이체한도 상향 이력",
+     "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+     "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+    },
+    {
+     "signal": "velocity",
+     "hit": false,
+     "score": 0,
+     "detail": "정상 빈도",
+     "label": "단기간 반복 이체",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R06",
+     "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+     "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+     "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+    },
+    {
+     "signal": "device",
+     "hit": false,
+     "score": 0,
+     "detail": "기존 사용 기기·평소 접속 지역",
+     "label": "신규 기기·환경",
+     "max_score": 15,
+     "value": 0.0,
+     "rule_id": "R07",
+     "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+     "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+     "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+    },
+    {
+     "signal": "time_pattern",
+     "hit": false,
+     "score": 0,
+     "detail": "평소 이용 시간대",
+     "label": "이용 시간대",
+     "max_score": 10,
+     "value": 18.0,
+     "rule_id": "R08",
+     "definition": "평소와 다른 시간대 거래",
+     "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+     "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+    },
+    {
+     "signal": "balance_drain",
+     "hit": false,
+     "score": 0,
+     "detail": "잔액의 2%",
+     "label": "잔액소진율",
+     "max_score": 15,
+     "value": 1.9,
+     "rule_id": "R09",
+     "definition": "이체 후 잔액이 거의 소진되는지",
+     "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+     "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "new_payee",
+     "hit": false,
+     "score": 0,
+     "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+     "label": "신규 수취인 급증",
+     "max_score": 15,
+     "value": 1.0,
+     "rule_id": "R10",
+     "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+     "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+     "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+    },
+    {
+     "signal": "inbound_concentration",
+     "hit": false,
+     "score": 0,
+     "detail": "최근 다수 입금 없음",
+     "label": "다수입금 집중",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R11",
+     "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+     "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+     "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+    }
+   ],
+   "total_score": 20,
+   "level": "저"
+  },
+  "context": null,
+  "final": {
+   "account_level": "저",
+   "context_level": "저",
+   "final": "안전",
+   "hard_override": false,
+   "reasons": [
+    "개설 4일(+20)"
+   ],
+   "action": "확인 1탭으로 송금 진행",
+   "thresholds": {
+    "account_mid": 30.0,
+    "account_high": 60.0,
+    "context_mid": 25.0,
+    "context_high": 50.0,
+    "rag_mid_sim": 0.6,
+    "rag_mid_score": 30.0,
+    "rag_high_sim": 0.8,
+    "rag_high_score": 50.0
+   }
+  },
+  "report": null
+ },
+ "case5": {
+  "intervention": "empathy_question",
+  "questions": [
+   {
+    "question_id": "empathy",
+    "prompt": "박지원님, 이번 송금은 어떤 이유로 보내시는 걸까요?",
+    "choices": [
+     {
+      "choice_id": "normal_known",
+      "label": "직접 아는 지인·가족에게 보내요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_trade",
+      "label": "물건 구매/판매 대금이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_settlement",
+      "label": "임대료·잔금 등 정산 목적이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_offer",
+      "label": "최근 대출·투자 안내를 받고 보내요",
+      "weight": 25,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_text_only",
+      "label": "아는 사람이라는데 문자로만 연락돼요",
+      "weight": 25,
+      "hard_override": false
+     }
+    ]
+   }
+  ],
+  "account": {
+   "signals": [
+    {
+     "signal": "payee_fraud",
+     "hit": false,
+     "score": 0,
+     "detail": "사기신고 이력 없음",
+     "label": "수취계좌 사기이력",
+     "max_score": 40,
+     "value": 0.0,
+     "rule_id": "R01",
+     "definition": "수취계좌의 사기신고 이력 여부",
+     "condition": "신고 건수에 따라 점수 배점",
+     "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+    },
+    {
+     "signal": "amount_anomaly",
+     "hit": true,
+     "score": 25,
+     "detail": "평소 대비 16.7배",
+     "label": "이체금액 이상치",
+     "max_score": 25,
+     "value": 16.666666666666668,
+     "rule_id": "R02",
+     "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+     "condition": "평소 대비 배수 구간에 따라 점수 배점",
+     "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "fund_source",
+     "hit": false,
+     "score": 0,
+     "detail": "특이 자금이동 없음",
+     "label": "최근 자금이동(해지 등)",
+     "max_score": 25,
+     "value": 0.0,
+     "rule_id": "R03",
+     "definition": "예·적금 해지 등 자금원천 이동 여부",
+     "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+     "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+    },
+    {
+     "signal": "payee_freshness",
+     "hit": true,
+     "score": 20,
+     "detail": "개설 3일",
+     "label": "수취계좌 개설 기간",
+     "max_score": 20,
+     "value": 3.0,
+     "rule_id": "R04",
+     "definition": "수취계좌 개설 후 경과일수",
+     "condition": "개설 경과일 구간에 따라 점수 배점",
+     "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+    },
+    {
+     "signal": "limit_change",
+     "hit": false,
+     "score": 0,
+     "detail": "한도 변경 없음",
+     "label": "이체한도 변경 이력",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R05",
+     "definition": "최근 이체한도 상향 이력",
+     "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+     "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+    },
+    {
+     "signal": "velocity",
+     "hit": false,
+     "score": 0,
+     "detail": "정상 빈도",
+     "label": "단기간 반복 이체",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R06",
+     "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+     "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+     "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+    },
+    {
+     "signal": "device",
+     "hit": false,
+     "score": 0,
+     "detail": "기존 사용 기기·평소 접속 지역",
+     "label": "신규 기기·환경",
+     "max_score": 15,
+     "value": 0.0,
+     "rule_id": "R07",
+     "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+     "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+     "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+    },
+    {
+     "signal": "time_pattern",
+     "hit": false,
+     "score": 0,
+     "detail": "평소 이용 시간대",
+     "label": "이용 시간대",
+     "max_score": 10,
+     "value": 11.0,
+     "rule_id": "R08",
+     "definition": "평소와 다른 시간대 거래",
+     "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+     "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+    },
+    {
+     "signal": "balance_drain",
+     "hit": false,
+     "score": 0,
+     "detail": "잔액의 33%",
+     "label": "잔액소진율",
+     "max_score": 15,
+     "value": 32.8,
+     "rule_id": "R09",
+     "definition": "이체 후 잔액이 거의 소진되는지",
+     "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+     "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "new_payee",
+     "hit": false,
+     "score": 0,
+     "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+     "label": "신규 수취인 급증",
+     "max_score": 15,
+     "value": 1.0,
+     "rule_id": "R10",
+     "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+     "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+     "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+    },
+    {
+     "signal": "inbound_concentration",
+     "hit": false,
+     "score": 0,
+     "detail": "24시간 내 입금인 1명",
+     "label": "다수입금 집중",
+     "max_score": 20,
+     "value": 1.0,
+     "rule_id": "R11",
+     "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+     "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+     "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+    }
+   ],
+   "total_score": 45,
+   "level": "중"
+  },
+  "context": {
+   "answers": [
+    {
+     "question_id": "empathy",
+     "choice_id": "normal_settlement",
+     "choice_weight": 0,
+     "hard_override": false
+    }
+   ],
+   "used_input_or_attachment": false,
+   "rag": null,
+   "total_score": 0,
+   "level": "저",
+   "hard_override": false
+  },
+  "final": {
+   "account_level": "중",
+   "context_level": "저",
+   "final": "안전",
+   "hard_override": false,
+   "reasons": [
+    "평소 대비 16.7배(+25)",
+    "개설 3일(+20)"
+   ],
+   "action": "확인 1탭으로 송금 진행",
+   "thresholds": {
+    "account_mid": 30.0,
+    "account_high": 60.0,
+    "context_mid": 25.0,
+    "context_high": 50.0,
+    "rag_mid_sim": 0.6,
+    "rag_mid_score": 30.0,
+    "rag_high_sim": 0.8,
+    "rag_high_score": 50.0
+   }
+  },
+  "report": null
+ },
+ "case6": {
+  "intervention": "empathy_question",
+  "questions": [
+   {
+    "question_id": "empathy",
+    "prompt": "남용준님, 이번 송금은 어떤 이유로 보내시는 걸까요?",
+    "choices": [
+     {
+      "choice_id": "normal_known",
+      "label": "직접 아는 지인·가족에게 보내요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_trade",
+      "label": "물건 구매/판매 대금이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "normal_settlement",
+      "label": "임대료·잔금 등 정산 목적이에요",
+      "weight": 0,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_offer",
+      "label": "최근 대출·투자 안내를 받고 보내요",
+      "weight": 25,
+      "hard_override": false
+     },
+     {
+      "choice_id": "risky_text_only",
+      "label": "아는 사람이라는데 문자로만 연락돼요",
+      "weight": 25,
+      "hard_override": false
+     }
+    ]
+   }
+  ],
+  "account": {
+   "signals": [
+    {
+     "signal": "payee_fraud",
+     "hit": false,
+     "score": 0,
+     "detail": "사기신고 이력 없음",
+     "label": "수취계좌 사기이력",
+     "max_score": 40,
+     "value": 0.0,
+     "rule_id": "R01",
+     "definition": "수취계좌의 사기신고 이력 여부",
+     "condition": "신고 건수에 따라 점수 배점",
+     "scoring": "사기신고 1건 이상 40점 · 3건 이상 40점(다건 배점, 조정 가능) · 없음 0점 — 기본값은 건수와 무관하게 같은 점수"
+    },
+    {
+     "signal": "amount_anomaly",
+     "hit": true,
+     "score": 8,
+     "detail": "평소 대비 3.3배",
+     "label": "이체금액 이상치",
+     "max_score": 25,
+     "value": 3.3333333333333335,
+     "rule_id": "R02",
+     "definition": "평소 이체금액 대비 이번 이체금액의 이상 정도",
+     "condition": "평소 대비 배수 구간에 따라 점수 배점",
+     "scoring": "평소의 10배 이상 25점 · 5배 이상 15점 · 2배 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "fund_source",
+     "hit": false,
+     "score": 0,
+     "detail": "특이 자금이동 없음",
+     "label": "최근 자금이동(해지 등)",
+     "max_score": 25,
+     "value": 0.0,
+     "rule_id": "R03",
+     "definition": "예·적금 해지 등 자금원천 이동 여부",
+     "condition": "자금원천 이동 후 경과시간에 따라 점수 배점",
+     "scoring": "24시간 이내 자금 이동 25점 · 없음 0점"
+    },
+    {
+     "signal": "payee_freshness",
+     "hit": true,
+     "score": 20,
+     "detail": "개설 6일",
+     "label": "수취계좌 개설 기간",
+     "max_score": 20,
+     "value": 6.0,
+     "rule_id": "R04",
+     "definition": "수취계좌 개설 후 경과일수",
+     "condition": "개설 경과일 구간에 따라 점수 배점",
+     "scoring": "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)"
+    },
+    {
+     "signal": "limit_change",
+     "hit": false,
+     "score": 0,
+     "detail": "한도 변경 없음",
+     "label": "이체한도 변경 이력",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R05",
+     "definition": "최근 이체한도 상향 이력",
+     "condition": "최근 한도상향 이력 유무에 따라 점수 배점",
+     "scoring": "24시간 이내 한도 상향 20점 · 없음 0점"
+    },
+    {
+     "signal": "velocity",
+     "hit": false,
+     "score": 0,
+     "detail": "정상 빈도",
+     "label": "단기간 반복 이체",
+     "max_score": 20,
+     "value": 0.0,
+     "rule_id": "R06",
+     "definition": "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)",
+     "condition": "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점",
+     "scoring": "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)"
+    },
+    {
+     "signal": "device",
+     "hit": false,
+     "score": 0,
+     "detail": "기존 사용 기기·평소 접속 지역",
+     "label": "신규 기기·환경",
+     "max_score": 15,
+     "value": 0.0,
+     "rule_id": "R07",
+     "definition": "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)",
+     "condition": "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점",
+     "scoring": "신규 기기 또는 접속 위치 급변 15점 · 없음 0점"
+    },
+    {
+     "signal": "time_pattern",
+     "hit": false,
+     "score": 0,
+     "detail": "평소 이용 시간대",
+     "label": "이용 시간대",
+     "max_score": 10,
+     "value": 15.0,
+     "rule_id": "R08",
+     "definition": "평소와 다른 시간대 거래",
+     "condition": "평소 거래시간대 이탈 여부에 따라 점수 배점",
+     "scoring": "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점"
+    },
+    {
+     "signal": "balance_drain",
+     "hit": false,
+     "score": 0,
+     "detail": "잔액의 12%",
+     "label": "잔액소진율",
+     "max_score": 15,
+     "value": 12.4,
+     "rule_id": "R09",
+     "definition": "이체 후 잔액이 거의 소진되는지",
+     "condition": "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점",
+     "scoring": "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점"
+    },
+    {
+     "signal": "new_payee",
+     "hit": false,
+     "score": 0,
+     "detail": "처음 보내는 계좌(최근 7일 새 수취인 1명)",
+     "label": "신규 수취인 급증",
+     "max_score": 15,
+     "value": 1.0,
+     "rule_id": "R10",
+     "definition": "평소 이체 상대 외 새 수취인 비중 급증",
+     "condition": "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점",
+     "scoring": "3명 이상 15점 · 2명 8점 · 1명 이하 0점"
+    },
+    {
+     "signal": "inbound_concentration",
+     "hit": false,
+     "score": 0,
+     "detail": "24시간 내 입금인 1명",
+     "label": "다수입금 집중",
+     "max_score": 20,
+     "value": 1.0,
+     "rule_id": "R11",
+     "definition": "수취계좌가 단기간 다수로부터 입금받은 이력",
+     "condition": "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점",
+     "scoring": "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점"
+    }
+   ],
+   "total_score": 28,
+   "level": "저"
+  },
+  "context": {
+   "answers": [
+    {
+     "question_id": "empathy",
+     "choice_id": "risky_offer",
+     "choice_weight": 25,
+     "hard_override": false
+    }
+   ],
+   "used_input_or_attachment": false,
+   "rag": null,
+   "total_score": 25,
+   "level": "중",
+   "hard_override": false
+  },
+  "final": {
+   "account_level": "저",
+   "context_level": "중",
+   "final": "주의",
+   "hard_override": false,
+   "reasons": [
+    "평소 대비 3.3배(+8)",
+    "개설 6일(+20)"
+   ],
+   "action": "공식번호로 직접 확인 안내 후 진행 여부 재확인",
+   "thresholds": {
+    "account_mid": 30.0,
+    "account_high": 60.0,
+    "context_mid": 25.0,
+    "context_high": 50.0,
+    "rag_mid_sim": 0.6,
+    "rag_mid_score": 30.0,
+    "rag_high_sim": 0.8,
+    "rag_high_score": 50.0
+   }
+  },
+  "report": null
+ }
+}

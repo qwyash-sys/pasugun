@@ -1,5 +1,7 @@
-// SPEC.md 5장 "시연 시나리오 5케이스 (검산 완료)" 를 그대로 내장한다.
-// demo 모드는 백엔드를 전혀 호출하지 않고 이 고정값을 재생한다(SPEC 1장 실행모드 원칙).
+// SPEC.md 5장 시연 시나리오 + 주의 케이스. demo 모드는 백엔드를 호출하지 않고 이 값을 재생한다(SPEC 1장 실행모드 원칙).
+// 대본(질문 추천·대화·AI 문장·첨부 캡처)은 여기 있고, 점수·판정·리포트 수치는 개발 모드 엔진으로 같은 입력을
+// 계산한 engineCases.json으로 덮어쓴다 — 데모도 개발 모드와 같은 기준이어야 하기 때문(2026-10-14 결정).
+// 재계산: backend/scripts/generate_demo_cases.py 주석 참고.
 import type {
   AccountAssessment,
   ContextAssessment,
@@ -8,6 +10,7 @@ import type {
   ReportPayload,
 } from "../types";
 import { captureDataUrl } from "../utils/capturePreview";
+import engineCases from "./engineCases.json";
 
 export interface DemoCase {
   id: string;
@@ -69,7 +72,7 @@ function empathyQuestion(customerName: string): Question {
   };
 }
 
-export const DEMO_CASES: DemoCase[] = [
+const SCRIPTED_CASES: DemoCase[] = [
   {
     id: "case1",
     emoji: "🔴",
@@ -811,6 +814,34 @@ export const DEMO_CASES: DemoCase[] = [
     report: null,
   },
 ];
+
+interface EngineResult {
+  questions: Question[];
+  account: AccountAssessment;
+  context: ContextAssessment | null;
+  final: FinalRisk;
+  report: Omit<ReportPayload, "attachments"> | null;
+}
+const ENGINE = engineCases as unknown as Record<string, EngineResult>;
+
+/** 대본은 그대로 두고, 질문 구성·점수·판정·리포트 수치만 개발 모드 엔진 결과로 바꾼다. */
+function withEngine(c: DemoCase): DemoCase {
+  const e = ENGINE[c.id];
+  if (!e) return c;
+  return {
+    ...c,
+    questions: e.questions,
+    account: e.account,
+    context: e.context,
+    final: e.final,
+    report:
+      c.report && e.report
+        ? { ...e.report, conversation_summary: c.report.conversation_summary, attachments: c.report.attachments, attachments_present: c.report.attachments.length > 0 }
+        : c.report,
+  };
+}
+
+export const DEMO_CASES: DemoCase[] = SCRIPTED_CASES.map(withEngine);
 
 export function findDemoCase(id: string): DemoCase {
   const found = DEMO_CASES.find((c) => c.id === id);

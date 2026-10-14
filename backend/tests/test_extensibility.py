@@ -26,7 +26,7 @@ def test_every_signal_carries_label_and_max_score():
     results = run_all_account_signals("C001", "010-6691-98217", 20_000_000, "2026-08-11T01:10:00+09:00", ContextOverrides())
     assert [r.signal for r in results] == [s.name for s in signals_mod.ACCOUNT_SIGNALS]
     assert all(r.label and r.max_score > 0 and 0 <= r.score <= r.max_score for r in results)
-    assert sum(s.max_score for s in signals_mod.ACCOUNT_SIGNALS) == 175  # SPEC 4-1 만점 합
+    assert sum(s.max_score for s in signals_mod.ACCOUNT_SIGNALS) == 225  # SPEC 4-1 175 + R09~R11 50 만점 합
 
 
 @pytest.fixture
@@ -170,11 +170,11 @@ def test_report_filter_rag_types_follow_the_corpus(monkeypatch):
     assert client.get("/api/reports/rag-types").json()[-1] == "투자사기"
 
 
-def test_builtin_rules_carry_documentation_r01_to_r08():
+def test_builtin_rules_carry_documentation_r01_to_r11():
     quote = _quote_api()
     rules = {s["signal"]: s for s in quote["account"]["signals"]}
     ids = [rules[spec.name]["rule_id"] for spec in signals_mod.ACCOUNT_SIGNALS]
-    assert ids == [f"R0{i}" for i in range(1, 9)]
+    assert ids == [f"R{i:02d}" for i in range(1, 12)]
     for r in rules.values():
         assert r["definition"] and r["condition"] and r["scoring"], r["signal"]
     assert rules["payee_fraud"]["definition"] == "수취계좌의 사기신고 이력 여부"

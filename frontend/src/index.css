@@ -3103,3 +3103,12 @@ textarea:focus-visible {
   gap: 10px;
   margin-top: 16px;
 }
+
+.sheet-title-only {
+  margin-bottom: 22px;
+}
+
+/* 아이폰 하단 홈 막대 영역에 시트 버튼이 가리지 않게 */
+.sheet {
+  padding-bottom: calc(22px + env(safe-area-inset-bottom));
+}

@@ -36,6 +36,12 @@ class ContextOverrides(BaseModel):
     limit_changed_recent: bool = False
     device_new: bool = False
     velocity_recent_count: int = 0
+    # R06: 한도 초과 등으로 나눠서 다시 시도한 분할 이체 건수(단시간 다건 이체와 합산)
+    split_retry_count: int = 0
+    # R07: 이번 접속 지역(평소 지역과 다르면 '접속 위치 급변'). None이면 평소 지역에서 접속
+    login_region: str | None = Field(default=None, max_length=40)
+    # R10: 이번 이체 전 최근 7일 동안 처음 보낸 계좌 수(None이면 고객 이벤트 기록을 쓴다)
+    new_payees_7d: int | None = Field(default=None, ge=0, le=100)
 
 
 class TransferRequest(BaseModel):

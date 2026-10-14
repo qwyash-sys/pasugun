@@ -217,6 +217,9 @@ def sample_tx(rng: random.Random, customer_ids: list[str], pools: dict[str, list
             limit_changed_recent=rng.random() < 0.22,
             device_new=rng.random() < 0.25,
             velocity_recent_count=rng.choice([0, 0, 0, 0, 0, 0, 2, 2, 3, 3]),
+            split_retry_count=rng.choice([0] * 7 + [1, 2, 2]),  # 한도에 막혀 쪼개 보내기
+            login_region=rng.choice(["해외(필리핀)", "해외(중국)", "해외(캄보디아)"]) if rng.random() < 0.12 else None,
+            new_payees_7d=rng.choice([0, 0, 0, 1, 1, 2, 3]) if scam in ("대출사기", "취업사기", "몸캠피싱") else rng.choice([0, 0, 0, 0, 1]),
         )
     else:
         ratio = rng.choice([0.3, 0.5, 0.8, 1, 1, 1.2, 1.5, 2, 2.5, 3, 6])
@@ -227,6 +230,9 @@ def sample_tx(rng: random.Random, customer_ids: list[str], pools: dict[str, list
             limit_changed_recent=rng.random() < 0.04,
             device_new=rng.random() < 0.06,
             velocity_recent_count=rng.choice([0] * 19 + [2]),
+            split_retry_count=rng.choice([0] * 39 + [1]),
+            login_region=rng.choice(["부산 해운대구", "제주 제주시"]) if rng.random() < 0.02 else None,  # 여행·출장
+            new_payees_7d=rng.choice([0] * 8 + [1, 1]),
         )
     amount = max(10_000, min(100_000_000, int(avg * ratio / 10_000) * 10_000))
     at = START_DAY + timedelta(days=rng.randint(0, SPAN_DAYS - 1), hours=hour, minutes=rng.randint(0, 59))

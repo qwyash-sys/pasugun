@@ -10,6 +10,9 @@ export const SIGNAL_META: Record<string, { label: string; max: number }> = {
   velocity: { label: "단기간 반복 이체", max: 20 },
   device: { label: "신규 기기·환경", max: 15 },
   time_pattern: { label: "이용 시간대", max: 10 },
+  balance_drain: { label: "잔액소진율", max: 15 },
+  new_payee: { label: "신규 수취인 급증", max: 15 },
+  inbound_concentration: { label: "다수입금 집중", max: 20 },
 };
 
 export const SIGNAL_ORDER = Object.keys(SIGNAL_META);
@@ -81,12 +84,12 @@ export const RULE_CATALOG: RuleInfo[] = [
   { id: "R03", signal: "fund_source", name: "최근 자금이동", definition: "예·적금 해지 등 자금원천 이동 여부", condition: "자금원천 이동 후 경과시간에 따라 점수 배점", scoring: "24시간 이내 자금 이동 25점 · 없음 0점" },
   { id: "R04", signal: "payee_freshness", name: "수취계좌 개설경과", definition: "수취계좌 개설 후 경과일수", condition: "개설 경과일 구간에 따라 점수 배점", scoring: "개설 7일 이내 20점 · 30일 이내 10점 · 그 이후 0점 (개설일 확인 불가는 신규로 보고 20점)" },
   { id: "R05", signal: "limit_change", name: "이체한도 변경이력", definition: "최근 이체한도 상향 이력", condition: "최근 한도상향 이력 유무에 따라 점수 배점", scoring: "24시간 이내 한도 상향 20점 · 없음 0점" },
-  { id: "R06", signal: "velocity", name: "단시간 반복이체", definition: "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)", condition: "단시간 내 이체(분할 포함) 건수에 따라 점수 배점", scoring: "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)" },
-  { id: "R07", signal: "device", name: "접속환경 변경", definition: "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)", condition: "기기·위치 변경 이력 유무에 따라 점수 배점", scoring: "신규 기기·환경 감지 15점 · 없음 0점" },
+  { id: "R06", signal: "velocity", name: "단시간 반복이체", definition: "짧은 시간 내 다건 이체 또는 분할 재시도 (단시간 다건이체 + 분할이체 통합)", condition: "10분 내 이체 건수 + 분할 재시도 건수에 따라 점수 배점", scoring: "10분 내 3건 이상 20점 · 2건 10점 · 그 미만 0점 (분할 재시도는 건수에 포함)" },
+  { id: "R07", signal: "device", name: "접속환경 변경", definition: "기기·접속위치 등 접속환경 변화 (신규기기 + 로그인위치 급변 통합)", condition: "처음 쓰는 기기이거나 평소와 다른 지역에서 접속하면 점수 배점", scoring: "신규 기기 또는 접속 위치 급변 15점 · 없음 0점" },
   { id: "R08", signal: "time_pattern", name: "거래시간대 이상", definition: "평소와 다른 시간대 거래", condition: "평소 거래시간대 이탈 여부에 따라 점수 배점", scoring: "새벽 00~06시 10점 · 평소 이용시간 밖 5점 · 평소 시간대 0점" },
-  { id: "R09", name: "잔액소진율", definition: "이체 후 잔액이 거의 소진되는지", condition: "이체 후 잔액 소진 정도(구간)에 따라 점수 배점" },
-  { id: "R10", name: "신규 수취인 비율", definition: "평소 이체 상대 외 새 수취인 비중 급증", condition: "신규 수취인 비중 구간에 따라 점수 배점" },
-  { id: "R11", name: "다수입금 집중", definition: "수취계좌가 단기간 다수로부터 소액 입금받은 이력", condition: "단기간 입금인원 수에 따라 점수 배점" },
+  { id: "R09", signal: "balance_drain", name: "잔액소진율", definition: "이체 후 잔액이 거의 소진되는지", condition: "이체 금액이 이체 전 잔액에서 차지하는 비율 구간에 따라 점수 배점", scoring: "잔액의 90% 이상 15점 · 70% 이상 8점 · 그 미만 0점" },
+  { id: "R10", signal: "new_payee", name: "신규 수취인 급증", definition: "평소 이체 상대 외 새 수취인 비중 급증", condition: "최근 7일 처음 보내는 계좌 수(이번 포함) 구간에 따라 점수 배점", scoring: "3명 이상 15점 · 2명 8점 · 1명 이하 0점" },
+  { id: "R11", signal: "inbound_concentration", name: "다수입금 집중", definition: "수취계좌가 단기간 다수로부터 입금받은 이력", condition: "수취계좌에 24시간 내 입금한 서로 다른 사람 수에 따라 점수 배점", scoring: "10명 이상 20점 · 5명 이상 10점 · 그 미만 0점" },
 ];
 
 /** 신호(signal) 하나의 룰 설명. 백엔드가 준 값이 있으면 그걸, 없으면 목록에서 찾고, 둘 다 없으면 null. */
