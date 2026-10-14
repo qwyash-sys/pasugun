@@ -3284,3 +3284,22 @@ textarea:focus-visible {
   color: var(--text-muted);
   font-size: 12px !important;
 }
+
+/* 최종 판정 머리줄은 한 줄로(배지가 아래로 떨어지지 않게) */
+.verdict-final-head {
+  flex-wrap: nowrap;
+}
+.verdict-final-head > * {
+  white-space: nowrap;
+}
+.verdict-grade {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.verdict-grade small {
+  font-size: 10.5px;
+  font-weight: 700;
+  opacity: 0.85;
+}

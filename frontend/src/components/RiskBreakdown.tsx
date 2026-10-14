@@ -340,7 +340,12 @@ function VerdictBasis({ account, context, cut }: Props & { cut: Cutoffs }) {
             <div className="verdict-final-head">
               <span>최종 판정</span>
               <strong>{final}</strong>
-              {grade && <span className={`verdict-grade grade-${tone}`}>모니터링 등급 · {grade}</span>}
+              {grade && (
+                <span className={`verdict-grade grade-${tone}`} title="본부 모니터링 등급(처리 우선순위)">
+                  <small>모니터링</small>
+                  {grade}
+                </span>
+              )}
             </div>
             <p>
               송금위험 <b>{account.level}</b> × AI분석 <b>{contextLevel}</b> → 매트릭스 {matrixMark} {VERDICT_NAME[matrixMark]}
