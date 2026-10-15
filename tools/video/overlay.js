@@ -110,7 +110,9 @@
       if (label) {
         l.textContent = label;
         const below = y + h + pad + 64 < innerHeight;
-        Object.assign(l.style, { left: x - pad + "px", top: (below ? y + h + pad + 14 : y - pad - 60) + "px" });
+        // 화면 오른쪽 끝에 걸리면 상자 오른쪽 끝에 맞춘다
+        const left = Math.max(16, Math.min(x - pad, innerWidth - l.offsetWidth - 24));
+        Object.assign(l.style, { left: left + "px", top: (below ? y + h + pad + 14 : y - pad - 60) + "px" });
         l.classList.add("on");
       } else l.classList.remove("on");
     },

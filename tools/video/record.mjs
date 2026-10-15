@@ -93,10 +93,15 @@ async function waitFor(sel, timeout = 20000) {
 // ------------------------------------------------------------------ 0. 오프닝
 mark("intro");
 await go(`${TITLES}?s=intro`, "", 300);
-await sleep(4600);
+await sleep(3300);
+mark("stats");
+await go(`${TITLES}?s=stat1`, "", 300);
+await sleep(4300);
+await go(`${TITLES}?s=stat2`, "", 300);
+await sleep(4800);
 mark("problem");
 await go(`${TITLES}?s=problem`, "", 300);
-await sleep(6000);
+await sleep(3900);
 
 // ------------------------------------------------------------------ 1. 고객 화면(관리자 뷰로 한 번에)
 mark("customer");
@@ -124,7 +129,7 @@ for (let i = 0; i < 3; i++) {
 }
 
 await waitFor(".phone textarea");
-await ov("panel", "STEP 2 · AI 대화", "속은 정황을<br>대화로 확인해요", "Claude 에이전트가 묻고, 캡처는 <b>OCR</b>로 읽어<br>사기 사례 12종과 <b>의미 유사도(RAG)</b>로 비교해요");
+await ov("panel", "STEP 2 · AI 대화", "속은 정황을<br>대화로 확인해요", "AI 에이전트가 묻고, 캡처는 <b>OCR</b>로 읽어<br>사기 사례 12종과 <b>의미 유사도(RAG)</b>로 비교해요");
 const sendBtn = ".phone button.chat-send-btn:not(.chat-attach-btn)";
 const resultReady = ".phone button.btn-primary:has-text('결과 확인하기')";
 for (let turn = 0; turn < 3; turn++) {
@@ -138,7 +143,21 @@ for (let turn = 0; turn < 3; turn++) {
   await page.waitForFunction(() => !document.querySelector(".phone button.chat-suggestion-btn"), null, { timeout: 10000 }).catch(() => {});
 }
 await waitFor(resultReady, 30000);
-await sleep(1200);
+await sleep(600);
+// 첨부한 캡처를 하나씩 크게 열어 보여준다
+const thumbs = phone("button.chat-thumb-open");
+const nThumbs = await thumbs.count();
+if (nThumbs) await ov("panel", "STEP 2 · 캡처 분석", "첨부한 캡처도<br>함께 읽어요", "문자·메신저 캡처는 <b>OCR</b>로 글자를 읽어<br>대화와 함께 분석에 반영해요");
+for (let i = 0; i < nThumbs; i++) {
+  await tap(thumbs.nth(i), 500);
+  const img = page.locator(".lightbox-body img").first();
+  if (await img.count()) await spot(img, `첨부 캡처 ${i + 1}/${nThumbs}`);
+  await sleep(1700);
+  await ov("spotHide");
+  const close = page.locator(".lightbox-head button").first();
+  if (await close.count()) await tap(close, 500);
+}
+await sleep(400);
 await tap(phone("button.btn-primary:has-text('결과 확인하기')"), 600);
 
 await page.waitForSelector(".phone .verdict-final", { timeout: 30000 });
@@ -146,7 +165,8 @@ await sleep(900);
 await ov("steps", STEPS, 2);
 const grade = (await phone(".verdict-grade").textContent().catch(() => "")).replace("모니터링", "").trim();
 const finalText = (await phone(".verdict-final-head strong").textContent()).trim();
-await ov("panel", "STEP 3 · 최종 판정", `${finalText}${grade ? ` · ${grade}` : ""}`, "송금은 막지 않아요.<br>대신 <b>영업점 상담 · 지연이체 · 112/1332</b>로 멈추게 해요");
+void grade;
+await ov("panel", "STEP 3 · 최종 판정", finalText, "송금은 막지 않아요.");
 await phone(".customer-guide").scrollIntoViewIfNeeded();
 await sleep(500);
 await spot(phone(".verdict-final"), "최종 판정 · 본부 모니터링 등급");
@@ -154,17 +174,18 @@ await sleep(2200);
 await ov("spotHide");
 
 const toggle = phone(".admin-basis-toggle");
-await ov("panel", "관리자 뷰", "판정근거는 접어 두고<br>필요할 때 펼쳐요", "고객과 같은 화면에서 <b>1·2·3단계 근거</b>를 바로 확인");
+await ov("panel", "관리자 뷰", "상세한 판정근거는<br>다음과 같아요", "<b>1·2·3단계</b> 순으로 최종 위험지표 판정 확인");
 await tap(toggle, 900);
 const gauges = await phone(".level-gauge-head strong").allTextContents();
+const fmtGauge = (t = "") => t.replace(/\s+/g, " ").replace(/\s*→\s*/, " → ").trim();
 const hardNote = await phone(".verdict-basis-note.danger").count();
 await phone(".verdict-matrix").evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
 await sleep(900);
 await ov(
   "panel",
   "관리자 뷰 · 판정근거",
-  `송금위험 ${gauges[0]?.replace(/\s/g, "") ?? ""}<br>× AI분석 ${gauges[1]?.replace(/\s/g, "") ?? ""}`,
-  hardNote ? "결정적 피싱 징후(<b>안전계좌</b>) 확인 → 점수와 관계없이 <b>위험 고정</b>" : "매트릭스로 최종 판정",
+  `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:4px"><span>송금위험 ${fmtGauge(gauges[0])}</span><span style="color:#5FD08F">×</span><span>AI분석 ${fmtGauge(gauges[1])}</span></span>`,
+  hardNote ? "RAG상 결정적 피싱 징후 포착 시 <b>“위험”</b> 판정" : "매트릭스로 최종 판정",
 );
 await spot(phone(".verdict-matrix"), "3단계 · 판정 매트릭스");
 await sleep(2200);
@@ -186,7 +207,13 @@ mark("hq");
 await go(`${TITLES}?s=bumper&n=02&t=${encodeURIComponent("본부 · 영업점")}&d=${encodeURIComponent("위험 거래를 고객 선택에 따라 끝까지 처리합니다")}`, "", 300);
 await sleep(2200);
 await go(`${DEMO}/#/admin/monitoring`, "admin", 1800);
-const firstRow = page.locator(".c-table tbody tr").first();
+// 방금 고객 흐름에서 예약한 2,000만원 건(목록 정렬 순서와 무관하게 찾는다)
+const visitCard = page.locator("button, [role=button], .c-kpi", { hasText: "영업점 면담 진행" }).first();
+await ov("cap", "본부 모니터링", "위험 거래를 <b>처리 단계별</b>로 나눠 관리해요");
+await sleep(1200);
+await tap(visitCard, 900);
+const firstRow = page.locator(".c-table tbody tr", { hasText: "2,000만" }).first();
+await firstRow.waitFor({ timeout: 15000 });
 await ov("cap", "본부 모니터링", "방금 예약한 고객 건이 <b>영업점 면담</b> 단계로 들어왔어요");
 const rowGrade = (await firstRow.locator("td").first().textContent())?.trim() ?? "";
 await spot(firstRow, `방금 들어온 건 · ${rowGrade}`);
@@ -200,17 +227,17 @@ if (await toBranch.count()) {
   await spot(toBranch, "영업점 책임자에게 연결");
   await sleep(1400);
   await ov("spotHide");
-  await tap(toBranch, 1600);
+  await tap(toBranch, 250);
 } else {
   await page.keyboard.press("Escape");
   await page.evaluate(() => { location.hash = "#/admin/branch"; });
   await sleep(1600);
 }
-await ov("cap", "영업점 책임자", "면담 요청 메일을 확인하고 <b>면담 결과를 입력</b> → 본부가 확인 후 종결");
+await ov("cap", "영업점 책임자", "면담 요청 메일을 확인하고 <b>면담 결과를 입력</b><br>→ 본부가 확인 후 종결");
 await sleep(1600);
-const resultBtn = page.locator("button", { hasText: "면담 결과 입력" }).first();
+const resultBtn = page.locator("button.c-btn", { hasText: /^\s*면담 결과 입력\s*$/ }).first();
 if (await resultBtn.count()) {
-  await spot(resultBtn, "책임자 몫의 조치");
+  await spot(resultBtn, "영업점 책임자 조치사항");
   await sleep(1800);
   await ov("spotHide");
   await tap(resultBtn, 1800);
@@ -220,7 +247,7 @@ await sleep(600);
 
 // ------------------------------------------------------------------ 3. 사례집(RAG) 관리 — 로컬(개발) 모드, 실제 SBERT + FAISS
 mark("library");
-await go(`${TITLES}?s=bumper&n=03&t=${encodeURIComponent("사례집(RAG) 관리")}&d=${encodeURIComponent("새 수법을 등록하면 바로 잡습니다")}`, "", 300);
+await go(`${TITLES}?s=bumper&n=03&t=${encodeURIComponent("사례집(RAG) 관리")}&d=${encodeURIComponent("새로운 보이스피싱 사례를 등록하면 즉시 적용, 탐지가 가능합니다")}`, "", 300);
 await sleep(2200);
 await go(`${LOCAL}/#/admin/library`, "admin", 2500);
 await page.waitForSelector(".c-library tbody tr", { timeout: 30000 });
