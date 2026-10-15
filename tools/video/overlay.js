@@ -2,49 +2,50 @@
 // 하단 자막(PC 장면), 스포트라이트 강조. 앱 코드는 건드리지 않고 화면 위에만 얹는다.
 (() => {
   if (window.__ov) return;
-  const FONT = "'Pretendard','Noto Sans KR','Malgun Gothic',sans-serif";
+  const FONT = "'Noto Sans KR','Pretendard','Malgun Gothic',sans-serif";
   const css = `
-  html::before { content:''; position:fixed; inset:0; background:#0c1d14; z-index:2147483646; pointer-events:none; transition:opacity .7s ease; }
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap');
+  html::before { content:''; position:fixed; inset:0; background:#E8F0FA; z-index:2147483646; pointer-events:none; transition:opacity .6s ease; }
   html.ov-open::before { opacity:0; }
-  html[data-ov-stage=phone] body { background: radial-gradient(1200px 900px at 28% 50%, #1d5a3a 0%, #0f2a1c 55%, #0a1a12 100%) !important; }
-  html[data-ov-stage=phone] .phone { transform: translateX(-360px) scale(1.18); box-shadow: 0 40px 120px rgba(0,0,0,.55) !important; }
+  html[data-ov-stage=phone] body { background: radial-gradient(1100px 900px at 28% 50%, #F6FAFF 0%, #E8F0FA 60%) !important; }
+  html[data-ov-stage=phone] .phone { transform: translateX(-360px) scale(1.18); box-shadow: 0 30px 90px rgba(10,37,69,.20) !important; }
   html[data-ov-stage=phone] .mode-pill { display:none !important; }
   html[data-ov-stage=admin] body { zoom: 1.25; }
   html[data-ov-stage=admin] .c-modal { max-height: 72vh; }
   html[data-ov-stage] ::-webkit-scrollbar { width:0 !important; height:0 !important; }
   #__ov { position:fixed; inset:0; pointer-events:none; z-index:2147483647; font-family:${FONT}; }
   #__cursor { position:absolute; left:0; top:0; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%;
-    background:rgba(255,255,255,.92); border:3px solid #0B8F4A; box-shadow:0 4px 14px rgba(0,0,0,.35); opacity:0;
+    background:rgba(255,255,255,.95); border:3px solid #1B5ED0; box-shadow:0 4px 14px rgba(10,37,69,.35); opacity:0;
     transition: left .55s cubic-bezier(.3,.7,.2,1), top .55s cubic-bezier(.3,.7,.2,1), opacity .3s; }
   #__cursor.on { opacity:1; }
-  .__ripple { position:absolute; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%; border:3px solid #33d17a;
+  .__ripple { position:absolute; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%; border:3px solid #1B5ED0;
     animation: __rip .6s ease-out forwards; }
   @keyframes __rip { from { transform:scale(.4); opacity:1 } to { transform:scale(3.2); opacity:0 } }
-  #__panel { position:absolute; left:1010px; top:50%; width:860px; transform:translateY(-50%); color:#fff; opacity:0; transition:opacity .4s; }
+  #__panel { position:absolute; left:1010px; top:50%; width:860px; transform:translateY(-50%); color:#0A2545; opacity:0; transition:opacity .4s; }
   #__panel.on { opacity:1; }
-  #__panel .k { display:inline-block; font-size:26px; font-weight:800; color:#5FD08F; letter-spacing:1px; margin-bottom:22px; }
+  #__panel .k { display:inline-block; font-size:28px; font-weight:800; color:#1B5ED0; letter-spacing:.5px; margin-bottom:22px; }
   #__panel .t, #__panel .b { width:fit-content; max-width:100%; }
-  #__panel .t { font-size:62px; font-weight:900; line-height:1.18; letter-spacing:-1.5px; margin-bottom:26px; }
-  #__panel .b { font-size:30px; line-height:1.6; color:#cfe3d6; }
-  #__panel .b b { color:#fff; }
+  #__panel .t { font-size:62px; font-weight:900; line-height:1.2; letter-spacing:-1.5px; margin-bottom:26px; color:#0A2545; }
+  #__panel .b { font-size:30px; line-height:1.6; color:#41536C; font-weight:500; }
+  #__panel .b b { color:#0A2545; font-weight:800; }
   #__panel.anim .k { animation:__up .5s both; } #__panel.anim .t { animation:__up .55s .08s both; } #__panel.anim .b { animation:__up .55s .18s both; }
   @keyframes __up { from { transform:translateY(26px); opacity:0 } to { transform:none; opacity:1 } }
   #__steps { position:absolute; left:1010px; top:120px; display:flex; gap:10px; opacity:0; transition:opacity .4s; }
   #__steps.on { opacity:1; }
-  #__steps span { font-size:20px; font-weight:700; padding:8px 18px; border-radius:999px; color:#9cc4ad; border:2px solid #2f6b4a; }
-  #__steps span.on { background:#0B8F4A; border-color:#0B8F4A; color:#fff; }
+  #__steps span { font-size:20px; font-weight:700; padding:8px 18px; border-radius:8px; color:#586B84; background:#fff; border:2px solid #C3CEE1; }
+  #__steps span.on { background:#1B5ED0; border-color:#1B5ED0; color:#fff; }
   #__cap { position:absolute; left:50%; bottom:54px; transform:translateX(-50%); display:flex; align-items:center; gap:18px; padding:20px 34px;
-    background:rgba(12,29,20,.92); border-radius:18px; box-shadow:0 18px 50px rgba(0,0,0,.35); opacity:0; transition:opacity .35s; max-width:1500px; }
+    background:rgba(10,37,69,.95); border-radius:12px; box-shadow:0 18px 50px rgba(10,37,69,.30); opacity:0; transition:opacity .35s; max-width:1500px; }
   #__cap.on { opacity:1; }
   #__cap.anim { animation:__up .45s both; }
-  #__cap .k { font-size:22px; font-weight:800; color:#0c1d14; background:#5FD08F; padding:6px 14px; border-radius:10px; white-space:nowrap; }
+  #__cap .k { font-size:22px; font-weight:800; color:#fff; background:#1B5ED0; padding:6px 14px; border-radius:8px; white-space:nowrap; }
   #__cap .t { font-size:32px; font-weight:800; color:#fff; letter-spacing:-.5px; }
-  #__cap .t b { color:#7fe0a6; }
+  #__cap .t b { color:#9CC0FF; }
   #__dim { position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity .45s; }
   #__dim.on { opacity:1; }
-  .__ring { position:absolute; border-radius:16px; border:4px solid #33d17a; box-shadow:0 0 30px rgba(51,209,122,.8); opacity:0; transition:opacity .45s; }
+  .__ring { position:absolute; border-radius:14px; border:4px solid #1B5ED0; box-shadow:0 0 28px rgba(27,94,208,.45); opacity:0; transition:opacity .45s; }
   .__ring.on { opacity:1; }
-  .__lbl { position:absolute; padding:10px 18px; border-radius:12px; background:#33d17a; color:#06200f; font-size:24px; font-weight:900; white-space:nowrap; opacity:0; transition:opacity .4s .15s; }
+  .__lbl { position:absolute; padding:10px 18px; border-radius:8px; background:#1B5ED0; color:#fff; font-size:24px; font-weight:800; white-space:nowrap; opacity:0; transition:opacity .4s .15s; }
   .__lbl.on { opacity:1; }
   `;
   // 주입 시점에는 <html>이 아직 없을 수 있어, 생기는 즉시 스타일을 붙인다(커튼이 첫 화면부터 덮이도록).
@@ -68,7 +69,7 @@
     const root = document.createElement("div");
     root.id = "__ov";
     root.innerHTML = `<div id="__steps"></div><div id="__panel"><div class="k"></div><div class="t"></div><div class="b"></div></div>
-      <svg id="__dim"><defs><mask id="__mask"><rect width="100%" height="100%" fill="#fff"/><g id="__holes"></g></mask></defs><rect width="100%" height="100%" fill="rgba(5,15,10,.58)" mask="url(#__mask)"/></svg><div id="__rings"></div><div id="__cap"><span class="k"></span><span class="t"></span></div><div id="__cursor"></div>`;
+      <svg id="__dim"><defs><mask id="__mask"><rect width="100%" height="100%" fill="#fff"/><g id="__holes"></g></mask></defs><rect width="100%" height="100%" fill="rgba(10,37,69,.42)" mask="url(#__mask)"/></svg><div id="__rings"></div><div id="__cap"><span class="k"></span><span class="t"></span></div><div id="__cursor"></div>`;
     document.documentElement.appendChild(root);
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
@@ -129,6 +130,6 @@
       requestAnimationFrame(() => rings.querySelectorAll(".__ring, .__lbl").forEach((n) => n.classList.add("on")));
     },
     spot(x, y, w, h, label) { this.spots([{ x, y, w, h, label }]); },
-    spotHide() { el("__dim")?.classList.remove("on"); el("__rings") && (el("__rings").innerHTML = ""); },
+    spotHide() { el("__dim")?.classList.remove("on"); el("__rings") && (el("__rings").innerHTML = ""); setTimeout(() => { if (!el("__dim")?.classList.contains("on")) el("__holes").innerHTML = ""; }, 500); },
   };
 })();

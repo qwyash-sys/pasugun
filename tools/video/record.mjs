@@ -88,6 +88,12 @@ async function spotMany(items) {
   await ov("spots", out);
 }
 
+/** 강조를 걷고, 어둡게 한 막이 다 사라진 뒤에 다음 내용으로 넘어간다(구멍 자리가 잠깐 하얗게 남지 않게). */
+async function unspot() {
+  await ov("spotHide");
+  await sleep(480);
+}
+
 async function spot(loc, label) {
   const b = await loc.boundingBox();
   await ov("spot", b.x, b.y, b.width, b.height, label ?? "");
@@ -169,7 +175,7 @@ for (let i = 0; i < nThumbs; i++) {
   const img = page.locator(".lightbox-body img").first();
   if (await img.count()) await spot(img, `첨부 캡처 ${i + 1}/${nThumbs}`);
   await sleep(1700);
-  await ov("spotHide");
+  await unspot();
   const close = page.locator(".lightbox-head button").first();
   if (await close.count()) await tap(close, 500);
 }
@@ -183,22 +189,24 @@ const grade = (await phone(".verdict-grade").textContent().catch(() => "")).repl
 const finalText = (await phone(".verdict-final-head strong").textContent()).trim();
 void grade;
 // ① 맨 위 판정 박스 → ② AI 설명·고객 안내 → ③ 최종 판정 배너(본부 모니터링 등급)
-await ov("panel", "STEP 3 · 최종 판정", `최종판정 : ${finalText}`, "");
+await ov("panel", "STEP 3 · 최종 판정", `최종판정 : <span style="color:#C2410C">${finalText}</span>`, "");
 await phone(".verdict-hero").evaluate((e) => e.scrollIntoView({ block: "center" }));
 await sleep(500);
 await spotMany([{ loc: phone(".verdict-hero"), label: "최종 판정" }, { sel: "#__panel .t" }]);
 await sleep(2200);
-await ov("panel", "STEP 3 · 최종 판정", `최종판정 : ${finalText}`, "결과 분석 및 간단한 지침 안내");
+await unspot();
+await ov("panel", "STEP 3 · 최종 판정", `최종판정 : <span style="color:#C2410C">${finalText}</span>`, "결과 분석 및 간단한 지침 안내");
 const guideParts = (await phone(".chat-bubble").count()) ? [phone(".chat-bubble"), phone(".customer-guide")] : [phone(".customer-guide")];
 await guideParts.at(-1).evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
 await sleep(700);
 await spotMany([{ locs: guideParts, label: "결과 분석 · 고객 안내" }, { sel: "#__panel .b" }]);
 await sleep(2400);
+await unspot();
 await phone(".verdict-final").evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
 await sleep(700);
 await spotMany([{ loc: phone(".verdict-final"), label: "최종 판정 · 본부 모니터링 등급" }, { sel: "#__panel .t" }]);
 await sleep(2200);
-await ov("spotHide");
+await unspot();
 
 const toggle = phone(".admin-basis-toggle");
 await ov("panel", "관리자 뷰", "상세한 판정근거는<br>다음과 같아요", "<b>1·2·3단계</b> 순으로 최종 위험지표 판정 확인");
@@ -206,23 +214,25 @@ await tap(toggle, 900);
 const gauges = await phone(".level-gauge-head strong").allTextContents();
 const fmtGauge = (t = "") => t.replace(/\s+/g, " ").replace(/\s*→\s*/, " → ").trim();
 const hardNote = await phone(".verdict-basis-note.danger").count();
+await unspot();
 await phone(".verdict-matrix").evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
 await sleep(900);
 await ov(
   "panel",
   "관리자 뷰 · 판정근거",
-  `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:4px"><span>송금위험 ${fmtGauge(gauges[0])}</span><span style="color:#5FD08F">×</span><span>AI분석 ${fmtGauge(gauges[1])}</span></span>`,
+  `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:4px"><span>송금위험 ${fmtGauge(gauges[0])}</span><span style="color:#1B5ED0">×</span><span>AI분석 ${fmtGauge(gauges[1])}</span></span>`,
   hardNote ? "RAG상 결정적 피싱 징후 포착 시 <b>“위험”</b> 판정" : "매트릭스로 최종 판정",
 );
 await spotMany([{ loc: phone(".verdict-matrix"), label: "3단계 · 판정 매트릭스" }, { sel: "#__panel .t" }]);
 await sleep(2200);
 if (hardNote) {
+  await unspot();
   await phone(".verdict-basis-note.danger").evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
   await sleep(800);
   await spotMany([{ loc: phone(".verdict-basis-note.danger"), label: "결정적 피싱 징후" }, { sel: "#__panel .b" }]);
   await sleep(1900);
 }
-await ov("spotHide");
+await unspot();
 
 await ov("panel", "고객 선택", "가까운 영업점<br>상담을 예약해요", "예약하면 <b>영업점 책임자</b>와 <b>본부</b>에 바로 전달돼요");
 await tap(phone("button.btn-primary:has-text('영업점 상담 예약')"), 900);
@@ -245,7 +255,7 @@ await ov("cap", "본부 모니터링", "방금 예약한 고객 건이 <b>영업
 const rowGrade = (await firstRow.locator("td").first().textContent())?.trim() ?? "";
 await spot(firstRow, `방금 들어온 건 · ${rowGrade}`);
 await sleep(2500);
-await ov("spotHide");
+await unspot();
 await tap(firstRow, 1200);
 await ov("cap", "사례 상세", "판정 리포트 · 처리 기한 · <b>지금 할 조치</b>를 한 화면에");
 await sleep(2400);
@@ -253,7 +263,7 @@ const toBranch = page.locator("a.c-link", { hasText: "책임자 화면 열기" }
 if (await toBranch.count()) {
   await spot(toBranch, "영업점 책임자에게 연결");
   await sleep(1400);
-  await ov("spotHide");
+  await unspot();
   await tap(toBranch, 250);
 } else {
   await page.keyboard.press("Escape");
@@ -266,7 +276,7 @@ const resultBtn = page.locator("button.c-btn", { hasText: /^\s*면담 결과 입
 if (await resultBtn.count()) {
   await spot(resultBtn, "영업점 책임자 조치사항");
   await sleep(1800);
-  await ov("spotHide");
+  await unspot();
   await tap(resultBtn, 1800);
   await page.keyboard.press("Escape");
 }
@@ -280,7 +290,7 @@ await go(`${LOCAL}/#/admin/library`, "admin", 300, ".c-library tbody tr");
 await ov("cap", "사례집 관리", "적용 사례 통계 확인 가능");
 await spot(page.locator(".c-kpis"), "");
 await sleep(2100);
-await ov("spotHide");
+await unspot();
 await tap(page.locator("button", { hasText: "유사도 시험" }).first(), 300);
 await ov("cap", "유사도 시험", "고객과의 대화간 맥락 유사도 측정시 사용할 <b>RAG 검증</b>");
 const SENTENCE = "코인 리딩방에서 원금 보장해준다고 투자금을 이 계좌로 넣으래요";
@@ -294,7 +304,7 @@ const before = (await page.locator(".c-sim-list li .c-sim-val").first().textCont
 await ov("cap", "유사도 시험", `신종 수법 문장 → 가장 비슷한 사례도 <b>${before}</b> · 매칭 기준 0.60 미달`);
 await spot(page.locator(".c-sim-list li").first(), `${before} · 점수 없음`);
 await sleep(2700);
-await ov("spotHide");
+await unspot();
 
 await tap(page.locator("button", { hasText: "사례 등록" }).first(), 600);
 await ov("cap", "신종 수법 등록", "투자 리딩방 시나리오를 사례집에 추가");
@@ -310,7 +320,7 @@ const after = (await page.locator(".c-sim-list li .c-sim-val").first().textConte
 await ov("cap", "등록 즉시 반영", `같은 문장이 <b>${after} 강한 매칭</b> → 상황 점수 +50점, 고객 판정에도 바로 적용`);
 await spot(page.locator(".c-sim-list li").first(), `${before} → ${after}`);
 await sleep(3300);
-await ov("spotHide");
+await unspot();
 await ov("capHide");
 
 // ------------------------------------------------------------------ 4. 엔딩
