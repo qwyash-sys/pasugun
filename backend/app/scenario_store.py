@@ -11,9 +11,10 @@ import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from app.data_store import scenarios as seed_scenarios
+from app.scoring import HARD_OVERRIDE_RISK_SIGNALS
 
 KST = timezone(timedelta(hours=9))
 
@@ -38,7 +39,8 @@ class ScenarioInput(BaseModel):
     중분류: str = Field(min_length=1, max_length=40)
     수법요약: str = Field(min_length=10, max_length=600)
     범인멘트: list[str] = Field(min_length=1, max_length=12)
-    위험신호: list[str] = Field(min_length=1, max_length=10)
+    # 결정적 피싱 징후만 둔다(매칭되면 점수와 관계없이 '위험'). 해당 없으면 빈 목록.
+    위험신호: list[str] = Field(default_factory=list, max_length=len(HARD_OVERRIDE_RISK_SIGNALS))
     위험도: Literal["고", "중", "저"] = "고"
     출처: str = Field(default="본부 등록", max_length=60)
     enabled: bool = True
@@ -51,17 +53,24 @@ class ScenarioInput(BaseModel):
             raise ValueError("비어 있을 수 없어요")
         return v
 
-    @field_validator("범인멘트", "위험신호")
+    @field_validator("범인멘트")
     @classmethod
-    def _items(cls, v: list[str], info: ValidationInfo) -> list[str]:
-        if info.field_name == "위험신호":
-            # 태그는 띄어쓰기 없이 맞춘다 — '안전 계좌'로 들어와도 결정적 징후(안전계좌)로 인식되게.
-            v = ["".join(x.split()) for x in v]
+    def _lines(cls, v: list[str]) -> list[str]:
         v = _clean_list(v)
         if not v:
             raise ValueError("한 개 이상 입력해 주세요")
         if any(len(x) > 120 for x in v):
             raise ValueError("한 줄은 120자 이내로 입력해 주세요")
+        return v
+
+    @field_validator("위험신호")
+    @classmethod
+    def _signals(cls, v: list[str]) -> list[str]:
+        # 띄어쓰기 없이 맞춘다 — '안전 계좌'로 들어와도 결정적 징후(안전계좌)로 인식되게.
+        v = _clean_list(["".join(x.split()) for x in v])
+        unknown = [x for x in v if x not in HARD_OVERRIDE_RISK_SIGNALS]
+        if unknown:
+            raise ValueError(f"결정적 피싱 징후가 아니에요: {', '.join(unknown)}")
         return v
 
 

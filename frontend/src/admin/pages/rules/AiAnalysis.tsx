@@ -203,7 +203,7 @@ export default function AiAnalysis({ state, data, onApplied, notify }: { state: 
                       <dd>{i.condition}</dd>
                       <dt>근거</dt>
                       <dd>
-                        사기 사례 {i.corpusTotal}건 중 {i.corpusHits}건이 관련 위험신호({i.tags.slice(0, 4).join("·")})를 가져요
+                        사기 사례집 {i.corpusTotal}건 중 {i.corpusHits}건이 겨냥 유형({i.types.join("·")})이에요
                       </dd>
                       <dt>보완 대상</dt>
                       <dd>{i.targets.map((t) => `${t.type}(못 잡은 ${t.weak}건)`).join(", ")}</dd>

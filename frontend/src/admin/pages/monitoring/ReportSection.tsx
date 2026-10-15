@@ -76,7 +76,7 @@ export default function ReportSection({ report }: { report: ReportPayload }) {
               <div className="c-note tone-purple">
                 <b>유사 사기사례</b> {rag.matched_type} · 유사도 {Math.round(rag.similarity * 100)}%
                 <br />
-                겹친 위험신호: {rag.risk_signals.join(" · ") || "-"}
+                결정적 피싱 징후: {rag.risk_signals.join(" · ") || "없음"}
                 {rag.source && (
                   <>
                     <br />

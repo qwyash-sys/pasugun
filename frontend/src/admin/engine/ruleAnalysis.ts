@@ -125,22 +125,9 @@ export interface GapScenario {
   recall: number;
   /** 놓치거나 주의로 통과한 건에서 가장 흔했던, 발동하지 않은 룰 */
   weakness: string;
-  corpusTags: string[];
 }
 
-/** 말뭉치(RAG)의 사기 유형별 위험신호 태그 모음. */
-export function tagsByType(corpus: Scenario[]): Map<string, Set<string>> {
-  const map = new Map<string, Set<string>>();
-  for (const s of corpus) {
-    const set = map.get(s.유형) ?? new Set<string>();
-    s.위험신호.forEach((t) => set.add(t));
-    map.set(s.유형, set);
-  }
-  return map;
-}
-
-export function findGaps(rows: Row[], corpus: Scenario[], labelOf: (signal: string) => string = (s) => s): GapScenario[] {
-  const tags = tagsByType(corpus);
+export function findGaps(rows: Row[], _corpus: Scenario[], labelOf: (signal: string) => string = (s) => s): GapScenario[] {
   const byType = new Map<string, Row[]>();
   for (const r of rows) {
     if (r.truth !== "fraud") continue;
@@ -173,7 +160,6 @@ export function findGaps(rows: Row[], corpus: Scenario[], labelOf: (signal: stri
       missed,
       recall,
       weakness,
-      corpusTags: [...(tags.get(type) ?? [])],
     });
   }
   return gaps.sort((a, b) => b.missed + b.cautionOnly - (a.missed + a.cautionOnly));
@@ -184,9 +170,9 @@ export interface NewRuleIdea {
   name: string;
   definition: string;
   condition: string;
-  /** 이 룰이 근거로 삼는 말뭉치 위험신호 태그 */
-  tags: string[];
-  /** 말뭉치 중 이 태그가 걸린 사례 수 */
+  /** 이 룰이 겨냥하는 사기 유형(사례집 유형) */
+  types: string[];
+  /** 사례집 중 이 유형에 속한 사례 수 */
   corpusHits: number;
   corpusTotal: number;
   /** 위험으로 못 잡은 사기가 있는 유형 중 이 룰이 겨냥하는 것 */
@@ -196,19 +182,19 @@ export interface NewRuleIdea {
 
 /** 지금 룰(R01~R08)이 직접 보지 못하는 위험신호를 겨냥한 새 룰 후보. 새 룰은 데이터 연동이 필요해서 '개발 요청'으로 다룬다. */
 const IDEAS: Omit<NewRuleIdea, "corpusHits" | "corpusTotal" | "targets">[] = [
-  { id: "N1", name: "통화 중 이체 시도", definition: "이체 화면 진입·실행 시점에 휴대폰이 통화 중인 상태", condition: "통화 중 + 신규 수취인 이체 시 가점", tags: ["통화지속강요", "수사기관사칭", "긴박감조성", "즉시송금요구"], dataNeeded: "앱의 통화 상태 정보(OS 권한)" },
-  { id: "N2", name: "원격제어·화면공유 앱 실행", definition: "원격제어·화면공유 앱이 설치·실행 중인 기기", condition: "해당 앱 감지 시 즉시 차단 수준 가점", tags: ["원격제어앱", "화면유지요구", "악성앱설치"], dataNeeded: "기기 보안 모듈의 앱 목록·실행 상태" },
-  { id: "N3", name: "신규 수취인 고액 첫 이체", definition: "과거 거래 이력이 없는 수취인에게 평소 대비 큰 금액을 처음 이체", condition: "신규 수취인이면서 평소 금액의 N배 이상", tags: ["선입금요구", "보증금명목", "예치금", "안전계좌"], dataNeeded: "고객별 수취인 이력" },
-  { id: "N4", name: "대출·구인 연계 입금 직후 이체", definition: "대출 실행·구직 관련 입금 직후 다른 계좌로 이체", condition: "입금 후 N시간 이내 전액에 가까운 이체", tags: ["대환대출", "한도상향유도", "고수익미끼", "반복입금유도", "신용점수언급"], dataNeeded: "입금 거래 적요·대출 실행 이력" },
-  { id: "N5", name: "피싱 링크 접속 후 인증정보 입력", definition: "문자·메신저 링크 접속 후 신분증·인증번호를 입력한 이력", condition: "링크 접속·인증정보 입력 후 이체 시도", tags: ["URL클릭유도", "결제정보입력", "신분증요구", "배송오류미끼"], dataNeeded: "모바일 보안 모듈의 피싱 URL 탐지 로그" },
-  { id: "N6", name: "협박·긴급 표현 탐지", definition: "고객 입력·상담 내용에 납치·협박·유포 등 긴급 표현이 포함", condition: "2단계 입력문에서 위험 표현 탐지 시 가점", tags: ["납치협박", "영상유포협박", "합의금명목", "신고방해", "신고금지요구"], dataNeeded: "2단계 AI분석 입력문(이미 수집 중)" },
+  { id: "N1", name: "통화 중 이체 시도", definition: "이체 화면 진입·실행 시점에 휴대폰이 통화 중인 상태", condition: "통화 중 + 신규 수취인 이체 시 가점", types: ["기관사칭", "원격제어형", "협박형"], dataNeeded: "앱의 통화 상태 정보(OS 권한)" },
+  { id: "N2", name: "원격제어·화면공유 앱 실행", definition: "원격제어·화면공유 앱이 설치·실행 중인 기기", condition: "해당 앱 감지 시 즉시 차단 수준 가점", types: ["기관사칭", "스미싱", "원격제어형"], dataNeeded: "기기 보안 모듈의 앱 목록·실행 상태" },
+  { id: "N3", name: "신규 수취인 고액 첫 이체", definition: "과거 거래 이력이 없는 수취인에게 평소 대비 큰 금액을 처음 이체", condition: "신규 수취인이면서 평소 금액의 N배 이상", types: ["기관사칭", "대출사기", "원격제어형", "취업사기"], dataNeeded: "고객별 수취인 이력" },
+  { id: "N4", name: "대출·구인 연계 입금 직후 이체", definition: "대출 실행·구직 관련 입금 직후 다른 계좌로 이체", condition: "입금 후 N시간 이내 전액에 가까운 이체", types: ["대출사기", "취업사기"], dataNeeded: "입금 거래 적요·대출 실행 이력" },
+  { id: "N5", name: "피싱 링크 접속 후 인증정보 입력", definition: "문자·메신저 링크 접속 후 신분증·인증번호를 입력한 이력", condition: "링크 접속·인증정보 입력 후 이체 시도", types: ["메신저피싱", "스미싱"], dataNeeded: "모바일 보안 모듈의 피싱 URL 탐지 로그" },
+  { id: "N6", name: "협박·긴급 표현 탐지", definition: "고객 입력·상담 내용에 납치·협박·유포 등 긴급 표현이 포함", condition: "2단계 입력문에서 위험 표현 탐지 시 가점", types: ["몸캠피싱", "협박형"], dataNeeded: "2단계 AI분석 입력문(이미 수집 중)" },
 ];
 
 export function suggestNewRules(gaps: GapScenario[], corpus: Scenario[]): NewRuleIdea[] {
   return IDEAS.map((idea) => {
-    const corpusHits = corpus.filter((s) => s.위험신호.some((t) => idea.tags.includes(t))).length;
+    const corpusHits = corpus.filter((s) => idea.types.includes(s.유형)).length;
     const targets = gaps
-      .filter((g) => g.corpusTags.some((t) => idea.tags.includes(t)))
+      .filter((g) => idea.types.includes(g.type))
       .map((g) => ({ type: g.type, weak: g.missed + g.cautionOnly }))
       .filter((t) => t.weak > 0);
     return { ...idea, corpusHits, corpusTotal: corpus.length, targets };
@@ -224,7 +210,7 @@ export function requestText(idea: NewRuleIdea): string {
     `- 정의: ${idea.definition}`,
     `- 조건: ${idea.condition}`,
     `- 필요 데이터: ${idea.dataNeeded}`,
-    `- 근거: 사기 사례 말뭉치 ${idea.corpusTotal}건 중 ${idea.corpusHits}건이 관련 위험신호(${idea.tags.join("·")})를 가짐`,
+    `- 근거: 사기 사례집 ${idea.corpusTotal}건 중 ${idea.corpusHits}건이 겨냥 유형(${idea.types.join("·")})에 속함`,
     `- 보완 대상 유형: ${idea.targets.map((t) => `${t.type}(위험으로 못 잡은 ${t.weak}건)`).join(", ")}`,
   ].join("\n");
 }

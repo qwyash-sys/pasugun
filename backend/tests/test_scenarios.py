@@ -11,7 +11,7 @@ INVEST = {
     "중분류": "가상자산 투자 리딩방",
     "수법요약": "코인 리딩방에서 고수익을 약속하며 지정 거래소 계좌로 투자금 입금을 유도",
     "범인멘트": ["리딩방 VIP만 받는 코인 정보입니다", "원금 보장에 수익 300% 드립니다", "이 계좌로 투자금 넣으시면 바로 매수해드려요"],
-    "위험신호": ["고수익보장", "리딩방", "지정계좌입금"],
+    "위험신호": [],
     "위험도": "고",
     "출처": "테스트",
 }
@@ -86,3 +86,9 @@ def test_evaluate_runs_the_shared_sentence_set():
 def test_signal_tags_ignore_spacing_so_hard_override_still_applies():
     res = client.post("/api/admin/scenarios", json={"scenario": {**INVEST, "위험신호": ["안전 계좌", "원격 제어앱", "안전계좌"]}})
     assert res.json()["scenario"]["위험신호"] == ["안전계좌", "원격제어앱"]
+
+
+def test_only_decisive_signals_are_accepted():
+    res = client.post("/api/admin/scenarios", json={"scenario": {**INVEST, "위험신호": ["고수익보장"]}})
+    assert res.status_code == 422
+    assert all(set(s["위험신호"]) <= {"안전계좌", "원격제어앱", "화면유지요구"} for s in client.get("/api/admin/scenarios").json())

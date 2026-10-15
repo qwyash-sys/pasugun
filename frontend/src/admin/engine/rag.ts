@@ -41,10 +41,9 @@ export function scenarioErrors(input: ScenarioInput): string[] {
   const lines1 = lines(input.범인멘트);
   if (!lines1.length) errors.push("범인 멘트를 한 줄 이상 입력해 주세요.");
   else if (lines1.length > 12) errors.push("범인 멘트는 12줄까지 입력할 수 있어요.");
-  const lines2 = lines(input.위험신호);
-  if (!lines2.length) errors.push("위험 신호를 한 개 이상 입력해 주세요.");
-  else if (lines2.length > 10) errors.push("위험 신호는 10개까지 입력할 수 있어요.");
-  if ([...lines1, ...lines2].some((x) => x.length > 120)) errors.push("한 줄은 120자 이내로 입력해 주세요.");
+  if (lines1.some((x) => x.length > 120)) errors.push("한 줄은 120자 이내로 입력해 주세요.");
+  const unknown = input.위험신호.filter((x) => !HARD_OVERRIDE_SIGNALS.has(x));
+  if (unknown.length) errors.push(`결정적 피싱 징후가 아니에요: ${unknown.join(", ")}`);
   if (!input.출처.trim()) errors.push("출처를 입력해 주세요.");
   return errors;
 }

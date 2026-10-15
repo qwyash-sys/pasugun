@@ -113,7 +113,7 @@ const SCRIPTED_CASES: DemoCase[] = [
         matched_id: "S02",
         similarity: 0.87,
         score: 50,
-        risk_signals: ["안전계좌", "자산보호"],
+        risk_signals: ["안전계좌"],
         source: "경찰청 월간피싱 zero S02",
         candidates: [
           { scenario_id: "S02", matched_type: "기관사칭", similarity: 0.87 },
@@ -205,7 +205,7 @@ const SCRIPTED_CASES: DemoCase[] = [
         matched_id: "S02",
         similarity: 0.87,
         score: 50,
-        risk_signals: ["안전계좌", "자산보호"],
+        risk_signals: ["안전계좌"],
         source: "경찰청 월간피싱 zero S02",
         candidates: [
           { scenario_id: "S02", matched_type: "기관사칭", similarity: 0.87 },
@@ -250,7 +250,7 @@ const SCRIPTED_CASES: DemoCase[] = [
           matched_id: "S02",
           similarity: 0.87,
           score: 50,
-          risk_signals: ["안전계좌", "자산보호"],
+          risk_signals: ["안전계좌"],
           source: "경찰청 월간피싱 zero S02",
           candidates: [
             { scenario_id: "S02", matched_type: "기관사칭", similarity: 0.87 },
@@ -313,7 +313,7 @@ const SCRIPTED_CASES: DemoCase[] = [
         matched_id: "S04",
         similarity: 0.82,
         score: 50,
-        risk_signals: ["선입금요구", "한도상향유도"],
+        risk_signals: [],
         source: "NH 제작 S04",
         candidates: [
           { scenario_id: "S04", matched_type: "대출사기", similarity: 0.82 },
@@ -408,7 +408,7 @@ const SCRIPTED_CASES: DemoCase[] = [
         matched_id: "S04",
         similarity: 0.82,
         score: 50,
-        risk_signals: ["선입금요구", "한도상향유도"],
+        risk_signals: [],
         source: "NH 제작 S04",
         candidates: [
           { scenario_id: "S04", matched_type: "대출사기", similarity: 0.82 },
@@ -453,7 +453,7 @@ const SCRIPTED_CASES: DemoCase[] = [
           matched_id: "S04",
           similarity: 0.82,
           score: 50,
-          risk_signals: ["선입금요구", "한도상향유도"],
+          risk_signals: [],
           source: "NH 제작 S04",
           candidates: [
             { scenario_id: "S04", matched_type: "대출사기", similarity: 0.82 },
@@ -513,7 +513,7 @@ const SCRIPTED_CASES: DemoCase[] = [
         matched_id: "S05",
         similarity: 0.6,
         score: 30,
-        risk_signals: ["통화회피", "문자로만연락"],
+        risk_signals: [],
         source: "경찰청 월간피싱 zero S05",
         candidates: [
           { scenario_id: "S05", matched_type: "메신저피싱", similarity: 0.6 },
@@ -603,7 +603,7 @@ const SCRIPTED_CASES: DemoCase[] = [
         matched_id: "S05",
         similarity: 0.6,
         score: 30,
-        risk_signals: ["통화회피", "문자로만연락"],
+        risk_signals: [],
         source: "경찰청 월간피싱 zero S05",
         candidates: [
           { scenario_id: "S05", matched_type: "메신저피싱", similarity: 0.6 },
@@ -645,7 +645,7 @@ const SCRIPTED_CASES: DemoCase[] = [
           matched_id: "S05",
           similarity: 0.6,
           score: 30,
-          risk_signals: ["통화회피", "문자로만연락"],
+          risk_signals: [],
           source: "경찰청 월간피싱 zero S05",
           candidates: [
             { scenario_id: "S05", matched_type: "메신저피싱", similarity: 0.6 },

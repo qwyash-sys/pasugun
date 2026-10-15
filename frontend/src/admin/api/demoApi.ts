@@ -13,6 +13,7 @@ import { cloneConfig, diffConfig, summarize } from "../engine/configDiff";
 import { analyzeActivity, makeActivity, seededRandom } from "../engine/postcheck";
 import { validateConfig } from "../engine/validate";
 import { scenarioErrors } from "../engine/rag";
+import { HARD_OVERRIDE_SIGNALS } from "../engine/scoring";
 
 const KEY = { rules: "pasugun.demo.rules.v2", cases: "pasugun.demo.cases.v2", logs: "pasugun.demo.logs.v2", scenarios: "pasugun.demo.scenarios.v2" };
 
@@ -115,7 +116,8 @@ const scenarioEdits = (): ScenarioEdits => load<ScenarioEdits>(KEY.scenarios, { 
 async function allScenarios(): Promise<Scenario[]> {
   const edits = scenarioEdits();
   const map = new Map<string, Scenario>((await seedScenarios()).map((s) => [s.id, { ...s, enabled: true }]));
-  for (const s of Object.values(edits.items)) map.set(s.id, s);
+  // 이전 버전에서 저장한 수정본에는 일반 신호가 섞여 있을 수 있어 결정적 징후만 남긴다
+  for (const s of Object.values(edits.items)) map.set(s.id, { ...s, 위험신호: s.위험신호.filter((x) => HARD_OVERRIDE_SIGNALS.has(x)) });
   return [...map.values()].sort((a, b) => a.id.localeCompare(b.id));
 }
 
@@ -178,7 +180,7 @@ export class DemoAdminApi implements AdminApi {
   }
 
   async saveScenario(id: string | null, raw: ScenarioInput, note = "") {
-    // 서버와 같이 태그 띄어쓰기를 지워 맞춘다('안전 계좌' → 결정적 징후 '안전계좌')
+    // 서버와 같이 띄어쓰기를 지워 맞춘다('안전 계좌' → 결정적 징후 '안전계좌'). 결정적 징후가 아닌 값은 검증에서 걸러진다.
     const input: ScenarioInput = { ...raw, 위험신호: [...new Set(raw.위험신호.map((t) => t.replace(/\s+/g, "")).filter(Boolean))] };
     const errors = scenarioErrors(input);
     if (errors.length) throw new ConfigError(errors);

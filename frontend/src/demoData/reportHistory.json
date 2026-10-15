@@ -56,10 +56,7 @@
     "similarity": 0.84,
     "score": 50,
     "risk_signals": [
-     "안전계좌",
-     "자산보호",
-     "수사기관사칭",
-     "사건번호"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S02",
     "candidates": [
@@ -299,10 +296,7 @@
      "similarity": 0.84,
      "score": 50,
      "risk_signals": [
-      "안전계좌",
-      "자산보호",
-      "수사기관사칭",
-      "사건번호"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S02",
      "candidates": [
@@ -660,12 +654,7 @@
     "matched_id": "S07",
     "similarity": 0.77,
     "score": 30,
-    "risk_signals": [
-     "URL클릭유도",
-     "악성앱설치",
-     "결제정보입력",
-     "배송오류미끼"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S07",
     "candidates": [
      {
@@ -903,12 +892,7 @@
      "matched_id": "S07",
      "similarity": 0.77,
      "score": 30,
-     "risk_signals": [
-      "URL클릭유도",
-      "악성앱설치",
-      "결제정보입력",
-      "배송오류미끼"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S07",
      "candidates": [
       {
@@ -1258,12 +1242,7 @@
     "matched_id": "S05",
     "similarity": 0.65,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -1501,12 +1480,7 @@
      "matched_id": "S05",
      "similarity": 0.65,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -1662,10 +1636,7 @@
     "similarity": 0.84,
     "score": 50,
     "risk_signals": [
-     "안전계좌",
-     "자산보호",
-     "수사기관사칭",
-     "사건번호"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S02",
     "candidates": [
@@ -1905,10 +1876,7 @@
      "similarity": 0.84,
      "score": 50,
      "risk_signals": [
-      "안전계좌",
-      "자산보호",
-      "수사기관사칭",
-      "사건번호"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S02",
      "candidates": [
@@ -2063,12 +2031,7 @@
     "matched_id": "S05",
     "similarity": 0.75,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -2306,12 +2269,7 @@
      "matched_id": "S05",
      "similarity": 0.75,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -2448,12 +2406,7 @@
     "matched_id": "S01",
     "similarity": 0.68,
     "score": 30,
-    "risk_signals": [
-     "결백증명",
-     "예치금",
-     "수사기관사칭",
-     "비밀유지요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S01",
     "candidates": [
      {
@@ -2691,12 +2644,7 @@
      "matched_id": "S01",
      "similarity": 0.68,
      "score": 30,
-     "risk_signals": [
-      "결백증명",
-      "예치금",
-      "수사기관사칭",
-      "비밀유지요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S01",
      "candidates": [
       {
@@ -2824,12 +2772,7 @@
     "matched_id": "S07",
     "similarity": 0.77,
     "score": 30,
-    "risk_signals": [
-     "URL클릭유도",
-     "악성앱설치",
-     "결제정보입력",
-     "배송오류미끼"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S07",
     "candidates": [
      {
@@ -3067,12 +3010,7 @@
      "matched_id": "S07",
      "similarity": 0.77,
      "score": 30,
-     "risk_signals": [
-      "URL클릭유도",
-      "악성앱설치",
-      "결제정보입력",
-      "배송오류미끼"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S07",
      "candidates": [
       {
@@ -3438,12 +3376,7 @@
     "matched_id": "S04",
     "similarity": 0.82,
     "score": 50,
-    "risk_signals": [
-     "선입금요구",
-     "한도상향유도",
-     "대환대출",
-     "신용점수언급"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S04",
     "candidates": [
      {
@@ -3681,12 +3614,7 @@
      "matched_id": "S04",
      "similarity": 0.82,
      "score": 50,
-     "risk_signals": [
-      "선입금요구",
-      "한도상향유도",
-      "대환대출",
-      "신용점수언급"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S04",
      "candidates": [
       {
@@ -3841,12 +3769,7 @@
     "matched_id": "S09",
     "similarity": 0.64,
     "score": 30,
-    "risk_signals": [
-     "선입금요구",
-     "고수익미끼",
-     "반복입금유도",
-     "보증금명목"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S09",
     "candidates": [
      {
@@ -4084,12 +4007,7 @@
      "matched_id": "S09",
      "similarity": 0.64,
      "score": 30,
-     "risk_signals": [
-      "선입금요구",
-      "고수익미끼",
-      "반복입금유도",
-      "보증금명목"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S09",
      "candidates": [
       {
@@ -4231,12 +4149,7 @@
     "matched_id": "S09",
     "similarity": 0.64,
     "score": 30,
-    "risk_signals": [
-     "선입금요구",
-     "고수익미끼",
-     "반복입금유도",
-     "보증금명목"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S09",
     "candidates": [
      {
@@ -4474,12 +4387,7 @@
      "matched_id": "S09",
      "similarity": 0.64,
      "score": 30,
-     "risk_signals": [
-      "선입금요구",
-      "고수익미끼",
-      "반복입금유도",
-      "보증금명목"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S09",
      "candidates": [
       {
@@ -4614,12 +4522,7 @@
     "matched_id": "S07",
     "similarity": 0.77,
     "score": 30,
-    "risk_signals": [
-     "URL클릭유도",
-     "악성앱설치",
-     "결제정보입력",
-     "배송오류미끼"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S07",
     "candidates": [
      {
@@ -4857,12 +4760,7 @@
      "matched_id": "S07",
      "similarity": 0.77,
      "score": 30,
-     "risk_signals": [
-      "URL클릭유도",
-      "악성앱설치",
-      "결제정보입력",
-      "배송오류미끼"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S07",
      "candidates": [
       {
@@ -5458,12 +5356,7 @@
     "matched_id": "S01",
     "similarity": 0.68,
     "score": 30,
-    "risk_signals": [
-     "결백증명",
-     "예치금",
-     "수사기관사칭",
-     "비밀유지요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S01",
     "candidates": [
      {
@@ -5701,12 +5594,7 @@
      "matched_id": "S01",
      "similarity": 0.68,
      "score": 30,
-     "risk_signals": [
-      "결백증명",
-      "예치금",
-      "수사기관사칭",
-      "비밀유지요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S01",
      "candidates": [
       {
@@ -6056,12 +5944,7 @@
     "matched_id": "S07",
     "similarity": 0.77,
     "score": 30,
-    "risk_signals": [
-     "URL클릭유도",
-     "악성앱설치",
-     "결제정보입력",
-     "배송오류미끼"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S07",
     "candidates": [
      {
@@ -6299,12 +6182,7 @@
      "matched_id": "S07",
      "similarity": 0.77,
      "score": 30,
-     "risk_signals": [
-      "URL클릭유도",
-      "악성앱설치",
-      "결제정보입력",
-      "배송오류미끼"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S07",
      "candidates": [
       {
@@ -6448,12 +6326,7 @@
     "matched_id": "S01",
     "similarity": 0.68,
     "score": 30,
-    "risk_signals": [
-     "결백증명",
-     "예치금",
-     "수사기관사칭",
-     "비밀유지요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S01",
     "candidates": [
      {
@@ -6691,12 +6564,7 @@
      "matched_id": "S01",
      "similarity": 0.68,
      "score": 30,
-     "risk_signals": [
-      "결백증명",
-      "예치금",
-      "수사기관사칭",
-      "비밀유지요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S01",
      "candidates": [
       {
@@ -6853,12 +6721,7 @@
     "matched_id": "S04",
     "similarity": 0.82,
     "score": 50,
-    "risk_signals": [
-     "선입금요구",
-     "한도상향유도",
-     "대환대출",
-     "신용점수언급"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S04",
     "candidates": [
      {
@@ -7096,12 +6959,7 @@
      "matched_id": "S04",
      "similarity": 0.82,
      "score": 50,
-     "risk_signals": [
-      "선입금요구",
-      "한도상향유도",
-      "대환대출",
-      "신용점수언급"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S04",
      "candidates": [
       {
@@ -7254,12 +7112,7 @@
     "matched_id": "S05",
     "similarity": 0.75,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -7491,12 +7344,7 @@
      "matched_id": "S05",
      "similarity": 0.75,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -7652,10 +7500,7 @@
     "similarity": 0.84,
     "score": 50,
     "risk_signals": [
-     "안전계좌",
-     "자산보호",
-     "수사기관사칭",
-     "사건번호"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S02",
     "candidates": [
@@ -7895,10 +7740,7 @@
      "similarity": 0.84,
      "score": 50,
      "risk_signals": [
-      "안전계좌",
-      "자산보호",
-      "수사기관사칭",
-      "사건번호"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S02",
      "candidates": [
@@ -8046,12 +7888,7 @@
     "matched_id": "S09",
     "similarity": 0.64,
     "score": 30,
-    "risk_signals": [
-     "선입금요구",
-     "고수익미끼",
-     "반복입금유도",
-     "보증금명목"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S09",
     "candidates": [
      {
@@ -8289,12 +8126,7 @@
      "matched_id": "S09",
      "similarity": 0.64,
      "score": 30,
-     "risk_signals": [
-      "선입금요구",
-      "고수익미끼",
-      "반복입금유도",
-      "보증금명목"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S09",
      "candidates": [
       {
@@ -8654,8 +8486,7 @@
     "risk_signals": [
      "원격제어앱",
      "화면유지요구",
-     "안전계좌",
-     "수사기관사칭"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S10",
     "candidates": [
@@ -8891,8 +8722,7 @@
      "risk_signals": [
       "원격제어앱",
       "화면유지요구",
-      "안전계좌",
-      "수사기관사칭"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S10",
      "candidates": [
@@ -9042,8 +8872,7 @@
     "risk_signals": [
      "원격제어앱",
      "화면유지요구",
-     "안전계좌",
-     "수사기관사칭"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S10",
     "candidates": [
@@ -9285,8 +9114,7 @@
      "risk_signals": [
       "원격제어앱",
       "화면유지요구",
-      "안전계좌",
-      "수사기관사칭"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S10",
      "candidates": [
@@ -9656,12 +9484,7 @@
     "matched_id": "S01",
     "similarity": 0.68,
     "score": 30,
-    "risk_signals": [
-     "결백증명",
-     "예치금",
-     "수사기관사칭",
-     "비밀유지요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S01",
     "candidates": [
      {
@@ -9899,12 +9722,7 @@
      "matched_id": "S01",
      "similarity": 0.68,
      "score": 30,
-     "risk_signals": [
-      "결백증명",
-      "예치금",
-      "수사기관사칭",
-      "비밀유지요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S01",
      "candidates": [
       {
@@ -10049,12 +9867,7 @@
     "matched_id": "S05",
     "similarity": 0.75,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -10286,12 +10099,7 @@
      "matched_id": "S05",
      "similarity": 0.75,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -10431,8 +10239,7 @@
     "risk_signals": [
      "원격제어앱",
      "화면유지요구",
-     "안전계좌",
-     "수사기관사칭"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S10",
     "candidates": [
@@ -10668,8 +10475,7 @@
      "risk_signals": [
       "원격제어앱",
       "화면유지요구",
-      "안전계좌",
-      "수사기관사칭"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S10",
      "candidates": [
@@ -10817,12 +10623,7 @@
     "matched_id": "S09",
     "similarity": 0.64,
     "score": 30,
-    "risk_signals": [
-     "선입금요구",
-     "고수익미끼",
-     "반복입금유도",
-     "보증금명목"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S09",
     "candidates": [
      {
@@ -11060,12 +10861,7 @@
      "matched_id": "S09",
      "similarity": 0.64,
      "score": 30,
-     "risk_signals": [
-      "선입금요구",
-      "고수익미끼",
-      "반복입금유도",
-      "보증금명목"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S09",
      "candidates": [
       {
@@ -11195,12 +10991,7 @@
     "matched_id": "S09",
     "similarity": 0.64,
     "score": 30,
-    "risk_signals": [
-     "선입금요구",
-     "고수익미끼",
-     "반복입금유도",
-     "보증금명목"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S09",
     "candidates": [
      {
@@ -11438,12 +11229,7 @@
      "matched_id": "S09",
      "similarity": 0.64,
      "score": 30,
-     "risk_signals": [
-      "선입금요구",
-      "고수익미끼",
-      "반복입금유도",
-      "보증금명목"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S09",
      "candidates": [
       {
@@ -11582,8 +11368,7 @@
     "risk_signals": [
      "원격제어앱",
      "화면유지요구",
-     "안전계좌",
-     "수사기관사칭"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S10",
     "candidates": [
@@ -11825,8 +11610,7 @@
      "risk_signals": [
       "원격제어앱",
       "화면유지요구",
-      "안전계좌",
-      "수사기관사칭"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S10",
      "candidates": [
@@ -11976,10 +11760,7 @@
     "similarity": 0.62,
     "score": 30,
     "risk_signals": [
-     "카드발급미신청",
-     "명의도용사칭",
-     "원격제어앱",
-     "수사기관사칭"
+     "원격제어앱"
     ],
     "source": "팀 보강 사례(공개 수법 기반) S12",
     "candidates": [
@@ -12219,10 +12000,7 @@
      "similarity": 0.62,
      "score": 30,
      "risk_signals": [
-      "카드발급미신청",
-      "명의도용사칭",
-      "원격제어앱",
-      "수사기관사칭"
+      "원격제어앱"
      ],
      "source": "팀 보강 사례(공개 수법 기반) S12",
      "candidates": [
@@ -12364,12 +12142,7 @@
     "matched_id": "S07",
     "similarity": 0.77,
     "score": 30,
-    "risk_signals": [
-     "URL클릭유도",
-     "악성앱설치",
-     "결제정보입력",
-     "배송오류미끼"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S07",
     "candidates": [
      {
@@ -12607,12 +12380,7 @@
      "matched_id": "S07",
      "similarity": 0.77,
      "score": 30,
-     "risk_signals": [
-      "URL클릭유도",
-      "악성앱설치",
-      "결제정보입력",
-      "배송오류미끼"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S07",
      "candidates": [
       {
@@ -12755,8 +12523,7 @@
     "risk_signals": [
      "원격제어앱",
      "화면유지요구",
-     "안전계좌",
-     "수사기관사칭"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S10",
     "candidates": [
@@ -12998,8 +12765,7 @@
      "risk_signals": [
       "원격제어앱",
       "화면유지요구",
-      "안전계좌",
-      "수사기관사칭"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S10",
      "candidates": [
@@ -13149,12 +12915,7 @@
     "matched_id": "S01",
     "similarity": 0.68,
     "score": 30,
-    "risk_signals": [
-     "결백증명",
-     "예치금",
-     "수사기관사칭",
-     "비밀유지요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S01",
     "candidates": [
      {
@@ -13392,12 +13153,7 @@
      "matched_id": "S01",
      "similarity": 0.68,
      "score": 30,
-     "risk_signals": [
-      "결백증명",
-      "예치금",
-      "수사기관사칭",
-      "비밀유지요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S01",
      "candidates": [
       {
@@ -13533,10 +13289,7 @@
     "similarity": 0.62,
     "score": 30,
     "risk_signals": [
-     "카드발급미신청",
-     "명의도용사칭",
-     "원격제어앱",
-     "수사기관사칭"
+     "원격제어앱"
     ],
     "source": "팀 보강 사례(공개 수법 기반) S12",
     "candidates": [
@@ -13770,10 +13523,7 @@
      "similarity": 0.62,
      "score": 30,
      "risk_signals": [
-      "카드발급미신청",
-      "명의도용사칭",
-      "원격제어앱",
-      "수사기관사칭"
+      "원격제어앱"
      ],
      "source": "팀 보강 사례(공개 수법 기반) S12",
      "candidates": [
@@ -14157,12 +13907,7 @@
     "matched_id": "S05",
     "similarity": 0.75,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -14400,12 +14145,7 @@
      "matched_id": "S05",
      "similarity": 0.75,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -14557,12 +14297,7 @@
     "matched_id": "S07",
     "similarity": 0.77,
     "score": 30,
-    "risk_signals": [
-     "URL클릭유도",
-     "악성앱설치",
-     "결제정보입력",
-     "배송오류미끼"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S07",
     "candidates": [
      {
@@ -14800,12 +14535,7 @@
      "matched_id": "S07",
      "similarity": 0.77,
      "score": 30,
-     "risk_signals": [
-      "URL클릭유도",
-      "악성앱설치",
-      "결제정보입력",
-      "배송오류미끼"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S07",
      "candidates": [
       {
@@ -15173,8 +14903,7 @@
     "risk_signals": [
      "원격제어앱",
      "화면유지요구",
-     "안전계좌",
-     "수사기관사칭"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S10",
     "candidates": [
@@ -15416,8 +15145,7 @@
      "risk_signals": [
       "원격제어앱",
       "화면유지요구",
-      "안전계좌",
-      "수사기관사칭"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S10",
      "candidates": [
@@ -15561,12 +15289,7 @@
     "matched_id": "S04",
     "similarity": 0.73,
     "score": 30,
-    "risk_signals": [
-     "선입금요구",
-     "한도상향유도",
-     "대환대출",
-     "신용점수언급"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S04",
     "candidates": [
      {
@@ -15804,12 +15527,7 @@
      "matched_id": "S04",
      "similarity": 0.73,
      "score": 30,
-     "risk_signals": [
-      "선입금요구",
-      "한도상향유도",
-      "대환대출",
-      "신용점수언급"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S04",
      "candidates": [
       {
@@ -15947,12 +15665,7 @@
     "matched_id": "S05",
     "similarity": 0.75,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -16190,12 +15903,7 @@
      "matched_id": "S05",
      "similarity": 0.75,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -16347,12 +16055,7 @@
     "matched_id": "S08",
     "similarity": 0.81,
     "score": 50,
-    "risk_signals": [
-     "영상유포협박",
-     "즉시입금요구",
-     "신고방해",
-     "지인유포언급"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S08",
     "candidates": [
      {
@@ -16590,12 +16293,7 @@
      "matched_id": "S08",
      "similarity": 0.81,
      "score": 50,
-     "risk_signals": [
-      "영상유포협박",
-      "즉시입금요구",
-      "신고방해",
-      "지인유포언급"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S08",
      "candidates": [
       {
@@ -16733,12 +16431,7 @@
     "matched_id": "S11",
     "similarity": 0.79,
     "score": 30,
-    "risk_signals": [
-     "납치협박",
-     "즉시송금요구",
-     "통화지속강요",
-     "신고금지요구"
-    ],
+    "risk_signals": [],
     "source": "팀 보강 사례(공개 수법 기반) S11",
     "candidates": [
      {
@@ -16976,12 +16669,7 @@
      "matched_id": "S11",
      "similarity": 0.79,
      "score": 30,
-     "risk_signals": [
-      "납치협박",
-      "즉시송금요구",
-      "통화지속강요",
-      "신고금지요구"
-     ],
+     "risk_signals": [],
      "source": "팀 보강 사례(공개 수법 기반) S11",
      "candidates": [
       {
@@ -17121,12 +16809,7 @@
     "matched_id": "S07",
     "similarity": 0.77,
     "score": 30,
-    "risk_signals": [
-     "URL클릭유도",
-     "악성앱설치",
-     "결제정보입력",
-     "배송오류미끼"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S07",
     "candidates": [
      {
@@ -17364,12 +17047,7 @@
      "matched_id": "S07",
      "similarity": 0.77,
      "score": 30,
-     "risk_signals": [
-      "URL클릭유도",
-      "악성앱설치",
-      "결제정보입력",
-      "배송오류미끼"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S07",
      "candidates": [
       {
@@ -17512,12 +17190,7 @@
     "matched_id": "S09",
     "similarity": 0.64,
     "score": 30,
-    "risk_signals": [
-     "선입금요구",
-     "고수익미끼",
-     "반복입금유도",
-     "보증금명목"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S09",
     "candidates": [
      {
@@ -17755,12 +17428,7 @@
      "matched_id": "S09",
      "similarity": 0.64,
      "score": 30,
-     "risk_signals": [
-      "선입금요구",
-      "고수익미끼",
-      "반복입금유도",
-      "보증금명목"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S09",
      "candidates": [
       {
@@ -18122,12 +17790,7 @@
     "matched_id": "S08",
     "similarity": 0.81,
     "score": 50,
-    "risk_signals": [
-     "영상유포협박",
-     "즉시입금요구",
-     "신고방해",
-     "지인유포언급"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S08",
     "candidates": [
      {
@@ -18365,12 +18028,7 @@
      "matched_id": "S08",
      "similarity": 0.81,
      "score": 50,
-     "risk_signals": [
-      "영상유포협박",
-      "즉시입금요구",
-      "신고방해",
-      "지인유포언급"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S08",
      "candidates": [
       {
@@ -18504,10 +18162,7 @@
     "similarity": 0.84,
     "score": 50,
     "risk_signals": [
-     "안전계좌",
-     "자산보호",
-     "수사기관사칭",
-     "사건번호"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S02",
     "candidates": [
@@ -18747,10 +18402,7 @@
      "similarity": 0.84,
      "score": 50,
      "risk_signals": [
-      "안전계좌",
-      "자산보호",
-      "수사기관사칭",
-      "사건번호"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S02",
      "candidates": [
@@ -18894,12 +18546,7 @@
     "matched_id": "S01",
     "similarity": 0.68,
     "score": 30,
-    "risk_signals": [
-     "결백증명",
-     "예치금",
-     "수사기관사칭",
-     "비밀유지요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S01",
     "candidates": [
      {
@@ -19137,12 +18784,7 @@
      "matched_id": "S01",
      "similarity": 0.68,
      "score": 30,
-     "risk_signals": [
-      "결백증명",
-      "예치금",
-      "수사기관사칭",
-      "비밀유지요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S01",
      "candidates": [
       {
@@ -19291,12 +18933,7 @@
     "matched_id": "S05",
     "similarity": 0.75,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -19534,12 +19171,7 @@
      "matched_id": "S05",
      "similarity": 0.75,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -19909,12 +19541,7 @@
     "matched_id": "S04",
     "similarity": 0.82,
     "score": 50,
-    "risk_signals": [
-     "선입금요구",
-     "한도상향유도",
-     "대환대출",
-     "신용점수언급"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S04",
     "candidates": [
      {
@@ -20146,12 +19773,7 @@
      "matched_id": "S04",
      "similarity": 0.82,
      "score": 50,
-     "risk_signals": [
-      "선입금요구",
-      "한도상향유도",
-      "대환대출",
-      "신용점수언급"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S04",
      "candidates": [
       {
@@ -20298,12 +19920,7 @@
     "matched_id": "S05",
     "similarity": 0.65,
     "score": 30,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
@@ -20541,12 +20158,7 @@
      "matched_id": "S05",
      "similarity": 0.65,
      "score": 30,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
@@ -20692,10 +20304,7 @@
     "similarity": 0.84,
     "score": 50,
     "risk_signals": [
-     "안전계좌",
-     "자산보호",
-     "수사기관사칭",
-     "사건번호"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S02",
     "candidates": [
@@ -20935,10 +20544,7 @@
      "similarity": 0.84,
      "score": 50,
      "risk_signals": [
-      "안전계좌",
-      "자산보호",
-      "수사기관사칭",
-      "사건번호"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S02",
      "candidates": [

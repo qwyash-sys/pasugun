@@ -230,72 +230,69 @@
     "similarity": 0.81,
     "score": 50,
     "risk_signals": [
-     "안전계좌",
-     "자산보호",
-     "수사기관사칭",
-     "사건번호"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S02",
     "candidates": [
      {
       "scenario_id": "S02",
       "matched_type": "기관사칭",
-      "similarity": 0.812
+      "similarity": 0.813
      },
      {
       "scenario_id": "S12",
       "matched_type": "기관사칭",
-      "similarity": 0.672
+      "similarity": 0.691
      },
      {
       "scenario_id": "S01",
       "matched_type": "기관사칭",
-      "similarity": 0.651
+      "similarity": 0.645
      },
      {
       "scenario_id": "S03",
       "matched_type": "기관사칭",
-      "similarity": 0.562
+      "similarity": 0.557
      },
      {
       "scenario_id": "S06",
       "matched_type": "협박형",
-      "similarity": 0.556
+      "similarity": 0.544
      },
      {
       "scenario_id": "S10",
       "matched_type": "원격제어형",
-      "similarity": 0.554
+      "similarity": 0.537
      },
      {
       "scenario_id": "S05",
       "matched_type": "메신저피싱",
-      "similarity": 0.524
+      "similarity": 0.514
      },
      {
       "scenario_id": "S11",
       "matched_type": "협박형",
-      "similarity": 0.506
+      "similarity": 0.485
      },
      {
       "scenario_id": "S08",
       "matched_type": "몸캠피싱",
-      "similarity": 0.476
+      "similarity": 0.468
      },
      {
       "scenario_id": "S04",
       "matched_type": "대출사기",
-      "similarity": 0.442
+      "similarity": 0.451
      },
      {
       "scenario_id": "S07",
       "matched_type": "스미싱",
-      "similarity": 0.435
+      "similarity": 0.439
      },
      {
       "scenario_id": "S09",
       "matched_type": "취업사기",
-      "similarity": 0.354
+      "similarity": 0.345
      }
     ]
    },
@@ -332,8 +329,8 @@
    }
   },
   "report": {
-   "report_id": "RPT-20261014-001",
-   "generated_at": "2026-10-14T12:47:20+09:00",
+   "report_id": "RPT-20261015-001",
+   "generated_at": "2026-10-15T19:22:19+09:00",
    "customer_name": "남용준",
    "customer_phone_masked": "010-****-0001",
    "customer_account_masked": "351-****-0001",
@@ -391,72 +388,69 @@
     "similarity": 0.81,
     "score": 50,
     "risk_signals": [
-     "안전계좌",
-     "자산보호",
-     "수사기관사칭",
-     "사건번호"
+     "안전계좌"
     ],
     "source": "경찰청 월간피싱 zero S02",
     "candidates": [
      {
       "scenario_id": "S02",
       "matched_type": "기관사칭",
-      "similarity": 0.812
+      "similarity": 0.813
      },
      {
       "scenario_id": "S12",
       "matched_type": "기관사칭",
-      "similarity": 0.672
+      "similarity": 0.691
      },
      {
       "scenario_id": "S01",
       "matched_type": "기관사칭",
-      "similarity": 0.651
+      "similarity": 0.645
      },
      {
       "scenario_id": "S03",
       "matched_type": "기관사칭",
-      "similarity": 0.562
+      "similarity": 0.557
      },
      {
       "scenario_id": "S06",
       "matched_type": "협박형",
-      "similarity": 0.556
+      "similarity": 0.544
      },
      {
       "scenario_id": "S10",
       "matched_type": "원격제어형",
-      "similarity": 0.554
+      "similarity": 0.537
      },
      {
       "scenario_id": "S05",
       "matched_type": "메신저피싱",
-      "similarity": 0.524
+      "similarity": 0.514
      },
      {
       "scenario_id": "S11",
       "matched_type": "협박형",
-      "similarity": 0.506
+      "similarity": 0.485
      },
      {
       "scenario_id": "S08",
       "matched_type": "몸캠피싱",
-      "similarity": 0.476
+      "similarity": 0.468
      },
      {
       "scenario_id": "S04",
       "matched_type": "대출사기",
-      "similarity": 0.442
+      "similarity": 0.451
      },
      {
       "scenario_id": "S07",
       "matched_type": "스미싱",
-      "similarity": 0.435
+      "similarity": 0.439
      },
      {
       "scenario_id": "S09",
       "matched_type": "취업사기",
-      "similarity": 0.354
+      "similarity": 0.345
      }
     ]
    },
@@ -634,72 +628,69 @@
      "similarity": 0.81,
      "score": 50,
      "risk_signals": [
-      "안전계좌",
-      "자산보호",
-      "수사기관사칭",
-      "사건번호"
+      "안전계좌"
      ],
      "source": "경찰청 월간피싱 zero S02",
      "candidates": [
       {
        "scenario_id": "S02",
        "matched_type": "기관사칭",
-       "similarity": 0.812
+       "similarity": 0.813
       },
       {
        "scenario_id": "S12",
        "matched_type": "기관사칭",
-       "similarity": 0.672
+       "similarity": 0.691
       },
       {
        "scenario_id": "S01",
        "matched_type": "기관사칭",
-       "similarity": 0.651
+       "similarity": 0.645
       },
       {
        "scenario_id": "S03",
        "matched_type": "기관사칭",
-       "similarity": 0.562
+       "similarity": 0.557
       },
       {
        "scenario_id": "S06",
        "matched_type": "협박형",
-       "similarity": 0.556
+       "similarity": 0.544
       },
       {
        "scenario_id": "S10",
        "matched_type": "원격제어형",
-       "similarity": 0.554
+       "similarity": 0.537
       },
       {
        "scenario_id": "S05",
        "matched_type": "메신저피싱",
-       "similarity": 0.524
+       "similarity": 0.514
       },
       {
        "scenario_id": "S11",
        "matched_type": "협박형",
-       "similarity": 0.506
+       "similarity": 0.485
       },
       {
        "scenario_id": "S08",
        "matched_type": "몸캠피싱",
-       "similarity": 0.476
+       "similarity": 0.468
       },
       {
        "scenario_id": "S04",
        "matched_type": "대출사기",
-       "similarity": 0.442
+       "similarity": 0.451
       },
       {
        "scenario_id": "S07",
        "matched_type": "스미싱",
-       "similarity": 0.435
+       "similarity": 0.439
       },
       {
        "scenario_id": "S09",
        "matched_type": "취업사기",
-       "similarity": 0.354
+       "similarity": 0.345
       }
      ]
     },
@@ -940,73 +931,68 @@
     "matched_id": "S04",
     "similarity": 0.88,
     "score": 50,
-    "risk_signals": [
-     "선입금요구",
-     "한도상향유도",
-     "대환대출",
-     "신용점수언급"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S04",
     "candidates": [
      {
       "scenario_id": "S04",
       "matched_type": "대출사기",
-      "similarity": 0.876
+      "similarity": 0.875
      },
      {
       "scenario_id": "S09",
       "matched_type": "취업사기",
-      "similarity": 0.688
+      "similarity": 0.685
      },
      {
       "scenario_id": "S12",
       "matched_type": "기관사칭",
-      "similarity": 0.587
+      "similarity": 0.601
      },
      {
       "scenario_id": "S06",
       "matched_type": "협박형",
-      "similarity": 0.556
+      "similarity": 0.538
      },
      {
       "scenario_id": "S03",
       "matched_type": "기관사칭",
-      "similarity": 0.522
+      "similarity": 0.526
      },
      {
       "scenario_id": "S05",
       "matched_type": "메신저피싱",
-      "similarity": 0.487
+      "similarity": 0.495
      },
      {
       "scenario_id": "S10",
       "matched_type": "원격제어형",
-      "similarity": 0.48
-     },
-     {
-      "scenario_id": "S01",
-      "matched_type": "기관사칭",
-      "similarity": 0.465
-     },
-     {
-      "scenario_id": "S02",
-      "matched_type": "기관사칭",
-      "similarity": 0.451
+      "similarity": 0.488
      },
      {
       "scenario_id": "S07",
       "matched_type": "스미싱",
-      "similarity": 0.45
+      "similarity": 0.476
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.461
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.449
      },
      {
       "scenario_id": "S08",
       "matched_type": "몸캠피싱",
-      "similarity": 0.429
+      "similarity": 0.413
      },
      {
       "scenario_id": "S11",
       "matched_type": "협박형",
-      "similarity": 0.394
+      "similarity": 0.379
      }
     ]
    },
@@ -1038,8 +1024,8 @@
    }
   },
   "report": {
-   "report_id": "RPT-20261014-002",
-   "generated_at": "2026-10-14T12:47:21+09:00",
+   "report_id": "RPT-20261015-002",
+   "generated_at": "2026-10-15T19:22:19+09:00",
    "customer_name": "김도현",
    "customer_phone_masked": "010-****-0002",
    "customer_account_masked": "351-****-0002",
@@ -1087,73 +1073,68 @@
     "matched_id": "S04",
     "similarity": 0.88,
     "score": 50,
-    "risk_signals": [
-     "선입금요구",
-     "한도상향유도",
-     "대환대출",
-     "신용점수언급"
-    ],
+    "risk_signals": [],
     "source": "NH 제작 S04",
     "candidates": [
      {
       "scenario_id": "S04",
       "matched_type": "대출사기",
-      "similarity": 0.876
+      "similarity": 0.875
      },
      {
       "scenario_id": "S09",
       "matched_type": "취업사기",
-      "similarity": 0.688
+      "similarity": 0.685
      },
      {
       "scenario_id": "S12",
       "matched_type": "기관사칭",
-      "similarity": 0.587
+      "similarity": 0.601
      },
      {
       "scenario_id": "S06",
       "matched_type": "협박형",
-      "similarity": 0.556
+      "similarity": 0.538
      },
      {
       "scenario_id": "S03",
       "matched_type": "기관사칭",
-      "similarity": 0.522
+      "similarity": 0.526
      },
      {
       "scenario_id": "S05",
       "matched_type": "메신저피싱",
-      "similarity": 0.487
+      "similarity": 0.495
      },
      {
       "scenario_id": "S10",
       "matched_type": "원격제어형",
-      "similarity": 0.48
-     },
-     {
-      "scenario_id": "S01",
-      "matched_type": "기관사칭",
-      "similarity": 0.465
-     },
-     {
-      "scenario_id": "S02",
-      "matched_type": "기관사칭",
-      "similarity": 0.451
+      "similarity": 0.488
      },
      {
       "scenario_id": "S07",
       "matched_type": "스미싱",
-      "similarity": 0.45
+      "similarity": 0.476
+     },
+     {
+      "scenario_id": "S02",
+      "matched_type": "기관사칭",
+      "similarity": 0.461
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.449
      },
      {
       "scenario_id": "S08",
       "matched_type": "몸캠피싱",
-      "similarity": 0.429
+      "similarity": 0.413
      },
      {
       "scenario_id": "S11",
       "matched_type": "협박형",
-      "similarity": 0.394
+      "similarity": 0.379
      }
     ]
    },
@@ -1330,73 +1311,68 @@
      "matched_id": "S04",
      "similarity": 0.88,
      "score": 50,
-     "risk_signals": [
-      "선입금요구",
-      "한도상향유도",
-      "대환대출",
-      "신용점수언급"
-     ],
+     "risk_signals": [],
      "source": "NH 제작 S04",
      "candidates": [
       {
        "scenario_id": "S04",
        "matched_type": "대출사기",
-       "similarity": 0.876
+       "similarity": 0.875
       },
       {
        "scenario_id": "S09",
        "matched_type": "취업사기",
-       "similarity": 0.688
+       "similarity": 0.685
       },
       {
        "scenario_id": "S12",
        "matched_type": "기관사칭",
-       "similarity": 0.587
+       "similarity": 0.601
       },
       {
        "scenario_id": "S06",
        "matched_type": "협박형",
-       "similarity": 0.556
+       "similarity": 0.538
       },
       {
        "scenario_id": "S03",
        "matched_type": "기관사칭",
-       "similarity": 0.522
+       "similarity": 0.526
       },
       {
        "scenario_id": "S05",
        "matched_type": "메신저피싱",
-       "similarity": 0.487
+       "similarity": 0.495
       },
       {
        "scenario_id": "S10",
        "matched_type": "원격제어형",
-       "similarity": 0.48
-      },
-      {
-       "scenario_id": "S01",
-       "matched_type": "기관사칭",
-       "similarity": 0.465
-      },
-      {
-       "scenario_id": "S02",
-       "matched_type": "기관사칭",
-       "similarity": 0.451
+       "similarity": 0.488
       },
       {
        "scenario_id": "S07",
        "matched_type": "스미싱",
-       "similarity": 0.45
+       "similarity": 0.476
+      },
+      {
+       "scenario_id": "S02",
+       "matched_type": "기관사칭",
+       "similarity": 0.461
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.449
       },
       {
        "scenario_id": "S08",
        "matched_type": "몸캠피싱",
-       "similarity": 0.429
+       "similarity": 0.413
       },
       {
        "scenario_id": "S11",
        "matched_type": "협박형",
-       "similarity": 0.394
+       "similarity": 0.379
       }
      ]
     },
@@ -1611,75 +1587,70 @@
     "hit": true,
     "matched_type": "메신저피싱",
     "matched_id": "S05",
-    "similarity": 0.85,
+    "similarity": 0.86,
     "score": 50,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
       "scenario_id": "S05",
       "matched_type": "메신저피싱",
-      "similarity": 0.851
+      "similarity": 0.861
      },
      {
       "scenario_id": "S08",
       "matched_type": "몸캠피싱",
-      "similarity": 0.566
-     },
-     {
-      "scenario_id": "S06",
-      "matched_type": "협박형",
-      "similarity": 0.54
+      "similarity": 0.572
      },
      {
       "scenario_id": "S11",
       "matched_type": "협박형",
-      "similarity": 0.529
+      "similarity": 0.549
      },
      {
-      "scenario_id": "S12",
-      "matched_type": "기관사칭",
-      "similarity": 0.481
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.547
      },
      {
       "scenario_id": "S07",
       "matched_type": "스미싱",
-      "similarity": 0.473
+      "similarity": 0.488
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.474
      },
      {
       "scenario_id": "S10",
       "matched_type": "원격제어형",
-      "similarity": 0.388
+      "similarity": 0.389
      },
      {
       "scenario_id": "S03",
       "matched_type": "기관사칭",
-      "similarity": 0.381
+      "similarity": 0.386
      },
      {
       "scenario_id": "S09",
       "matched_type": "취업사기",
-      "similarity": 0.378
-     },
-     {
-      "scenario_id": "S01",
-      "matched_type": "기관사칭",
-      "similarity": 0.352
+      "similarity": 0.372
      },
      {
       "scenario_id": "S04",
       "matched_type": "대출사기",
-      "similarity": 0.348
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.342
      },
      {
       "scenario_id": "S02",
       "matched_type": "기관사칭",
-      "similarity": 0.289
+      "similarity": 0.302
      }
     ]
    },
@@ -1695,7 +1666,7 @@
    "reasons": [
     "평소 대비 3.3배(+8)",
     "개설 6일(+20)",
-    "RAG 매칭: 메신저피싱(유사도 0.85, 경찰청 월간피싱 zero S05)"
+    "RAG 매칭: 메신저피싱(유사도 0.86, 경찰청 월간피싱 zero S05)"
    ],
    "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
    "thresholds": {
@@ -1710,8 +1681,8 @@
    }
   },
   "report": {
-   "report_id": "RPT-20261014-003",
-   "generated_at": "2026-10-14T12:47:21+09:00",
+   "report_id": "RPT-20261015-003",
+   "generated_at": "2026-10-15T19:22:19+09:00",
    "customer_name": "남용준",
    "customer_phone_masked": "010-****-0001",
    "customer_account_masked": "351-****-0001",
@@ -1730,7 +1701,7 @@
     "reasons": [
      "평소 대비 3.3배(+8)",
      "개설 6일(+20)",
-     "RAG 매칭: 메신저피싱(유사도 0.85, 경찰청 월간피싱 zero S05)"
+     "RAG 매칭: 메신저피싱(유사도 0.86, 경찰청 월간피싱 zero S05)"
     ],
     "action": "강력 경고 + 영업점 연계 리포트 생성(고객이 원하면 지연이체로 진행 가능)",
     "thresholds": {
@@ -1755,75 +1726,70 @@
     "hit": true,
     "matched_type": "메신저피싱",
     "matched_id": "S05",
-    "similarity": 0.85,
+    "similarity": 0.86,
     "score": 50,
-    "risk_signals": [
-     "통화회피",
-     "문자로만연락",
-     "급전요청",
-     "신분증요구"
-    ],
+    "risk_signals": [],
     "source": "경찰청 월간피싱 zero S05",
     "candidates": [
      {
       "scenario_id": "S05",
       "matched_type": "메신저피싱",
-      "similarity": 0.851
+      "similarity": 0.861
      },
      {
       "scenario_id": "S08",
       "matched_type": "몸캠피싱",
-      "similarity": 0.566
-     },
-     {
-      "scenario_id": "S06",
-      "matched_type": "협박형",
-      "similarity": 0.54
+      "similarity": 0.572
      },
      {
       "scenario_id": "S11",
       "matched_type": "협박형",
-      "similarity": 0.529
+      "similarity": 0.549
      },
      {
-      "scenario_id": "S12",
-      "matched_type": "기관사칭",
-      "similarity": 0.481
+      "scenario_id": "S06",
+      "matched_type": "협박형",
+      "similarity": 0.547
      },
      {
       "scenario_id": "S07",
       "matched_type": "스미싱",
-      "similarity": 0.473
+      "similarity": 0.488
+     },
+     {
+      "scenario_id": "S12",
+      "matched_type": "기관사칭",
+      "similarity": 0.474
      },
      {
       "scenario_id": "S10",
       "matched_type": "원격제어형",
-      "similarity": 0.388
+      "similarity": 0.389
      },
      {
       "scenario_id": "S03",
       "matched_type": "기관사칭",
-      "similarity": 0.381
+      "similarity": 0.386
      },
      {
       "scenario_id": "S09",
       "matched_type": "취업사기",
-      "similarity": 0.378
-     },
-     {
-      "scenario_id": "S01",
-      "matched_type": "기관사칭",
-      "similarity": 0.352
+      "similarity": 0.372
      },
      {
       "scenario_id": "S04",
       "matched_type": "대출사기",
-      "similarity": 0.348
+      "similarity": 0.343
+     },
+     {
+      "scenario_id": "S01",
+      "matched_type": "기관사칭",
+      "similarity": 0.342
      },
      {
       "scenario_id": "S02",
       "matched_type": "기관사칭",
-      "similarity": 0.289
+      "similarity": 0.302
      }
     ]
    },
@@ -1992,75 +1958,70 @@
      "hit": true,
      "matched_type": "메신저피싱",
      "matched_id": "S05",
-     "similarity": 0.85,
+     "similarity": 0.86,
      "score": 50,
-     "risk_signals": [
-      "통화회피",
-      "문자로만연락",
-      "급전요청",
-      "신분증요구"
-     ],
+     "risk_signals": [],
      "source": "경찰청 월간피싱 zero S05",
      "candidates": [
       {
        "scenario_id": "S05",
        "matched_type": "메신저피싱",
-       "similarity": 0.851
+       "similarity": 0.861
       },
       {
        "scenario_id": "S08",
        "matched_type": "몸캠피싱",
-       "similarity": 0.566
-      },
-      {
-       "scenario_id": "S06",
-       "matched_type": "협박형",
-       "similarity": 0.54
+       "similarity": 0.572
       },
       {
        "scenario_id": "S11",
        "matched_type": "협박형",
-       "similarity": 0.529
+       "similarity": 0.549
       },
       {
-       "scenario_id": "S12",
-       "matched_type": "기관사칭",
-       "similarity": 0.481
+       "scenario_id": "S06",
+       "matched_type": "협박형",
+       "similarity": 0.547
       },
       {
        "scenario_id": "S07",
        "matched_type": "스미싱",
-       "similarity": 0.473
+       "similarity": 0.488
+      },
+      {
+       "scenario_id": "S12",
+       "matched_type": "기관사칭",
+       "similarity": 0.474
       },
       {
        "scenario_id": "S10",
        "matched_type": "원격제어형",
-       "similarity": 0.388
+       "similarity": 0.389
       },
       {
        "scenario_id": "S03",
        "matched_type": "기관사칭",
-       "similarity": 0.381
+       "similarity": 0.386
       },
       {
        "scenario_id": "S09",
        "matched_type": "취업사기",
-       "similarity": 0.378
-      },
-      {
-       "scenario_id": "S01",
-       "matched_type": "기관사칭",
-       "similarity": 0.352
+       "similarity": 0.372
       },
       {
        "scenario_id": "S04",
        "matched_type": "대출사기",
-       "similarity": 0.348
+       "similarity": 0.343
+      },
+      {
+       "scenario_id": "S01",
+       "matched_type": "기관사칭",
+       "similarity": 0.342
       },
       {
        "scenario_id": "S02",
        "matched_type": "기관사칭",
-       "similarity": 0.289
+       "similarity": 0.302
       }
      ]
     },

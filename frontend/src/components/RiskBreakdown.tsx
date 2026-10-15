@@ -499,7 +499,7 @@ export default function RiskBreakdown({ account, context, thresholds }: Props) {
               hit={context.rag.hit}
               tooltip={
                 context.rag.hit
-                  ? `유사도 ${context.rag.similarity.toFixed(2)} · ${context.rag.source} · 위험신호: ${context.rag.risk_signals.join(", ")}`
+                  ? `유사도 ${context.rag.similarity.toFixed(2)} · ${context.rag.source}${context.rag.risk_signals.length ? ` · 결정적 징후: ${context.rag.risk_signals.join(", ")}` : ""}`
                   : `최고 유사도 ${context.rag.similarity.toFixed(2)} (임계값 ${sim(cut.ragMidSim)} 미만이라 매칭 처리 안 됨)`
               }
             />

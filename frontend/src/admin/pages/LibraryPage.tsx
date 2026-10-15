@@ -37,35 +37,16 @@ const toInput = (s: Scenario): ScenarioInput => ({
 
 const EMPTY_INPUT: ScenarioInput = { 유형: "", 중분류: "", 수법요약: "", 범인멘트: [], 위험신호: [], 위험도: "고", 출처: "본부 등록", enabled: true };
 
-/** 결정적 피싱 징후만 빨간 칩으로 보이고, 일반 신호는 개수만 보이다가 펼치면 보인다(판정 근거 표시·AI 룰 분석용). */
-function SignalChips({ signals, expandable = false }: { signals: string[]; expandable?: boolean }) {
-  const hard = signals.filter((s) => HARD_OVERRIDE_SIGNALS.has(s));
-  const general = signals.filter((s) => !HARD_OVERRIDE_SIGNALS.has(s));
+/** 사례의 결정적 피싱 징후(매칭되면 점수와 관계없이 '위험'). */
+function SignalChips({ signals }: { signals: string[] }) {
   return (
-    <span className="c-signal-view">
-      <span className="c-chips">
-        {hard.map((s) => (
-          <span key={s} className="c-chip-hard" title="결정적 피싱 징후: 이 사례와 매칭되면 점수와 관계없이 바로 '위험' 판정이에요">
-            {s}
-          </span>
-        ))}
-        {!hard.length && <span className="more">결정적 징후 없음</span>}
-      </span>
-      {general.length > 0 &&
-        (expandable ? (
-          <details className="c-signal-more">
-            <summary>일반 신호 {general.length}개</summary>
-            <span className="c-chips">
-              {general.map((s) => (
-                <span key={s}>{s}</span>
-              ))}
-            </span>
-          </details>
-        ) : (
-          <small className="c-muted" title={general.join(", ")}>
-            일반 신호 {general.length}개
-          </small>
-        ))}
+    <span className="c-chips">
+      {signals.map((s) => (
+        <span key={s} className="c-chip-hard" title="결정적 피싱 징후: 이 사례와 매칭되면 점수와 관계없이 바로 '위험' 판정이에요">
+          {s}
+        </span>
+      ))}
+      {!signals.length && <span className="more">없음</span>}
     </span>
   );
 }
@@ -120,74 +101,28 @@ function VerdictNote({ candidates, g, corpus }: { candidates: RagCandidate[]; g:
   );
 }
 
-/** 위험 신호 고르기: 결정적 피싱 징후 3개는 체크박스로 따로, 나머지는 기존 태그에서 고르거나 새로 추가한다.
- * 자유 입력이면 '안전 계좌' 같은 오타로 위험 강제 판정이 조용히 빠질 수 있어서다. 새 태그는 공백을 지워 맞춘다. */
-const normalizeTag = (t: string): string => t.replace(/\s+/g, "");
-
-function SignalPicker({ value, onChange, known }: { value: string[]; onChange: (v: string[]) => void; known: string[] }) {
-  const [draft, setDraft] = useState("");
-  const has = (t: string) => value.includes(t);
-  const toggle = (t: string) => onChange(has(t) ? value.filter((x) => x !== t) : [...value, t]);
-  const hard = [...HARD_OVERRIDE_SIGNALS];
-  const others = [...new Set([...known, ...value])].filter((t) => !HARD_OVERRIDE_SIGNALS.has(t)).sort((a, b) => a.localeCompare(b, "ko"));
-  const add = () => {
-    const t = normalizeTag(draft);
-    if (!t) return;
-    if (!has(t)) onChange([...value, t]);
-    setDraft("");
-  };
+/** 결정적 피싱 징후 고르기. 체크한 징후가 있는 사례와 매칭되면 점수와 관계없이 '위험'이다. */
+function SignalPicker({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const toggle = (t: string) => onChange(value.includes(t) ? value.filter((x) => x !== t) : [...value, t]);
   return (
     <div className="c-field">
-      <span className="c-field-label">위험 신호</span>
+      <span className="c-field-label">결정적 피싱 징후</span>
       <div className="c-signal-hard">
-        <strong>결정적 피싱 징후</strong>
-        <small>체크하면 이 사례와 매칭되는 순간 점수와 관계없이 '위험' 판정이에요.</small>
+        <small>체크하면 이 사례와 매칭되는 순간 점수와 관계없이 '위험' 판정이에요. 해당 없으면 비워 두세요.</small>
         <div className="c-signal-hard-row">
-          {hard.map((t) => (
-            <label key={t} className={has(t) ? "on" : ""}>
-              <input type="checkbox" checked={has(t)} onChange={() => toggle(t)} />
+          {[...HARD_OVERRIDE_SIGNALS].map((t) => (
+            <label key={t} className={value.includes(t) ? "on" : ""}>
+              <input type="checkbox" checked={value.includes(t)} onChange={() => toggle(t)} />
               {t}
             </label>
           ))}
         </div>
       </div>
-      <details className="c-signal-more">
-        <summary>
-          일반 신호 {value.filter((t) => !HARD_OVERRIDE_SIGNALS.has(t)).length}개 선택 <small className="c-muted">· 판정 근거 표시와 AI 룰 분석(새 룰 후보)에 쓰여요</small>
-        </summary>
-        <div className="c-signal-tags" role="group" aria-label="일반 위험 신호">
-        {others.map((t) => (
-          <button key={t} type="button" className={`c-chip-btn ${has(t) ? "on" : ""}`} aria-pressed={has(t)} onClick={() => toggle(t)}>
-            {has(t) ? "✓ " : ""}
-            {t}
-          </button>
-        ))}
-      </div>
-      <div className="c-signal-add">
-        <input
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              add();
-            }
-          }}
-          placeholder="목록에 없는 신호 추가 (예: 고수익보장)"
-          maxLength={40}
-        />
-        <button type="button" className="c-btn c-btn-sm" onClick={add} disabled={!normalizeTag(draft)}>
-          추가
-        </button>
-      </div>
-      </details>
-      <span className="c-field-hint">전체 {value.length}개 선택 · 최대 10개</span>
     </div>
   );
 }
 
-function ScenarioEditor({ target, types, tags, onClose, onSaved }: { target: Scenario | "new"; types: string[]; tags: string[]; onClose: () => void; onSaved: (s: Scenario, nearest: RagCandidate | null) => void }) {
+function ScenarioEditor({ target, types, onClose, onSaved }: { target: Scenario | "new"; types: string[]; onClose: () => void; onSaved: (s: Scenario, nearest: RagCandidate | null) => void }) {
   const isNew = target === "new";
   const [f, setF] = useState<ScenarioInput>(isNew ? EMPTY_INPUT : toInput(target));
   const [lines, setLines] = useState(f.범인멘트.join("\n"));
@@ -239,7 +174,7 @@ function ScenarioEditor({ target, types, tags, onClose, onSaved }: { target: Sce
       }
     >
       <div className="c-stack">
-        <p className="c-muted c-small">수법 요약·범인 멘트·위험 신호를 합친 글이 유사도 계산에 쓰여요. 고객이 실제로 듣는 말투로 쓸수록 잘 잡혀요.</p>
+        <p className="c-muted c-small">수법 요약·범인 멘트를 합친 글이 유사도 계산에 쓰여요. 고객이 실제로 듣는 말투로 쓸수록 잘 잡혀요.</p>
         <div className="c-edit-grid">
           <Field label="유형" hint="같은 유형끼리 묶어 탐지 현황을 봐요">
             <input type="text" list="rag-types" value={f.유형} onChange={(e) => set("유형", e.target.value)} placeholder="예: 기관사칭" />
@@ -269,7 +204,7 @@ function ScenarioEditor({ target, types, tags, onClose, onSaved }: { target: Sce
         <Field label="범인 멘트" hint="한 줄에 하나씩, 최대 12줄">
           <textarea rows={4} value={lines} onChange={(e) => setLines(e.target.value)} placeholder={"OO지방검찰청 수사관입니다\n안전계좌로 이체하세요"} />
         </Field>
-        <SignalPicker value={signals} onChange={setSignals} known={tags} />
+        <SignalPicker value={signals} onChange={setSignals} />
         <Field label="변경 메모(선택)">
           <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 10월 신종 수법 반영" maxLength={200} />
         </Field>
@@ -307,7 +242,6 @@ export default function LibraryPage() {
   const corpus = useMemo(() => new Map(list.map((s) => [s.id, s])), [list]);
   const g = rules.data?.config.global;
   const types = useMemo(() => [...new Set(list.map((s) => s.유형))], [list]);
-  const tags = useMemo(() => [...new Set(list.flatMap((s) => s.위험신호))], [list]);
   const rows = useMemo(() => (analysis.data ? analysis.data.rows.filter((r) => inPeriod(r.log.at, period)) : []), [analysis.data, period]);
   const usage = useMemo(() => (g ? usageByScenario(rows, g) : new Map<string, ScenarioUsage>()), [rows, g]);
   const coverage = useMemo(() => (g ? coverageByType(rows, g, list) : []), [rows, g, list]);
@@ -434,7 +368,7 @@ export default function LibraryPage() {
                 <tr>
                   <th>ID</th>
                   <th>유형 · 수법</th>
-                  <th>위험 신호</th>
+                  <th>결정적 징후</th>
                   <th className="num">매칭 거래</th>
                   <th className="num" title="매칭된 거래 중 사기로 확인된 건 / 정상으로 확인된 건">
                     사기 / 정상
@@ -695,9 +629,9 @@ export default function LibraryPage() {
               </ul>
             </section>
             <section>
-              <h3 className="c-sec">위험 신호</h3>
-              <SignalChips signals={open.위험신호} expandable />
-              {open.위험신호.some((s) => HARD_OVERRIDE_SIGNALS.has(s)) && <p className="c-muted c-small">빨간 신호가 있는 사례와 매칭되면 점수와 관계없이 바로 '위험' 판정이에요. 일반 신호는 판정 근거 표시와 AI 룰 분석(새 룰 후보)에 쓰여요.</p>}
+              <h3 className="c-sec">결정적 피싱 징후</h3>
+              <SignalChips signals={open.위험신호} />
+              {open.위험신호.some((s) => HARD_OVERRIDE_SIGNALS.has(s)) && <p className="c-muted c-small">이 사례와 매칭되면 점수와 관계없이 바로 '위험' 판정이에요.</p>}
             </section>
             <section>
               <h3 className="c-sec">{periodText(period)} 매칭 현황</h3>
@@ -716,7 +650,7 @@ export default function LibraryPage() {
         )}
       </Drawer>
 
-      {editing && <ScenarioEditor target={editing} types={types} tags={tags} onClose={() => setEditing(null)} onSaved={saved} />}
+      {editing && <ScenarioEditor target={editing} types={types} onClose={() => setEditing(null)} onSaved={saved} />}
     </div>
   );
 }
