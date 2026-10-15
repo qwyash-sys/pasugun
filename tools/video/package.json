@@ -1,0 +1,16 @@
+{
+  "name": "pasugun-demo-video",
+  "private": true,
+  "type": "module",
+  "description": "시연 영상 자동 녹화: Playwright로 앱을 조작·녹화하고 ffmpeg로 MP4를 만든다.",
+  "scripts": {
+    "record": "node record.mjs"
+  },
+  "devDependencies": {
+    "ffmpeg-static": "^5.3.0",
+    "playwright": "^1.64.1"
+  },
+  "allowScripts": {
+    "ffmpeg-static@5.3.0": true
+  }
+}

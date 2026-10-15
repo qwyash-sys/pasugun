@@ -81,3 +81,14 @@ cd backend && python scripts/generate_seed_data.py
 ## 결정이 필요한 사항
 
 [docs/결정필요사항.md](docs/결정필요사항.md)에 업무 규칙·운영·시연 데이터에 관해 팀이 정해야 할 항목을 모아 두었다.
+
+## 시연 영상 다시 만들기
+
+`tools/video/`가 데모·로컬 앱을 자동으로 조작하며 녹화하고, 자막·강조 효과를 얹어 약 2분짜리 MP4를 만든다.
+데모 모드(5174)·로컬 모드(5173) 프론트와 백엔드(8000)를 먼저 띄운다. 사례집 장면이 사례를 실제로 등록하므로 녹화 뒤 백엔드를 다시 켠다.
+
+```bash
+cd tools/video && npm install && npx playwright install chromium && npm run record
+```
+
+결과: `tools/video/out/pasugun-demo.mp4` (자막 문구는 `record.mjs`, 타이틀은 `titles.html`에서 고친다)
