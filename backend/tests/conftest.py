@@ -3,10 +3,13 @@
 import pytest
 
 from app.rule_config import reset_rule_config
+from app.scenario_store import reset_scenario_store
 
 
 @pytest.fixture(autouse=True)
 def _fresh_rule_config():
     reset_rule_config()
+    reset_scenario_store()
     yield
     reset_rule_config()
+    reset_scenario_store()

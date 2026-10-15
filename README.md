@@ -64,6 +64,13 @@ cd frontend && npm run check:golden
 
 ## 샘플 데이터 다시 만들기
 
+사례집(`backend/mock_data/scenarios.json`)이나 검증 문장(`backend/app/rag_eval.py`)을 바꿨다면 데모 모드의
+사례집 관리 화면용 유사도 결과도 다시 만든다.
+
+```bash
+cd backend && python scripts/generate_rag_demo.py
+```
+
 ```bash
 cd backend && python scripts/generate_seed_data.py
 ```

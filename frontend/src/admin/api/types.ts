@@ -113,9 +113,47 @@ export interface Scenario {
   유형: string;
   중분류: string;
   수법요약: string;
+  범인멘트: string[];
   위험신호: string[];
   위험도: string;
   출처: string;
+  /** false면 유사 사례 검색에서 빠진다(기록은 남는다). 시드 사례는 값이 없을 수 있어 없으면 사용 중. */
+  enabled?: boolean;
+  updated_at?: string | null;
+  updated_by?: string | null;
+}
+
+/** 관리자가 사례를 등록·수정할 때 보내는 내용(번호·이력은 서버가 붙인다). */
+export type ScenarioInput = Pick<Scenario, "유형" | "중분류" | "수법요약" | "범인멘트" | "위험신호" | "위험도" | "출처"> & { enabled: boolean };
+
+/** 유사 사례 검색이 비교한 사례 1건(유사도 높은 순). */
+export interface RagCandidate {
+  scenario_id: string;
+  matched_type: string;
+  similarity: number;
+}
+
+export interface RagEvalCase {
+  /** 기대 유형. null = 정상 송금 문장(매칭되면 오탐) */
+  expected: string | null;
+  text: string;
+  candidates: RagCandidate[];
+}
+
+export interface ScenarioHistoryEntry {
+  version: number;
+  at: string;
+  actor: string;
+  note: string;
+  scenario_id: string;
+  action: "등록" | "수정" | "중지" | "사용";
+  summary: string;
+}
+
+export interface ScenarioSaveResult {
+  scenario: Scenario;
+  /** 저장한 사례와 가장 비슷한 다른 사례(중복 확인용). 데모 모드는 계산할 수 없어 null. */
+  nearest: RagCandidate | null;
 }
 
 // ---------------------------------------------------------------- 모니터링 사례

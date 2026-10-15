@@ -12,11 +12,13 @@ from pydantic import BaseModel, Field
 
 from app.admin_ai import narrate
 from app.case_store import ActivityEvent, CaseDoc, branches, get_case_store, now_iso
-from app.data_store import get_payee, scenarios
+from app.data_store import get_payee
 from app.payee_activity import analysis_facts, analyze_activity, make_activity
 from app.report_store import get_report_store, to_summary
+from app.providers.rag.factory import get_rag
 from app.rule_config import DEFAULT_CONFIG, get_rule_config, get_rule_config_store, param_schema
 from app.tools.account_signals import ACCOUNT_SIGNALS
+from app.scenario_store import ScenarioInput, get_scenario_store
 from app.transfer_log import TransferLog, get_log_store
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -92,7 +94,73 @@ def logs():
 
 @router.get("/scenarios")
 def get_scenarios():
-    return scenarios()
+    return get_scenario_store().all()
+
+
+# ------------------------------------------------------------------ 사례집(RAG) 관리
+class ScenarioSave(BaseModel):
+    scenario: ScenarioInput
+    note: str = Field(default="", max_length=200)
+
+
+class RagSearchRequest(BaseModel):
+    text: str = Field(min_length=2, max_length=1000)
+
+
+def _rag_thresholds() -> dict[str, float]:
+    cfg = get_rule_config()
+    return {k: cfg.g(k) for k in ("rag_mid_sim", "rag_mid_score", "rag_high_sim", "rag_high_score")}
+
+
+def _nearest(doc: dict[str, Any]) -> dict[str, Any] | None:
+    """저장한 사례와 가장 비슷한 다른 사례 — 중복 등록이나 유형 혼동을 알아채게 한다."""
+    if not doc.get("enabled", True):
+        return None
+    text = " ".join([doc["수법요약"], *doc["범인멘트"], *doc["위험신호"]])
+    try:
+        match = get_rag().scenario_rag(text)
+    except Exception:  # 검색 엔진이 준비되지 않아도 저장은 성공으로 본다
+        return None
+    other = next((c for c in match.candidates if c.scenario_id != doc["id"]), None)
+    return other.model_dump() if other else None
+
+
+@router.post("/scenarios")
+def create_scenario(body: ScenarioSave):
+    doc = get_scenario_store().create(body.scenario, note=body.note)
+    return {"scenario": doc, "nearest": _nearest(doc), "version": get_scenario_store().version}
+
+
+@router.put("/scenarios/{scenario_id}")
+def update_scenario(scenario_id: str, body: ScenarioSave):
+    doc = get_scenario_store().update(scenario_id, body.scenario, note=body.note)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="사례를 찾을 수 없어요.")
+    return {"scenario": doc, "nearest": _nearest(doc), "version": get_scenario_store().version}
+
+
+@router.get("/scenarios/history")
+def scenario_history():
+    return get_scenario_store().history()
+
+
+@router.post("/rag/search")
+def rag_search(body: RagSearchRequest):
+    """유사도 시험: 고객이 이렇게 말하면 사례집의 어느 사례와 얼마나 비슷한지 전체 순위를 돌려준다."""
+    if not get_scenario_store().active():
+        raise HTTPException(status_code=409, detail="사용 중인 사례가 없어요.")
+    match = get_rag().scenario_rag(body.text.strip())
+    return {"match": match, "thresholds": _rag_thresholds(), "version": get_scenario_store().version}
+
+
+@router.post("/rag/evaluate")
+def rag_evaluate():
+    """검증 문장 점검: 사기 발화는 맞는 유형으로 잡고, 정상 발화는 잡지 않는지 지금 사례집·기준으로 다시 돌린다."""
+    from app.rag_eval import evaluate
+
+    if not get_scenario_store().active():
+        raise HTTPException(status_code=409, detail="사용 중인 사례가 없어요.")
+    return {"items": evaluate(get_rag()), "thresholds": _rag_thresholds(), "version": get_scenario_store().version}
 
 
 @router.get("/branches")

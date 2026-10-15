@@ -137,36 +137,30 @@ def test_rag_candidates_cover_whole_corpus():
     assert sims == sorted(sims, reverse=True)
 
 
-def test_new_scenario_is_searchable_by_adding_data_only(monkeypatch):
-    from app.data_store import scenarios
+def test_new_scenario_is_searchable_by_adding_data_only():
+    from app.scenario_store import ScenarioInput, get_scenario_store
 
-    new_doc = {"id": "S99", "중분류": "가상자산 투자 리딩방", "수법요약": "코인 리딩방에서 고수익을 약속하며 지정 거래소 계좌로 투자금 입금을 유도",
+    new_doc = {"중분류": "가상자산 투자 리딩방", "수법요약": "코인 리딩방에서 고수익을 약속하며 지정 거래소 계좌로 투자금 입금을 유도",
                "범인멘트": ["리딩방 VIP만 받는 코인 정보입니다", "원금 보장에 수익 300% 드립니다", "이 계좌로 투자금 넣으시면 바로 매수해드려요"],
                "위험신호": ["고수익보장", "리딩방", "지정계좌입금"], "유형": "투자사기", "위험도": "고", "출처": "테스트"}
     query = "코인 리딩방에서 원금 보장에 수익 300% 준다고 이 계좌로 투자금 넣으래요"
 
-    faiss_provider._index.cache_clear()
     before = faiss_provider.FaissLocalRagProvider().scenario_rag(query)
-    monkeypatch.setattr(faiss_provider, "scenarios", lambda: [*scenarios(), new_doc])
-    faiss_provider._index.cache_clear()
-    try:
-        after = faiss_provider.FaissLocalRagProvider().scenario_rag(query)
-    finally:
-        monkeypatch.undo()
-        faiss_provider._index.cache_clear()
+    doc = get_scenario_store().create(ScenarioInput(**new_doc))  # 관리자 등록 = 데이터 추가만, 코드 변경 없음
+    after = faiss_provider.FaissLocalRagProvider().scenario_rag(query)
 
     assert before.matched_type != "투자사기"
-    assert after.hit and after.matched_id == "S99" and after.matched_type == "투자사기"
+    assert after.hit and after.matched_id == doc["id"] and after.matched_type == "투자사기"
     assert after.similarity > before.similarity
 
 
-def test_report_filter_rag_types_follow_the_corpus(monkeypatch):
-    import app.routers.reports as reports_router
-    from app.data_store import scenarios
+def test_report_filter_rag_types_follow_the_corpus():
+    from app.scenario_store import ScenarioInput, get_scenario_store
 
     types = client.get("/api/reports/rag-types").json()
-    assert types == list(dict.fromkeys(s["유형"] for s in scenarios()))
-    monkeypatch.setattr(reports_router, "scenarios", lambda: [*scenarios(), {"유형": "투자사기"}])
+    assert types == list(dict.fromkeys(s["유형"] for s in get_scenario_store().all()))
+    get_scenario_store().create(ScenarioInput(유형="투자사기", 중분류="리딩방", 수법요약="고수익을 약속하며 투자금 입금을 유도하는 수법",
+                                              범인멘트=["원금 보장합니다"], 위험신호=["고수익보장"]))
     assert client.get("/api/reports/rag-types").json()[-1] == "투자사기"
 
 

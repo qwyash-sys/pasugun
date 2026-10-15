@@ -5,15 +5,16 @@ import { freshDemoReport, saveDemoReport } from "../../api/demoStore";
 import type { AdminApi, NarrativeResult, ReanalyzeResult } from "./adminApi";
 import { ConfigError } from "./adminApi";
 import type {
-  Branch, CaseChoice, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RuleInfo, RulesState, Scenario, TransferLog,
+  Branch, CaseChoice, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RagCandidate, RagEvalCase, RuleConfig, RuleInfo, RulesState, Scenario, ScenarioHistoryEntry, ScenarioInput, TransferLog,
 } from "./types";
 import { CURRENT_STAFF, cancelDelayed, cancelledByCustomer, createCase, noteHotline } from "../engine/cases";
 import { kstIso } from "../format";
 import { cloneConfig, diffConfig, summarize } from "../engine/configDiff";
 import { analyzeActivity, makeActivity, seededRandom } from "../engine/postcheck";
 import { validateConfig } from "../engine/validate";
+import { scenarioErrors } from "../engine/rag";
 
-const KEY = { rules: "pasugun.demo.rules.v2", cases: "pasugun.demo.cases.v2", logs: "pasugun.demo.logs.v2" };
+const KEY = { rules: "pasugun.demo.rules.v2", cases: "pasugun.demo.cases.v2", logs: "pasugun.demo.logs.v2", scenarios: "pasugun.demo.scenarios.v2" };
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -91,6 +92,42 @@ async function allCases(): Promise<CaseDoc[]> {
 
 const nowKst = (): string => kstIso(new Date());
 
+// ---------------------------------------------------------------- 사례집(RAG)
+interface ScenarioEdits {
+  version: number;
+  /** 시드 사례를 고친 내용 + 새로 등록한 사례 */
+  items: Record<string, Scenario>;
+  history: ScenarioHistoryEntry[];
+}
+
+interface RagDemo {
+  cases: { expected: string | null; text: string }[];
+  results: Record<string, RagCandidate[]>;
+}
+
+let seedScenariosP: Promise<Scenario[]> | null = null;
+const seedScenarios = (): Promise<Scenario[]> => (seedScenariosP ??= import("../../demoData/admin/scenarios.json").then((m) => m.default as unknown as Scenario[]));
+let ragDemoP: Promise<RagDemo> | null = null;
+const ragDemo = (): Promise<RagDemo> => (ragDemoP ??= import("../../demoData/admin/ragDemo.json").then((m) => m.default as unknown as RagDemo));
+
+const scenarioEdits = (): ScenarioEdits => load<ScenarioEdits>(KEY.scenarios, { version: 1, items: {}, history: [] });
+
+async function allScenarios(): Promise<Scenario[]> {
+  const edits = scenarioEdits();
+  const map = new Map<string, Scenario>((await seedScenarios()).map((s) => [s.id, { ...s, enabled: true }]));
+  for (const s of Object.values(edits.items)) map.set(s.id, s);
+  return [...map.values()].sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/** 데모는 문장을 임베딩할 수 없어 실제 엔진으로 미리 계산한 순위를 쓴다. 중지한 사례는 빼면 서버와 같은 결과다
+ * (색인에서 문서를 빼도 다른 사례의 유사도는 그대로). 새로 등록·수정한 사례는 순위에 반영되지 않는다. */
+async function demoRanking(text: string): Promise<RagCandidate[] | null> {
+  const ranked = (await ragDemo()).results[text.trim()];
+  if (!ranked) return null;
+  const off = new Set((await allScenarios()).filter((s) => s.enabled === false).map((s) => s.id));
+  return ranked.filter((c) => !off.has(c.scenario_id));
+}
+
 export class DemoAdminApi implements AdminApi {
   readonly mode = "demo" as const;
 
@@ -136,9 +173,44 @@ export class DemoAdminApi implements AdminApi {
     return [...(m.default as unknown as TransferLog[]), ...load<TransferLog[]>(KEY.logs, [])];
   }
 
-  async getScenarios() {
-    const m = await import("../../demoData/admin/scenarios.json");
-    return m.default as unknown as Scenario[];
+  getScenarios() {
+    return allScenarios();
+  }
+
+  async saveScenario(id: string | null, input: ScenarioInput, note = "") {
+    const errors = scenarioErrors(input);
+    if (errors.length) throw new ConfigError(errors);
+    const all = await allScenarios();
+    const edits = scenarioEdits();
+    const old = id ? all.find((s) => s.id === id) : undefined;
+    if (id && !old) throw new Error("사례를 찾을 수 없어요.");
+    const nextId = `S${String(Math.max(0, ...all.map((s) => Number(s.id.slice(1)) || 0)) + 1).padStart(2, "0")}`;
+    const doc: Scenario = { ...(old ?? {}), ...input, id: id ?? nextId, updated_at: nowKst(), updated_by: CURRENT_STAFF.name };
+    const fields = (Object.keys(input) as (keyof ScenarioInput)[]).filter((k) => JSON.stringify(old?.[k] ?? (k === "enabled" ? true : undefined)) !== JSON.stringify(input[k]));
+    if (old && !fields.length) return { scenario: old, nearest: null };
+    const [action, summary]: [ScenarioHistoryEntry["action"], string] = !old
+      ? ["등록", `${doc.유형} · ${doc.중분류} 사례 등록`]
+      : fields.length === 1 && fields[0] === "enabled"
+        ? input.enabled ? ["사용", "검색에 다시 사용"] : ["중지", "검색에서 제외"]
+        : ["수정", `수정: ${fields.join(", ")}`];
+    edits.version += 1;
+    edits.items[doc.id] = doc;
+    edits.history.push({ version: edits.version, at: nowKst(), actor: CURRENT_STAFF.name, note, scenario_id: doc.id, action, summary });
+    save(KEY.scenarios, edits);
+    return { scenario: doc, nearest: null };
+  }
+
+  async getScenarioHistory() {
+    return [...scenarioEdits().history].reverse();
+  }
+
+  searchRag(text: string) {
+    return demoRanking(text);
+  }
+
+  async evaluateRag(): Promise<RagEvalCase[]> {
+    const { cases } = await ragDemo();
+    return Promise.all(cases.map(async (c) => ({ ...c, candidates: (await demoRanking(c.text)) ?? [] })));
   }
 
   listBranches() {

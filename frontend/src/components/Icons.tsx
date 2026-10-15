@@ -59,3 +59,11 @@ export const ChartIcon = () => (
     <rect x="17.5" y="13" width="3" height="4" rx="0.8" />
   </Svg>
 );
+
+export const BookIcon = () => (
+  <Svg>
+    <path d="M5 4.5h9a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z" />
+    <path d="M5 17a3 3 0 0 1 3-3h9" />
+    <path d="M9 8.5h4" />
+  </Svg>
+);

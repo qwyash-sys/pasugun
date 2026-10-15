@@ -2,18 +2,20 @@ import "./console.css";
 import "./ui.css";
 import { useEffect, useRef, useState } from "react";
 import { RESPONSE_SOURCE } from "../config";
-import { BuildingIcon, ChartIcon, RadarIcon, SlidersIcon } from "../components/Icons";
+import { BookIcon, BuildingIcon, ChartIcon, RadarIcon, SlidersIcon } from "../components/Icons";
 import { resetDemoData } from "../api/demoStore";
 import type { ReactNode } from "react";
 import MonitoringPage from "./pages/MonitoringPage";
 import RulesPage from "./pages/RulesPage";
 import StatsPage from "./pages/StatsPage";
 import BranchPage from "./pages/BranchPage";
+import LibraryPage from "./pages/LibraryPage";
 
-export type ConsolePage = "rules" | "monitoring" | "stats" | "branch";
+export type ConsolePage = "rules" | "library" | "monitoring" | "stats" | "branch";
 
 const NAV: { id: ConsolePage; icon: ReactNode; label: string; hint: string }[] = [
   { id: "rules", icon: <SlidersIcon />, label: "룰 관리", hint: "룰·임계치 조정, AI 룰 분석" },
+  { id: "library", icon: <BookIcon />, label: "사례집 관리", hint: "RAG 사례·유사도 확인" },
   { id: "monitoring", icon: <RadarIcon />, label: "모니터링", hint: "고위험 거래 조치" },
   { id: "branch", icon: <BuildingIcon />, label: "영업점 책임자", hint: "면담 요청 확인·결과 입력" },
   { id: "stats", icon: <ChartIcon />, label: "통계 분석", hint: "로그 분석·개선 제안" },
@@ -103,6 +105,7 @@ export default function AdminConsole({ onExit }: { onExit: () => void }) {
 
       <main className="console-main" ref={mainRef}>
         {page === "rules" && <RulesPage />}
+        {page === "library" && <LibraryPage />}
         {page === "monitoring" && <MonitoringPage />}
         {page === "stats" && <StatsPage />}
         {page === "branch" && <BranchPage />}

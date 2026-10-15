@@ -4,7 +4,7 @@
 import type { ReportPayload } from "../types";
 
 const KEY = "pasugun.demo.reports.v2";
-const ALL_KEYS = ["reports", "cases", "logs", "rules"].map((k) => `pasugun.demo.${k}.v2`);
+const ALL_KEYS = ["reports", "cases", "logs", "rules", "scenarios"].map((k) => `pasugun.demo.${k}.v2`);
 
 // 시드 데이터가 바뀐 이전 버전(v1)의 시연 기록은 새 데이터와 섞이면 안 되므로 지운다.
 try {

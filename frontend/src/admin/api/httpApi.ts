@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../config";
 import type { AdminApi, NarrativeResult, ReanalyzeResult } from "./adminApi";
 import { ConfigError } from "./adminApi";
-import type { Branch, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RuleConfig, RulesState, Scenario, TransferLog } from "./types";
+import type { Branch, CaseDoc, CaseItem, ConfigChange, ConfigHistoryEntry, ReportPayload, RagCandidate, RagEvalCase, RuleConfig, RulesState, Scenario, ScenarioHistoryEntry, ScenarioInput, ScenarioSaveResult, TransferLog } from "./types";
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -52,6 +52,27 @@ export class HttpAdminApi implements AdminApi {
 
   getScenarios() {
     return call<Scenario[]>("/api/admin/scenarios");
+  }
+
+  saveScenario(id: string | null, scenario: ScenarioInput, note = "") {
+    const body = JSON.stringify({ scenario, note });
+    return id
+      ? call<ScenarioSaveResult>(`/api/admin/scenarios/${encodeURIComponent(id)}`, { method: "PUT", body })
+      : call<ScenarioSaveResult>("/api/admin/scenarios", { method: "POST", body });
+  }
+
+  getScenarioHistory() {
+    return call<ScenarioHistoryEntry[]>("/api/admin/scenarios/history");
+  }
+
+  async searchRag(text: string) {
+    const res = await call<{ match: { candidates: RagCandidate[] } }>("/api/admin/rag/search", { method: "POST", body: JSON.stringify({ text }) });
+    return res.match.candidates;
+  }
+
+  async evaluateRag() {
+    const res = await call<{ items: RagEvalCase[] }>("/api/admin/rag/evaluate", { method: "POST" });
+    return res.items.map(({ expected, text, candidates }) => ({ expected, text, candidates }));
   }
 
   listBranches() {

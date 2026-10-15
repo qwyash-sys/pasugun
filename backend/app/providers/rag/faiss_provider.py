@@ -10,13 +10,14 @@ FAISS `IndexFlatIP`(코사인 = 정규화된 벡터의 내적)로 검색한다. 
 쓰고 싶을 때는 RAG_BACKEND=bedrock_kb 로 전환하면 된다(bedrock_kb_provider.py).
 """
 
+import threading
 from functools import lru_cache
 
 import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-from app.data_store import scenarios
+from app.scenario_store import get_scenario_store
 from app.models import RagCandidate, RagMatch
 from app.scoring import rag_score
 
@@ -32,15 +33,23 @@ def _model() -> SentenceTransformer:
     return SentenceTransformer(_MODEL_NAME)
 
 
-@lru_cache
+_built: dict[str, object] = {}
+_build_lock = threading.Lock()
+
+
 def _index() -> tuple[list[dict], "faiss.IndexFlatIP"]:
-    docs = scenarios()
-    embeddings = _model().encode(
-        [_corpus_text(d) for d in docs], normalize_embeddings=True, convert_to_numpy=True
-    )
-    index = faiss.IndexFlatIP(embeddings.shape[1])
-    index.add(np.asarray(embeddings, dtype="float32"))
-    return docs, index
+    # 관리자가 사례집을 고치면 저장소 version이 올라가고, 다음 검색 때 사용 중인 사례로 색인을 다시 만든다.
+    store = get_scenario_store()
+    with _build_lock:
+        if _built.get("key") != (id(store), store.version):
+            docs = store.active()
+            embeddings = _model().encode(
+                [_corpus_text(d) for d in docs], normalize_embeddings=True, convert_to_numpy=True
+            )
+            index = faiss.IndexFlatIP(embeddings.shape[1])
+            index.add(np.asarray(embeddings, dtype="float32"))
+            _built.update(key=(id(store), store.version), docs=docs, index=index)
+        return _built["docs"], _built["index"]  # type: ignore[return-value]
 
 
 class FaissLocalRagProvider:

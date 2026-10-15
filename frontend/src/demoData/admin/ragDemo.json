@@ -1,0 +1,1788 @@
+{
+ "cases": [
+  {
+   "expected": "기관사칭",
+   "text": "검찰청 수사관이라는 사람이 제 계좌가 범죄에 연루됐다고 안전계좌로 옮기래요"
+  },
+  {
+   "expected": "기관사칭",
+   "text": "금융감독원 직원이라면서 자산을 보호하려면 돈을 지정 계좌로 옮겨야 한대요"
+  },
+  {
+   "expected": "기관사칭",
+   "text": "경찰이라면서 제 명의로 대포통장이 만들어졌다고 조사받아야 한대요"
+  },
+  {
+   "expected": "기관사칭",
+   "text": "카드 발급 안 했는데 카드 배송 온다고 해서 전화했더니 금감원으로 연결해줬어요"
+  },
+  {
+   "expected": "대출사기",
+   "text": "저금리 대환대출 해준다고 기존 대출 상환금을 먼저 이 계좌로 보내래요"
+  },
+  {
+   "expected": "대출사기",
+   "text": "신용점수 올려서 대출 한도 높여준다고 수수료를 먼저 입금하라네요"
+  },
+  {
+   "expected": "대출사기",
+   "text": "캐피탈 직원이 정부지원 대출 승인됐다고 기존 대출부터 갚으래요"
+  },
+  {
+   "expected": "메신저피싱",
+   "text": "딸이 폰이 고장났다고 카톡으로 급하게 돈을 보내달래요"
+  },
+  {
+   "expected": "메신저피싱",
+   "text": "엄마 나 폰 액정 깨져서 이걸로 연락해 급하게 결제할 게 있어"
+  },
+  {
+   "expected": "메신저피싱",
+   "text": "아들이라면서 문자로만 연락되고 전화는 안 받아요 상품권 사달래요"
+  },
+  {
+   "expected": "협박형",
+   "text": "아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다고 전화가 왔어요"
+  },
+  {
+   "expected": "협박형",
+   "text": "딸을 데리고 있다고 경찰에 알리면 안 된다며 돈을 보내라고 협박해요"
+  },
+  {
+   "expected": "스미싱",
+   "text": "택배 주소가 잘못됐다는 문자 링크를 눌렀더니 결제 확인을 하래요"
+  },
+  {
+   "expected": "스미싱",
+   "text": "청첩장 문자 링크 눌렀더니 앱이 깔리고 나서 이상한 결제 문자가 와요"
+  },
+  {
+   "expected": "몸캠피싱",
+   "text": "영상통화하다가 녹화된 영상을 지인들한테 뿌리겠다고 돈을 요구해요"
+  },
+  {
+   "expected": "취업사기",
+   "text": "고액 알바라면서 제 통장으로 들어온 돈을 다른 계좌로 옮겨달래요"
+  },
+  {
+   "expected": "취업사기",
+   "text": "재택 부업인데 먼저 교육비랑 보증금을 입금해야 일을 준대요"
+  },
+  {
+   "expected": "원격제어형",
+   "text": "상담원이 앱을 설치하라고 해서 깔았더니 화면을 보면서 이체하라고 해요"
+  },
+  {
+   "expected": "원격제어형",
+   "text": "은행 보안점검이라며 팀뷰어 같은 앱 깔고 화면 켜두라고 했어요"
+  },
+  {
+   "expected": null,
+   "text": "친구 결혼식 축의금 보내려고요"
+  },
+  {
+   "expected": null,
+   "text": "이번 달 월세 집주인한테 보내는 거예요"
+  },
+  {
+   "expected": null,
+   "text": "중고나라에서 자전거 사고 직거래 대금 보내요"
+  },
+  {
+   "expected": null,
+   "text": "부모님 생신이라 용돈 보내드려요"
+  },
+  {
+   "expected": null,
+   "text": "회사 거래처에 물품 대금 결제하는 거예요"
+  },
+  {
+   "expected": null,
+   "text": "동생 등록금 대신 내주려고요"
+  },
+  {
+   "expected": null,
+   "text": "모임 회비 총무한테 보내요"
+  },
+  {
+   "expected": null,
+   "text": "전세 잔금 부동산 중개사 입회하에 치르는 거예요"
+  }
+ ],
+ "results": {
+  "검찰청 수사관이라는 사람이 제 계좌가 범죄에 연루됐다고 안전계좌로 옮기래요": [
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.845
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.679
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.627
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.556
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.554
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.472
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.447
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.4
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.395
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.375
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.365
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.288
+   }
+  ],
+  "금융감독원 직원이라면서 자산을 보호하려면 돈을 지정 계좌로 옮겨야 한대요": [
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.683
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.658
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.633
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.624
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.562
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.538
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.468
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.465
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.448
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.364
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.341
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.33
+   }
+  ],
+  "경찰이라면서 제 명의로 대포통장이 만들어졌다고 조사받아야 한대요": [
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.656
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.645
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.602
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.524
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.518
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.511
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.474
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.415
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.367
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.366
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.337
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.268
+   }
+  ],
+  "카드 발급 안 했는데 카드 배송 온다고 해서 전화했더니 금감원으로 연결해줬어요": [
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.651
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.556
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.438
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.425
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.417
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.405
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.372
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.349
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.317
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.312
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.283
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.234
+   }
+  ],
+  "저금리 대환대출 해준다고 기존 대출 상환금을 먼저 이 계좌로 보내래요": [
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.802
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.556
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.516
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.484
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.43
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.423
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.416
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.413
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.396
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.336
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.335
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.333
+   }
+  ],
+  "신용점수 올려서 대출 한도 높여준다고 수수료를 먼저 입금하라네요": [
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.828
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.646
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.471
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.446
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.441
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.379
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.379
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.356
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.324
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.314
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.308
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.306
+   }
+  ],
+  "캐피탈 직원이 정부지원 대출 승인됐다고 기존 대출부터 갚으래요": [
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.718
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.539
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.465
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.43
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.322
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.311
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.301
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.286
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.258
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.214
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.202
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.199
+   }
+  ],
+  "딸이 폰이 고장났다고 카톡으로 급하게 돈을 보내달래요": [
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.652
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.603
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.599
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.442
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.383
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.361
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.313
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.309
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.307
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.307
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.294
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.255
+   }
+  ],
+  "엄마 나 폰 액정 깨져서 이걸로 연락해 급하게 결제할 게 있어": [
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.607
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.603
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.49
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.427
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.424
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.422
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.382
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.37
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.351
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.345
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.304
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.277
+   }
+  ],
+  "아들이라면서 문자로만 연락되고 전화는 안 받아요 상품권 사달래요": [
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.625
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.423
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.394
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.348
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.331
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.305
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.271
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.264
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.264
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.218
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.209
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.207
+   }
+  ],
+  "아들이 사고를 쳐서 합의금을 지금 안 보내면 큰일 난다고 전화가 왔어요": [
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.686
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.61
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.473
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.448
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.424
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.402
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.365
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.361
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.347
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.343
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.315
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.278
+   }
+  ],
+  "딸을 데리고 있다고 경찰에 알리면 안 된다며 돈을 보내라고 협박해요": [
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.775
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.564
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.534
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.52
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.469
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.451
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.348
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.332
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.281
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.28
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.265
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.255
+   }
+  ],
+  "택배 주소가 잘못됐다는 문자 링크를 눌렀더니 결제 확인을 하래요": [
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.753
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.537
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.514
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.448
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.393
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.366
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.366
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.361
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.344
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.301
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.291
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.285
+   }
+  ],
+  "청첩장 문자 링크 눌렀더니 앱이 깔리고 나서 이상한 결제 문자가 와요": [
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.653
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.581
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.572
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.553
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.548
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.481
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.474
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.421
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.413
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.389
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.376
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.351
+   }
+  ],
+  "영상통화하다가 녹화된 영상을 지인들한테 뿌리겠다고 돈을 요구해요": [
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.838
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.586
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.503
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.458
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.407
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.403
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.402
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.398
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.38
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.353
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.332
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.326
+   }
+  ],
+  "고액 알바라면서 제 통장으로 들어온 돈을 다른 계좌로 옮겨달래요": [
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.641
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.569
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.494
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.483
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.483
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.472
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.46
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.452
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.427
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.394
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.375
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.354
+   }
+  ],
+  "재택 부업인데 먼저 교육비랑 보증금을 입금해야 일을 준대요": [
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.806
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.509
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.434
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.404
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.384
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.383
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.351
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.33
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.33
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.326
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.29
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.29
+   }
+  ],
+  "상담원이 앱을 설치하라고 해서 깔았더니 화면을 보면서 이체하라고 해요": [
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.685
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.601
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.58
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.555
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.515
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.489
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.487
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.466
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.465
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.464
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.457
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.406
+   }
+  ],
+  "은행 보안점검이라며 팀뷰어 같은 앱 깔고 화면 켜두라고 했어요": [
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.663
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.496
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.489
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.465
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.453
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.36
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.337
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.333
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.298
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.273
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.264
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.246
+   }
+  ],
+  "친구 결혼식 축의금 보내려고요": [
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.449
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.428
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.344
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.337
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.322
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.277
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.267
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.249
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.225
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.208
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.197
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.196
+   }
+  ],
+  "이번 달 월세 집주인한테 보내는 거예요": [
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.433
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.429
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.354
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.339
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.33
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.316
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.316
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.307
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.302
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.273
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.273
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.262
+   }
+  ],
+  "중고나라에서 자전거 사고 직거래 대금 보내요": [
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.439
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.4
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.375
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.374
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.371
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.344
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.335
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.321
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.317
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.309
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.302
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.219
+   }
+  ],
+  "부모님 생신이라 용돈 보내드려요": [
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.416
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.35
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.346
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.318
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.309
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.281
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.264
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.239
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.233
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.23
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.213
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.212
+   }
+  ],
+  "회사 거래처에 물품 대금 결제하는 거예요": [
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.567
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.5
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.497
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.446
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.445
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.434
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.423
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.393
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.392
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.39
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.354
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.289
+   }
+  ],
+  "동생 등록금 대신 내주려고요": [
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.399
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.388
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.329
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.329
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.317
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.281
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.252
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.247
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.239
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.219
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.207
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.189
+   }
+  ],
+  "모임 회비 총무한테 보내요": [
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.358
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.354
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.353
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.346
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.343
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.343
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.329
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.322
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.292
+   },
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.289
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.286
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.239
+   }
+  ],
+  "전세 잔금 부동산 중개사 입회하에 치르는 거예요": [
+   {
+    "scenario_id": "S04",
+    "matched_type": "대출사기",
+    "similarity": 0.51
+   },
+   {
+    "scenario_id": "S09",
+    "matched_type": "취업사기",
+    "similarity": 0.486
+   },
+   {
+    "scenario_id": "S12",
+    "matched_type": "기관사칭",
+    "similarity": 0.35
+   },
+   {
+    "scenario_id": "S01",
+    "matched_type": "기관사칭",
+    "similarity": 0.35
+   },
+   {
+    "scenario_id": "S02",
+    "matched_type": "기관사칭",
+    "similarity": 0.343
+   },
+   {
+    "scenario_id": "S10",
+    "matched_type": "원격제어형",
+    "similarity": 0.326
+   },
+   {
+    "scenario_id": "S03",
+    "matched_type": "기관사칭",
+    "similarity": 0.312
+   },
+   {
+    "scenario_id": "S06",
+    "matched_type": "협박형",
+    "similarity": 0.309
+   },
+   {
+    "scenario_id": "S08",
+    "matched_type": "몸캠피싱",
+    "similarity": 0.248
+   },
+   {
+    "scenario_id": "S11",
+    "matched_type": "협박형",
+    "similarity": 0.223
+   },
+   {
+    "scenario_id": "S07",
+    "matched_type": "스미싱",
+    "similarity": 0.194
+   },
+   {
+    "scenario_id": "S05",
+    "matched_type": "메신저피싱",
+    "similarity": 0.185
+   }
+  ]
+ }
+}
