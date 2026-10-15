@@ -20,9 +20,10 @@
   .__ripple { position:absolute; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%; border:3px solid #33d17a;
     animation: __rip .6s ease-out forwards; }
   @keyframes __rip { from { transform:scale(.4); opacity:1 } to { transform:scale(3.2); opacity:0 } }
-  #__panel { position:absolute; left:1010px; top:50%; width:760px; transform:translateY(-50%); color:#fff; opacity:0; transition:opacity .4s; }
+  #__panel { position:absolute; left:1010px; top:50%; width:860px; transform:translateY(-50%); color:#fff; opacity:0; transition:opacity .4s; }
   #__panel.on { opacity:1; }
   #__panel .k { display:inline-block; font-size:26px; font-weight:800; color:#5FD08F; letter-spacing:1px; margin-bottom:22px; }
+  #__panel .t, #__panel .b { width:fit-content; max-width:100%; }
   #__panel .t { font-size:62px; font-weight:900; line-height:1.18; letter-spacing:-1.5px; margin-bottom:26px; }
   #__panel .b { font-size:30px; line-height:1.6; color:#cfe3d6; }
   #__panel .b b { color:#fff; }
@@ -39,12 +40,12 @@
   #__cap .k { font-size:22px; font-weight:800; color:#0c1d14; background:#5FD08F; padding:6px 14px; border-radius:10px; white-space:nowrap; }
   #__cap .t { font-size:32px; font-weight:800; color:#fff; letter-spacing:-.5px; }
   #__cap .t b { color:#7fe0a6; }
-  #__spot { position:absolute; border-radius:16px; border:4px solid #33d17a; box-shadow:0 0 0 9999px rgba(5,15,10,.55), 0 0 30px rgba(51,209,122,.8);
-    opacity:0; transition: all .5s cubic-bezier(.3,.7,.2,1); }
-  #__spot.on { opacity:1; }
-  #__spotlabel { position:absolute; padding:10px 18px; border-radius:12px; background:#33d17a; color:#06200f; font-size:24px; font-weight:900;
-    opacity:0; transition:opacity .4s .2s; white-space:nowrap; }
-  #__spotlabel.on { opacity:1; }
+  #__dim { position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity .45s; }
+  #__dim.on { opacity:1; }
+  .__ring { position:absolute; border-radius:16px; border:4px solid #33d17a; box-shadow:0 0 30px rgba(51,209,122,.8); opacity:0; transition:opacity .45s; }
+  .__ring.on { opacity:1; }
+  .__lbl { position:absolute; padding:10px 18px; border-radius:12px; background:#33d17a; color:#06200f; font-size:24px; font-weight:900; white-space:nowrap; opacity:0; transition:opacity .4s .15s; }
+  .__lbl.on { opacity:1; }
   `;
   // 주입 시점에는 <html>이 아직 없을 수 있어, 생기는 즉시 스타일을 붙인다(커튼이 첫 화면부터 덮이도록).
   const addStyle = () => {
@@ -67,7 +68,7 @@
     const root = document.createElement("div");
     root.id = "__ov";
     root.innerHTML = `<div id="__steps"></div><div id="__panel"><div class="k"></div><div class="t"></div><div class="b"></div></div>
-      <div id="__spot"></div><div id="__spotlabel"></div><div id="__cap"><span class="k"></span><span class="t"></span></div><div id="__cursor"></div>`;
+      <svg id="__dim"><defs><mask id="__mask"><rect width="100%" height="100%" fill="#fff"/><g id="__holes"></g></mask></defs><rect width="100%" height="100%" fill="rgba(5,15,10,.58)" mask="url(#__mask)"/></svg><div id="__rings"></div><div id="__cap"><span class="k"></span><span class="t"></span></div><div id="__cursor"></div>`;
     document.documentElement.appendChild(root);
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
@@ -84,9 +85,10 @@
       s.innerHTML = labels.map((l, i) => `<span class="${i === active ? "on" : ""}">${l}</span>`).join("");
       s.classList.add("on");
     },
-    panel(k, t, b) {
+    panel(k, t, b, size) {
       mount();
       const p = el("__panel");
+      p.querySelector(".t").style.fontSize = size ? size + "px" : "";
       p.querySelector(".k").innerHTML = k; p.querySelector(".t").innerHTML = t; p.querySelector(".b").innerHTML = b || "";
       p.classList.add("on"); replay(p);
     },
@@ -102,20 +104,31 @@
       const r = document.createElement("div"); r.className = "__ripple"; r.style.left = x + "px"; r.style.top = y + "px";
       el("__ov").appendChild(r); setTimeout(() => r.remove(), 700);
     },
-    spot(x, y, w, h, label) {
+    /** 여러 영역을 한 번에 강조한다. 각 항목은 {x,y,w,h} 좌표 또는 {sel}(연출 레이어 안 요소, 예: 오른쪽 패널 문구)와 선택 label. */
+    spots(items) {
       mount();
-      const pad = 10, s = el("__spot"), l = el("__spotlabel");
-      Object.assign(s.style, { left: x - pad + "px", top: y - pad + "px", width: w + pad * 2 + "px", height: h + pad * 2 + "px" });
-      s.classList.add("on");
-      if (label) {
-        l.textContent = label;
-        const below = y + h + pad + 64 < innerHeight;
-        // 화면 오른쪽 끝에 걸리면 상자 오른쪽 끝에 맞춘다
-        const left = Math.max(16, Math.min(x - pad, innerWidth - l.offsetWidth - 24));
-        Object.assign(l.style, { left: left + "px", top: (below ? y + h + pad + 14 : y - pad - 60) + "px" });
-        l.classList.add("on");
-      } else l.classList.remove("on");
+      const pad = 10, holes = el("__holes"), rings = el("__rings");
+      holes.innerHTML = ""; rings.innerHTML = "";
+      for (const it of items) {
+        let { x, y, w, h } = it;
+        if (it.sel) { const r = document.querySelector(it.sel).getBoundingClientRect(); x = r.x; y = r.y; w = r.width; h = r.height; }
+        const X = x - pad, Y = y - pad, W = w + pad * 2, H = h + pad * 2;
+        holes.insertAdjacentHTML("beforeend", `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="16" fill="#000"/>`);
+        const ring = document.createElement("div");
+        ring.className = "__ring"; Object.assign(ring.style, { left: X + "px", top: Y + "px", width: W + "px", height: H + "px" });
+        rings.appendChild(ring);
+        if (it.label) {
+          const l = document.createElement("div");
+          l.className = "__lbl"; l.textContent = it.label; rings.appendChild(l);
+          const below = Y + H + 64 < innerHeight;
+          const left = Math.max(16, Math.min(X, innerWidth - l.offsetWidth - 24)); // 화면 오른쪽 끝에 걸리면 안쪽으로
+          Object.assign(l.style, { left: left + "px", top: (below ? Y + H + 14 : Y - 60) + "px" });
+        }
+      }
+      el("__dim").classList.add("on");
+      requestAnimationFrame(() => rings.querySelectorAll(".__ring, .__lbl").forEach((n) => n.classList.add("on")));
     },
-    spotHide() { el("__spot")?.classList.remove("on"); el("__spotlabel")?.classList.remove("on"); },
+    spot(x, y, w, h, label) { this.spots([{ x, y, w, h, label }]); },
+    spotHide() { el("__dim")?.classList.remove("on"); el("__rings") && (el("__rings").innerHTML = ""); },
   };
 })();

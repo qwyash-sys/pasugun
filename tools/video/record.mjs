@@ -40,10 +40,12 @@ const mark = (name) => console.log(`${((Date.now() - t0) / 1000).toFixed(1).padS
 const ov = (fn, ...args) => page.evaluate(([f, a]) => window.__ov[f](...a), [fn, args]);
 
 /** 어두운 커튼으로 덮고 이동한 뒤, 무대를 바꾸고 커튼을 걷는다. */
-async function go(url, stage = "", settle = 900) {
+async function go(url, stage = "", settle = 900, readySel = "") {
   await ov("close").catch(() => {});
-  await sleep(500);
+  await sleep(450);
   await page.goto(url, { waitUntil: "load" });
+  // 화면이 준비되는 즉시 커튼을 걷어 암전 시간을 줄인다
+  if (readySel) await page.waitForSelector(readySel, { timeout: 30000 });
   await page.waitForTimeout(settle);
   await ov("stage", stage);
   await sleep(150);
@@ -70,6 +72,20 @@ async function tapInner(loc, pause) {
   await ov("ripple", x, y);
   await loc.click();
   await sleep(pause);
+}
+
+/** 여러 영역을 한 번에 강조. {loc}(앱 화면 요소), {locs}(여러 요소를 감싸는 한 영역), {sel}(오른쪽 설명 패널 등 연출 레이어 요소). */
+async function spotMany(items) {
+  const out = [];
+  for (const it of items) {
+    if (it.sel) { out.push({ sel: it.sel, label: it.label ?? "" }); continue; }
+    const boxes = [];
+    for (const l of it.locs ?? [it.loc]) { const b = await l.boundingBox(); if (b) boxes.push(b); }
+    const x = Math.min(...boxes.map((b) => b.x)), y = Math.min(...boxes.map((b) => b.y));
+    const w = Math.max(...boxes.map((b) => b.x + b.width)) - x, h = Math.max(...boxes.map((b) => b.y + b.height)) - y;
+    out.push({ x, y, w, h, label: it.label ?? "" });
+  }
+  await ov("spots", out);
 }
 
 async function spot(loc, label) {
@@ -106,13 +122,13 @@ await sleep(3900);
 // ------------------------------------------------------------------ 1. 고객 화면(관리자 뷰로 한 번에)
 mark("customer");
 await go(`${DEMO}/`, "phone", 1200);
-await ov("panel", "시연 시나리오", "검찰 사칭 · 2,000만원", "“검찰 수사관”이 계좌가 범죄에 연루됐다며<br>적금을 깨서 <b>안전계좌</b>로 옮기라고 한 상황이에요");
+await ov("panel", "시연 시나리오", "검찰 사칭 · 2,000만원 송금시도", "“검찰 수사관”이 계좌가 범죄에 연루됐다며<br>적금을 깨서 <b>안전계좌</b>로 옮기라고 한 상황이에요");
 await sleep(1300);
 await tap(page.locator("button", { hasText: "관리자 뷰" }).first());
 await tap(phone("text=검찰사칭").first(), 700);
 
 await ov("steps", STEPS, 0);
-await ov("panel", "STEP 1 · 송금위험도", "보내기 전에<br>계좌부터 채점해요", "룰 11개 — 사기신고 이력, 금액 이상치, 신규 수취인,<br>잔액 소진, 수취계좌 입금 집중 …");
+await ov("panel", "STEP 1 · 송금위험도", "보내기 전에<br>송금거래를 점수화해요", "룰 11개 — 사기신고 이력, 금액 이상치, 신규 수취인,<br>잔액 소진, 수취계좌 입금 집중 …");
 await sleep(1000);
 await tap(phone("button.btn-primary"), 600);
 await sleep(700);
@@ -120,7 +136,7 @@ await tap(phone("button.btn-primary"), 600);
 
 await page.waitForSelector(".phone button.choice-btn", { timeout: 20000 });
 await ov("steps", STEPS, 1);
-await ov("panel", "STEP 2 · 상황 확인", "점수가 높으면<br>짧게 물어봐요", "고른 답에 따라 <b>AI 대화의 첫 질문</b>이 달라져요");
+await ov("panel", "STEP 2 · 상황 확인", "점수가 기준치보다 높으면<br>간단한 질문을 해요", "고른 답에 따라 <b>AI 대화의 첫 질문</b>이 달라져요");
 await sleep(1500);
 for (let i = 0; i < 3; i++) {
   const s = phone("button.scripted:not(.chat-suggestion-btn)");
@@ -129,7 +145,7 @@ for (let i = 0; i < 3; i++) {
 }
 
 await waitFor(".phone textarea");
-await ov("panel", "STEP 2 · AI 대화", "속은 정황을<br>대화로 확인해요", "AI 에이전트가 묻고, 캡처는 <b>OCR</b>로 읽어<br>사기 사례 12종과 <b>의미 유사도(RAG)</b>로 비교해요");
+await ov("panel", "STEP 2 · AI 대화", "앞선 선택지의 결과에 따라<br>정황을 대화로 확인해요", "AI 에이전트가 묻고, 캡처는 <b>OCR</b>로 읽어<br>사기 사례 12종과 <b>의미 유사도(RAG)</b>로 비교해요", 54);
 const sendBtn = ".phone button.chat-send-btn:not(.chat-attach-btn)";
 const resultReady = ".phone button.btn-primary:has-text('결과 확인하기')";
 for (let turn = 0; turn < 3; turn++) {
@@ -166,10 +182,21 @@ await ov("steps", STEPS, 2);
 const grade = (await phone(".verdict-grade").textContent().catch(() => "")).replace("모니터링", "").trim();
 const finalText = (await phone(".verdict-final-head strong").textContent()).trim();
 void grade;
-await ov("panel", "STEP 3 · 최종 판정", finalText, "송금은 막지 않아요.");
-await phone(".customer-guide").scrollIntoViewIfNeeded();
+// ① 맨 위 판정 박스 → ② AI 설명·고객 안내 → ③ 최종 판정 배너(본부 모니터링 등급)
+await ov("panel", "STEP 3 · 최종 판정", `최종판정 : ${finalText}`, "");
+await phone(".verdict-hero").evaluate((e) => e.scrollIntoView({ block: "center" }));
 await sleep(500);
-await spot(phone(".verdict-final"), "최종 판정 · 본부 모니터링 등급");
+await spotMany([{ loc: phone(".verdict-hero"), label: "최종 판정" }, { sel: "#__panel .t" }]);
+await sleep(2200);
+await ov("panel", "STEP 3 · 최종 판정", `최종판정 : ${finalText}`, "결과 분석 및 간단한 지침 안내");
+const guideParts = (await phone(".chat-bubble").count()) ? [phone(".chat-bubble"), phone(".customer-guide")] : [phone(".customer-guide")];
+await guideParts.at(-1).evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
+await sleep(700);
+await spotMany([{ locs: guideParts, label: "결과 분석 · 고객 안내" }, { sel: "#__panel .b" }]);
+await sleep(2400);
+await phone(".verdict-final").evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
+await sleep(700);
+await spotMany([{ loc: phone(".verdict-final"), label: "최종 판정 · 본부 모니터링 등급" }, { sel: "#__panel .t" }]);
 await sleep(2200);
 await ov("spotHide");
 
@@ -187,12 +214,12 @@ await ov(
   `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:4px"><span>송금위험 ${fmtGauge(gauges[0])}</span><span style="color:#5FD08F">×</span><span>AI분석 ${fmtGauge(gauges[1])}</span></span>`,
   hardNote ? "RAG상 결정적 피싱 징후 포착 시 <b>“위험”</b> 판정" : "매트릭스로 최종 판정",
 );
-await spot(phone(".verdict-matrix"), "3단계 · 판정 매트릭스");
+await spotMany([{ loc: phone(".verdict-matrix"), label: "3단계 · 판정 매트릭스" }, { sel: "#__panel .t" }]);
 await sleep(2200);
 if (hardNote) {
   await phone(".verdict-basis-note.danger").evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
   await sleep(800);
-  await spot(phone(".verdict-basis-note.danger"), "결정적 피싱 징후");
+  await spotMany([{ loc: phone(".verdict-basis-note.danger"), label: "결정적 피싱 징후" }, { sel: "#__panel .b" }]);
   await sleep(1900);
 }
 await ov("spotHide");
@@ -249,13 +276,13 @@ await sleep(600);
 mark("library");
 await go(`${TITLES}?s=bumper&n=03&t=${encodeURIComponent("사례집(RAG) 관리")}&d=${encodeURIComponent("새로운 보이스피싱 사례를 등록하면 즉시 적용, 탐지가 가능합니다")}`, "", 300);
 await sleep(2200);
-await go(`${LOCAL}/#/admin/library`, "admin", 2500);
-await page.waitForSelector(".c-library tbody tr", { timeout: 30000 });
-await ov("cap", "사례집 관리", "2단계 RAG에 쓰는 사기 사례 · 유형별 탐지 현황 · 검증 문장 점검");
+await go(`${LOCAL}/#/admin/library`, "admin", 300, ".c-library tbody tr");
+await ov("cap", "사례집 관리", "적용 사례 통계 확인 가능");
 await spot(page.locator(".c-kpis"), "");
 await sleep(2100);
 await ov("spotHide");
-await tap(page.locator("button", { hasText: "유사도 시험" }).first(), 500);
+await tap(page.locator("button", { hasText: "유사도 시험" }).first(), 300);
+await ov("cap", "유사도 시험", "고객과의 대화간 맥락 유사도 측정시 사용할 <b>RAG 검증</b>");
 const SENTENCE = "코인 리딩방에서 원금 보장해준다고 투자금을 이 계좌로 넣으래요";
 const box = page.locator(".c-rag-form textarea");
 await tap(box, 200);
