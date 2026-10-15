@@ -81,3 +81,8 @@ def test_evaluate_runs_the_shared_sentence_set():
     for s in client.get("/api/admin/scenarios").json():
         client.put(f"/api/admin/scenarios/{s['id']}", json={"scenario": {k: s[k] for k in ("유형", "중분류", "수법요약", "범인멘트", "위험신호", "위험도", "출처")} | {"enabled": False}})
     assert client.post("/api/admin/rag/evaluate").status_code == 409
+
+
+def test_signal_tags_ignore_spacing_so_hard_override_still_applies():
+    res = client.post("/api/admin/scenarios", json={"scenario": {**INVEST, "위험신호": ["안전 계좌", "원격 제어앱", "안전계좌"]}})
+    assert res.json()["scenario"]["위험신호"] == ["안전계좌", "원격제어앱"]

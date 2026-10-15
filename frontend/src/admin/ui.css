@@ -339,3 +339,14 @@
   .c-sim-track { grid-column: 1 / -1; grid-row: 2; }
   .c-sim-badge { display: none; }
 }
+.c-signal-hard { border: 1px solid #f5c2c2; background: #fff7f7; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.c-signal-hard strong { color: var(--c-danger); font-size: 13px; }
+.c-signal-hard small { color: var(--c-muted); font-size: 12px; }
+.c-signal-hard-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.c-signal-hard-row label { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border: 1px solid #f0caca; border-radius: 999px; background: #fff; font-weight: 600; cursor: pointer; }
+.c-signal-hard-row label.on { background: var(--c-danger); border-color: var(--c-danger); color: #fff; }
+.c-signal-hard-row input { margin: 0; accent-color: #fff; }
+.c-signal-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.c-chip-btn.on { background: var(--c-green-soft); border-color: var(--c-green); color: var(--c-green); font-weight: 700; }
+.c-signal-add { display: flex; gap: 8px; align-items: center; }
+.c-signal-add input { flex: 1; }

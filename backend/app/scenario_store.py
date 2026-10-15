@@ -11,7 +11,7 @@ import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 from app.data_store import scenarios as seed_scenarios
 
@@ -53,7 +53,10 @@ class ScenarioInput(BaseModel):
 
     @field_validator("범인멘트", "위험신호")
     @classmethod
-    def _items(cls, v: list[str]) -> list[str]:
+    def _items(cls, v: list[str], info: ValidationInfo) -> list[str]:
+        if info.field_name == "위험신호":
+            # 태그는 띄어쓰기 없이 맞춘다 — '안전 계좌'로 들어와도 결정적 징후(안전계좌)로 인식되게.
+            v = ["".join(x.split()) for x in v]
         v = _clean_list(v)
         if not v:
             raise ValueError("한 개 이상 입력해 주세요")

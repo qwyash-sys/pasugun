@@ -103,11 +103,73 @@ function VerdictNote({ candidates, g, corpus }: { candidates: RagCandidate[]; g:
   );
 }
 
-function ScenarioEditor({ target, types, onClose, onSaved }: { target: Scenario | "new"; types: string[]; onClose: () => void; onSaved: (s: Scenario, nearest: RagCandidate | null) => void }) {
+/** 위험 신호 고르기: 결정적 피싱 징후 3개는 체크박스로 따로, 나머지는 기존 태그에서 고르거나 새로 추가한다.
+ * 자유 입력이면 '안전 계좌' 같은 오타로 위험 강제 판정이 조용히 빠질 수 있어서다. 새 태그는 공백을 지워 맞춘다. */
+const normalizeTag = (t: string): string => t.replace(/\s+/g, "");
+
+function SignalPicker({ value, onChange, known }: { value: string[]; onChange: (v: string[]) => void; known: string[] }) {
+  const [draft, setDraft] = useState("");
+  const has = (t: string) => value.includes(t);
+  const toggle = (t: string) => onChange(has(t) ? value.filter((x) => x !== t) : [...value, t]);
+  const hard = [...HARD_OVERRIDE_SIGNALS];
+  const others = [...new Set([...known, ...value])].filter((t) => !HARD_OVERRIDE_SIGNALS.has(t)).sort((a, b) => a.localeCompare(b, "ko"));
+  const add = () => {
+    const t = normalizeTag(draft);
+    if (!t) return;
+    if (!has(t)) onChange([...value, t]);
+    setDraft("");
+  };
+  return (
+    <div className="c-field">
+      <span className="c-field-label">위험 신호</span>
+      <div className="c-signal-hard">
+        <strong>결정적 피싱 징후</strong>
+        <small>체크하면 이 사례와 매칭되는 순간 점수와 관계없이 '위험' 판정이에요.</small>
+        <div className="c-signal-hard-row">
+          {hard.map((t) => (
+            <label key={t} className={has(t) ? "on" : ""}>
+              <input type="checkbox" checked={has(t)} onChange={() => toggle(t)} />
+              {t}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className="c-signal-tags" role="group" aria-label="일반 위험 신호">
+        {others.map((t) => (
+          <button key={t} type="button" className={`c-chip-btn ${has(t) ? "on" : ""}`} aria-pressed={has(t)} onClick={() => toggle(t)}>
+            {has(t) ? "✓ " : ""}
+            {t}
+          </button>
+        ))}
+      </div>
+      <div className="c-signal-add">
+        <input
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              add();
+            }
+          }}
+          placeholder="목록에 없는 신호 추가 (예: 고수익보장)"
+          maxLength={40}
+        />
+        <button type="button" className="c-btn c-btn-sm" onClick={add} disabled={!normalizeTag(draft)}>
+          추가
+        </button>
+      </div>
+      <span className="c-field-hint">일반 신호는 판정 근거 표시와 AI 룰 분석에 쓰여요. 선택 {value.length}개 · 최대 10개</span>
+    </div>
+  );
+}
+
+function ScenarioEditor({ target, types, tags, onClose, onSaved }: { target: Scenario | "new"; types: string[]; tags: string[]; onClose: () => void; onSaved: (s: Scenario, nearest: RagCandidate | null) => void }) {
   const isNew = target === "new";
   const [f, setF] = useState<ScenarioInput>(isNew ? EMPTY_INPUT : toInput(target));
   const [lines, setLines] = useState(f.범인멘트.join("\n"));
-  const [signals, setSignals] = useState(f.위험신호.join(", "));
+  const [signals, setSignals] = useState<string[]>(f.위험신호);
   const [note, setNote] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
@@ -115,7 +177,7 @@ function ScenarioEditor({ target, types, onClose, onSaved }: { target: Scenario 
   const input = (): ScenarioInput => ({
     ...f,
     범인멘트: lines.split("\n").map((x) => x.trim()).filter(Boolean),
-    위험신호: signals.split(/[,，\n]/).map((x) => x.trim()).filter(Boolean),
+    위험신호: signals,
   });
 
   const submit = async () => {
@@ -185,9 +247,7 @@ function ScenarioEditor({ target, types, onClose, onSaved }: { target: Scenario 
         <Field label="범인 멘트" hint="한 줄에 하나씩, 최대 12줄">
           <textarea rows={4} value={lines} onChange={(e) => setLines(e.target.value)} placeholder={"OO지방검찰청 수사관입니다\n안전계좌로 이체하세요"} />
         </Field>
-        <Field label="위험 신호" hint="쉼표로 구분. 안전계좌·원격제어앱·화면유지요구는 매칭되면 바로 '위험'이 돼요">
-          <input type="text" value={signals} onChange={(e) => setSignals(e.target.value)} placeholder="안전계좌, 수사기관사칭" />
-        </Field>
+        <SignalPicker value={signals} onChange={setSignals} known={tags} />
         <Field label="변경 메모(선택)">
           <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 10월 신종 수법 반영" maxLength={200} />
         </Field>
@@ -225,6 +285,7 @@ export default function LibraryPage() {
   const corpus = useMemo(() => new Map(list.map((s) => [s.id, s])), [list]);
   const g = rules.data?.config.global;
   const types = useMemo(() => [...new Set(list.map((s) => s.유형))], [list]);
+  const tags = useMemo(() => [...new Set(list.flatMap((s) => s.위험신호))], [list]);
   const rows = useMemo(() => (analysis.data ? analysis.data.rows.filter((r) => inPeriod(r.log.at, period)) : []), [analysis.data, period]);
   const usage = useMemo(() => (g ? usageByScenario(rows, g) : new Map<string, ScenarioUsage>()), [rows, g]);
   const coverage = useMemo(() => (g ? coverageByType(rows, g, list) : []), [rows, g, list]);
@@ -633,7 +694,7 @@ export default function LibraryPage() {
         )}
       </Drawer>
 
-      {editing && <ScenarioEditor target={editing} types={types} onClose={() => setEditing(null)} onSaved={saved} />}
+      {editing && <ScenarioEditor target={editing} types={types} tags={tags} onClose={() => setEditing(null)} onSaved={saved} />}
     </div>
   );
 }

@@ -177,7 +177,9 @@ export class DemoAdminApi implements AdminApi {
     return allScenarios();
   }
 
-  async saveScenario(id: string | null, input: ScenarioInput, note = "") {
+  async saveScenario(id: string | null, raw: ScenarioInput, note = "") {
+    // 서버와 같이 태그 띄어쓰기를 지워 맞춘다('안전 계좌' → 결정적 징후 '안전계좌')
+    const input: ScenarioInput = { ...raw, 위험신호: [...new Set(raw.위험신호.map((t) => t.replace(/\s+/g, "")).filter(Boolean))] };
     const errors = scenarioErrors(input);
     if (errors.length) throw new ConfigError(errors);
     const all = await allScenarios();
