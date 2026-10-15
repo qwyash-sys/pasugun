@@ -37,18 +37,35 @@ const toInput = (s: Scenario): ScenarioInput => ({
 
 const EMPTY_INPUT: ScenarioInput = { 유형: "", 중분류: "", 수법요약: "", 범인멘트: [], 위험신호: [], 위험도: "고", 출처: "본부 등록", enabled: true };
 
-function SignalChips({ signals }: { signals: string[] }) {
+/** 결정적 피싱 징후만 빨간 칩으로 보이고, 일반 신호는 개수만 보이다가 펼치면 보인다(판정 근거 표시·AI 룰 분석용). */
+function SignalChips({ signals, expandable = false }: { signals: string[]; expandable?: boolean }) {
+  const hard = signals.filter((s) => HARD_OVERRIDE_SIGNALS.has(s));
+  const general = signals.filter((s) => !HARD_OVERRIDE_SIGNALS.has(s));
   return (
-    <span className="c-chips">
-      {signals.map((s) =>
-        HARD_OVERRIDE_SIGNALS.has(s) ? (
+    <span className="c-signal-view">
+      <span className="c-chips">
+        {hard.map((s) => (
           <span key={s} className="c-chip-hard" title="결정적 피싱 징후: 이 사례와 매칭되면 점수와 관계없이 바로 '위험' 판정이에요">
             {s}
           </span>
+        ))}
+        {!hard.length && <span className="more">결정적 징후 없음</span>}
+      </span>
+      {general.length > 0 &&
+        (expandable ? (
+          <details className="c-signal-more">
+            <summary>일반 신호 {general.length}개</summary>
+            <span className="c-chips">
+              {general.map((s) => (
+                <span key={s}>{s}</span>
+              ))}
+            </span>
+          </details>
         ) : (
-          <span key={s}>{s}</span>
-        ),
-      )}
+          <small className="c-muted" title={general.join(", ")}>
+            일반 신호 {general.length}개
+          </small>
+        ))}
     </span>
   );
 }
@@ -134,7 +151,11 @@ function SignalPicker({ value, onChange, known }: { value: string[]; onChange: (
           ))}
         </div>
       </div>
-      <div className="c-signal-tags" role="group" aria-label="일반 위험 신호">
+      <details className="c-signal-more">
+        <summary>
+          일반 신호 {value.filter((t) => !HARD_OVERRIDE_SIGNALS.has(t)).length}개 선택 <small className="c-muted">· 판정 근거 표시와 AI 룰 분석(새 룰 후보)에 쓰여요</small>
+        </summary>
+        <div className="c-signal-tags" role="group" aria-label="일반 위험 신호">
         {others.map((t) => (
           <button key={t} type="button" className={`c-chip-btn ${has(t) ? "on" : ""}`} aria-pressed={has(t)} onClick={() => toggle(t)}>
             {has(t) ? "✓ " : ""}
@@ -160,7 +181,8 @@ function SignalPicker({ value, onChange, known }: { value: string[]; onChange: (
           추가
         </button>
       </div>
-      <span className="c-field-hint">일반 신호는 판정 근거 표시와 AI 룰 분석에 쓰여요. 선택 {value.length}개 · 최대 10개</span>
+      </details>
+      <span className="c-field-hint">전체 {value.length}개 선택 · 최대 10개</span>
     </div>
   );
 }
@@ -674,8 +696,8 @@ export default function LibraryPage() {
             </section>
             <section>
               <h3 className="c-sec">위험 신호</h3>
-              <SignalChips signals={open.위험신호} />
-              {open.위험신호.some((s) => HARD_OVERRIDE_SIGNALS.has(s)) && <p className="c-muted c-small">빨간 신호가 있는 사례와 매칭되면 점수와 관계없이 바로 '위험' 판정이에요.</p>}
+              <SignalChips signals={open.위험신호} expandable />
+              {open.위험신호.some((s) => HARD_OVERRIDE_SIGNALS.has(s)) && <p className="c-muted c-small">빨간 신호가 있는 사례와 매칭되면 점수와 관계없이 바로 '위험' 판정이에요. 일반 신호는 판정 근거 표시와 AI 룰 분석(새 룰 후보)에 쓰여요.</p>}
             </section>
             <section>
               <h3 className="c-sec">{periodText(period)} 매칭 현황</h3>
