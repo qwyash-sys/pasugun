@@ -95,24 +95,23 @@ export default function M6Result({
 
       {agentReply && <div className="chat-bubble">{agentReply}</div>}
 
-      {isAdmin ? (
-        <RiskBreakdown account={account} context={context} thresholds={final.thresholds} />
-      ) : (
-        <div className="card customer-guide">
-          {final.final === "안전" ? (
-            CUSTOMER_GUIDE.안전
-          ) : (
-            <>
-              <strong className="customer-guide-title">이렇게 확인해보세요</strong>
-              <ol className="customer-steps">
-                {CUSTOMER_STEPS[final.final].map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ol>
-            </>
-          )}
-        </div>
-      )}
+      {/* 관리자 뷰도 고객 화면과 같은 안내를 먼저 보여주고, 판정근거는 접어 둔다(시연 때 한 화면으로 설명). */}
+      <div className="card customer-guide">
+        {final.final === "안전" ? (
+          CUSTOMER_GUIDE.안전
+        ) : (
+          <>
+            <strong className="customer-guide-title">이렇게 확인해보세요</strong>
+            <ol className="customer-steps">
+              {CUSTOMER_STEPS[final.final].map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ol>
+          </>
+        )}
+      </div>
+
+      {isAdmin && <RiskBreakdown account={account} context={context} thresholds={final.thresholds} />}
 
       <div className="spacer" />
 

@@ -308,9 +308,43 @@ function hardOverrideCauses(context: ContextAssessment): string[] {
   return causes;
 }
 
-function VerdictBasis({ account, context, cut }: Props & { cut: Cutoffs }) {
+/** 최종 판정 카드 — 관리자 뷰에서 판정근거를 접어도 항상 보인다. 모니터링 등급은 관리자 페이지와 같은 기준·색. */
+function FinalVerdict({ account, context }: Pick<Props, "account" | "context">) {
   const contextLevel: RiskLevel = context?.level ?? "저";
   const matrixMark = MATRIX_RESULT[account.level][contextLevel];
+  const hardOverride = !!context?.hard_override;
+    const final = hardOverride ? "위험" : VERDICT_NAME[matrixMark];
+  // 모니터링 등급(본부 처리 우선순위) — 관리자 페이지 모니터링과 같은 기준·같은 색(초고위험 빨강 · 고위험 주황)
+  const grade = final !== "위험" ? null : hardOverride || (account.level === "고" && contextLevel === "고") ? "초고위험" : "고위험";
+  const tone = grade === "초고위험" ? "critical" : grade === "고위험" ? "high" : final === "주의" ? "caution" : "safe";
+  return (
+    <div className={`verdict-final tone-${tone}`}>
+      <div className="verdict-final-head">
+        <span>최종 판정</span>
+        <strong>{final}</strong>
+        {grade && (
+          <span className={`verdict-grade grade-${tone}`} title="본부 모니터링 등급(처리 우선순위)">
+            <small>모니터링</small>
+            {grade}
+          </span>
+        )}
+      </div>
+      <p>
+        송금위험 <b>{account.level}</b> × AI분석 <b>{contextLevel}</b> → 매트릭스 {matrixMark} {VERDICT_NAME[matrixMark]}
+        {hardOverride && matrixMark !== "🔴" && " → 결정적 피싱징후로 위험 적용"}
+      </p>
+      <p className="verdict-final-rule">
+        {grade === "초고위험"
+          ? "결정적 피싱징후가 있거나 송금위험·AI분석이 모두 '고'라 초고위험이에요. 본부 모니터링에서 가장 먼저 처리하고, 송금이 실행되면 사후 확인이 필수예요."
+          : grade === "고위험"
+            ? "위험 판정이지만 송금위험·AI분석이 모두 '고'는 아니라 고위험이에요. 본부 모니터링 대상이에요."
+            : "위험이 아니라 본부 모니터링 대상은 아니에요."}
+      </p>
+    </div>
+  );
+}
+
+function VerdictBasis({ account, context, cut }: Props & { cut: Cutoffs }) {
   const hardOverride = !!context?.hard_override;
   const scoreBasedContext = context
     ? (cut.contextBands.slice().reverse().find((b) => context.total_score >= b.from)?.level ?? "저")
@@ -330,37 +364,6 @@ function VerdictBasis({ account, context, cut }: Props & { cut: Cutoffs }) {
           <br />→ 점수와 무관하게 AI분석 <strong>고</strong>, 최종 <strong>위험</strong>으로 고정
         </p>
       )}
-      {(() => {
-        const final = hardOverride ? "위험" : VERDICT_NAME[matrixMark];
-        // 모니터링 등급(본부 처리 우선순위) — 관리자 페이지 모니터링과 같은 기준·같은 색(초고위험 빨강 · 고위험 주황)
-        const grade = final !== "위험" ? null : hardOverride || (account.level === "고" && contextLevel === "고") ? "초고위험" : "고위험";
-        const tone = grade === "초고위험" ? "critical" : grade === "고위험" ? "high" : final === "주의" ? "caution" : "safe";
-        return (
-          <div className={`verdict-final tone-${tone}`}>
-            <div className="verdict-final-head">
-              <span>최종 판정</span>
-              <strong>{final}</strong>
-              {grade && (
-                <span className={`verdict-grade grade-${tone}`} title="본부 모니터링 등급(처리 우선순위)">
-                  <small>모니터링</small>
-                  {grade}
-                </span>
-              )}
-            </div>
-            <p>
-              송금위험 <b>{account.level}</b> × AI분석 <b>{contextLevel}</b> → 매트릭스 {matrixMark} {VERDICT_NAME[matrixMark]}
-              {hardOverride && matrixMark !== "🔴" && " → 결정적 피싱징후로 위험 적용"}
-            </p>
-            <p className="verdict-final-rule">
-              {grade === "초고위험"
-                ? "결정적 피싱징후가 있거나 송금위험·AI분석이 모두 '고'라 초고위험이에요. 본부 모니터링에서 가장 먼저 처리하고, 송금이 실행되면 사후 확인이 필수예요."
-                : grade === "고위험"
-                  ? "위험 판정이지만 송금위험·AI분석이 모두 '고'는 아니라 고위험이에요. 본부 모니터링 대상이에요."
-                  : "위험이 아니라 본부 모니터링 대상은 아니에요."}
-            </p>
-          </div>
-        );
-      })()}
     </div>
   );
 }
@@ -420,11 +423,19 @@ function RuleListSheet({ onClose }: { onClose: () => void }) {
 
 export default function RiskBreakdown({ account, context, thresholds }: Props) {
   const [ruleListOpen, setRuleListOpen] = useState(false);
+  // 시연 때 고객 화면과 같은 모습으로 먼저 설명하고, 필요할 때 펼쳐 판정근거(1~3단계)를 보여준다.
+  const [basisOpen, setBasisOpen] = useState(false);
   const cut = cutoffsOf(thresholds);
   const rows = stage1Rows(account.signals);
   const stage1Scale = Math.max(STAGE1_SCALE, ...rows.map((r) => r.max));
   return (
     <div className="risk-breakdown">
+      <FinalVerdict account={account} context={context} />
+      <button type="button" className="admin-basis-toggle" aria-expanded={basisOpen} onClick={() => setBasisOpen((v) => !v)}>
+        (관리자) 판정근거 <span aria-hidden>{basisOpen ? "접기 ▴" : "펼치기 ▾"}</span>
+      </button>
+      {basisOpen && (
+      <>
       <div className="risk-stage">
         <div className="risk-stage-header">
           <span>1단계 · 송금위험도 판단</span>
@@ -515,6 +526,8 @@ export default function RiskBreakdown({ account, context, thresholds }: Props) {
         <VerdictMatrix accountLevel={account.level} contextLevel={context?.level ?? "저"} cut={cut} />
         <VerdictBasis account={account} context={context} cut={cut} />
       </div>
+      </>
+      )}
     </div>
   );
 }
