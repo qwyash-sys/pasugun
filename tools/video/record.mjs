@@ -78,7 +78,7 @@ async function tapInner(loc, pause) {
 async function spotMany(items) {
   const out = [];
   for (const it of items) {
-    if (it.sel) { out.push({ sel: it.sel, label: it.label ?? "" }); continue; }
+    if (it.sel) { out.push({ sel: it.sel, label: it.label ?? "", plain: !!it.plain }); continue; }
     const boxes = [];
     for (const l of it.locs ?? [it.loc]) { const b = await l.boundingBox(); if (b) boxes.push(b); }
     const x = Math.min(...boxes.map((b) => b.x)), y = Math.min(...boxes.map((b) => b.y));
@@ -188,28 +188,28 @@ await ov("steps", STEPS, 2);
 const grade = (await phone(".verdict-grade").textContent().catch(() => "")).replace("모니터링", "").trim();
 const finalText = (await phone(".verdict-final-head strong").textContent()).trim();
 void grade;
-// ① 맨 위 판정 박스 → ② AI 설명·고객 안내 → ③ 최종 판정 배너(본부 모니터링 등급)
-await ov("panel", "STEP 3 · 최종 판정", `최종판정 : <span style="color:#C2410C">${finalText}</span>`, "");
+// ① 맨 위 판정 박스 → ② AI 설명·고객 안내 → ③ 최종 판정 배너(본부 모니터링 등급). 오른쪽 문구는 한 번만 띄우고 강조만 옮긴다.
+await ov("panel", "STEP 3 · 최종 판정", `최종판정 : <span style="color:#C2410C">${finalText}</span>`, "결과 분석 및 간단한 지침 안내");
 await phone(".verdict-hero").evaluate((e) => e.scrollIntoView({ block: "center" }));
-await sleep(500);
+await sleep(800);
 await spotMany([{ loc: phone(".verdict-hero"), label: "최종 판정" }, { sel: "#__panel .t" }]);
 await sleep(2200);
 await unspot();
-await ov("panel", "STEP 3 · 최종 판정", `최종판정 : <span style="color:#C2410C">${finalText}</span>`, "결과 분석 및 간단한 지침 안내");
 const guideParts = (await phone(".chat-bubble").count()) ? [phone(".chat-bubble"), phone(".customer-guide")] : [phone(".customer-guide")];
 await guideParts.at(-1).evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
 await sleep(700);
 await spotMany([{ locs: guideParts, label: "결과 분석 · 고객 안내" }, { sel: "#__panel .b" }]);
 await sleep(2400);
 await unspot();
+// ③에서는 오른쪽에 다음 안내(관리자 뷰)를 띄워 두고, 강조는 왼쪽 배너에만 둔다
+await ov("panel", "관리자 뷰", "상세한 판정근거는<br>다음과 같아요", "<b>1·2·3단계</b> 순으로 최종 위험지표 판정 확인");
 await phone(".verdict-final").evaluate((e) => e.scrollIntoView({ behavior: "smooth", block: "center" }));
-await sleep(700);
-await spotMany([{ loc: phone(".verdict-final"), label: "최종 판정 · 본부 모니터링 등급" }, { sel: "#__panel .t" }]);
+await sleep(800);
+await spotMany([{ loc: phone(".verdict-final"), label: "최종 판정 · 본부 모니터링 등급" }, { sel: "#__panel", plain: true }]);
 await sleep(2200);
 await unspot();
 
 const toggle = phone(".admin-basis-toggle");
-await ov("panel", "관리자 뷰", "상세한 판정근거는<br>다음과 같아요", "<b>1·2·3단계</b> 순으로 최종 위험지표 판정 확인");
 await tap(toggle, 900);
 const gauges = await phone(".level-gauge-head strong").allTextContents();
 const fmtGauge = (t = "") => t.replace(/\s+/g, " ").replace(/\s*→\s*/, " → ").trim();

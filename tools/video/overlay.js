@@ -47,6 +47,7 @@
   .__ring.on { opacity:1; }
   .__lbl { position:absolute; padding:10px 18px; border-radius:8px; background:#1B5ED0; color:#fff; font-size:24px; font-weight:800; white-space:nowrap; opacity:0; transition:opacity .4s .15s; }
   .__lbl.on { opacity:1; }
+  #__panel.__lift { z-index:3; }
   `;
   // 주입 시점에는 <html>이 아직 없을 수 있어, 생기는 즉시 스타일을 붙인다(커튼이 첫 화면부터 덮이도록).
   const addStyle = () => {
@@ -111,10 +112,19 @@
       const pad = 10, holes = el("__holes"), rings = el("__rings");
       holes.innerHTML = ""; rings.innerHTML = "";
       for (const it of items) {
+        if (it.plain) { document.querySelector(it.sel)?.classList.add("__lift"); continue; }
         let { x, y, w, h } = it;
-        if (it.sel) { const r = document.querySelector(it.sel).getBoundingClientRect(); x = r.x; y = r.y; w = r.width; h = r.height; }
+        if (it.sel) {
+          // 안쪽 글자가 상자 밖으로 넘쳐도 다 감싸도록 자손 요소까지 합친 범위를 쓴다
+          const node = document.querySelector(it.sel);
+          const rs = [node, ...node.querySelectorAll("*")].map((n) => n.getBoundingClientRect()).filter((r) => r.width && r.height);
+          x = Math.min(...rs.map((r) => r.left)); y = Math.min(...rs.map((r) => r.top));
+          w = Math.max(...rs.map((r) => r.right)) - x; h = Math.max(...rs.map((r) => r.bottom)) - y;
+          y -= 4; h += 8;
+        }
         const X = x - pad, Y = y - pad, W = w + pad * 2, H = h + pad * 2;
         holes.insertAdjacentHTML("beforeend", `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="16" fill="#000"/>`);
+        if (it.plain) { document.querySelector(it.sel)?.classList.add("__lift"); continue; } // 강조 없이 어두운 막 위로 올려 보여만 준다
         const ring = document.createElement("div");
         ring.className = "__ring"; Object.assign(ring.style, { left: X + "px", top: Y + "px", width: W + "px", height: H + "px" });
         rings.appendChild(ring);
@@ -130,6 +140,6 @@
       requestAnimationFrame(() => rings.querySelectorAll(".__ring, .__lbl").forEach((n) => n.classList.add("on")));
     },
     spot(x, y, w, h, label) { this.spots([{ x, y, w, h, label }]); },
-    spotHide() { el("__dim")?.classList.remove("on"); el("__rings") && (el("__rings").innerHTML = ""); setTimeout(() => { if (!el("__dim")?.classList.contains("on")) el("__holes").innerHTML = ""; }, 500); },
+    spotHide() { document.querySelectorAll(".__lift").forEach((n) => n.classList.remove("__lift")); el("__dim")?.classList.remove("on"); el("__rings") && (el("__rings").innerHTML = ""); setTimeout(() => { if (!el("__dim")?.classList.contains("on")) el("__holes").innerHTML = ""; }, 500); },
   };
 })();
