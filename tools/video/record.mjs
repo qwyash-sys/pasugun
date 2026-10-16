@@ -76,6 +76,11 @@ async function tapInner(loc, pause) {
 
 /** 여러 영역을 한 번에 강조. {loc}(앱 화면 요소), {locs}(여러 요소를 감싸는 한 영역), {sel}(오른쪽 설명 패널 등 연출 레이어 요소). */
 async function spotMany(items) {
+  // 오른쪽 문구는 아래에서 떠오르는 애니메이션이 있어, 다 멈춘 뒤에 재야 박스가 글자에 맞는다
+  if (items.some((it) => it.sel)) {
+    await page.waitForFunction(() => document.getAnimations().filter((a) => a.effect?.target?.closest?.("#__panel")).every((a) => a.playState === "finished"), null, { timeout: 3000 }).catch(() => {});
+    await sleep(100);
+  }
   const out = [];
   for (const it of items) {
     if (it.sel) { out.push({ sel: it.sel, label: it.label ?? "", plain: !!it.plain }); continue; }
